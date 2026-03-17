@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>燕云脚本 - 游戏自动化辅助工具</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:;base64,=">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">☁️</span>
+                <span class="logo-text">燕云脚本</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="active">首页</a></li>
+                <li><a href="intro.html">脚本介绍</a></li>
+                <li><a href="notice.html">公告</a></li>
+            </ul>
+            <a href="download/燕云脚本_v1.0.zip" class="nav-download" download>立即下载</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <div class="hero-badge">v1.0 正式版</div>
+            <h1>燕云脚本</h1>
+            <p class="hero-subtitle">游戏自动化辅助工具 | OCR + 录制回放 + 智能触发</p>
+            <div class="hero-actions">
+                <a href="download/燕云脚本_v1.0.zip" class="btn btn-primary" download>
+                    <span class="btn-icon">⬇️</span>
+                    立即下载
+                </a>
+                <a href="intro.html" class="btn btn-secondary">
+                    <span class="btn-icon">📖</span>
+                    了解更多
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-num">OCR</span>
+                    <span class="stat-label">文字识别</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">REC</span>
+                    <span class="stat-label">录制回放</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">AI</span>
+                    <span class="stat-label">智能触发</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-decoration">
+            <div class="floating-card card-1"><span>🔍 OCR</span></div>
+            <div class="floating-card card-2"><span>🎬 回放</span></div>
+            <div class="floating-card card-3"><span>⚡ 触发</span></div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title"><span class="title-icon">✨</span>核心功能</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>OCR 文字识别</h3>
+                    <p>支持 EasyOCR 和 PaddleOCR 双引擎，自动识别屏幕指定区域的文字内容</p>
+                    <div class="feature-tag">智能识别</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎬</div>
+                    <h3>录制与回放</h3>
+                    <p>录制鼠标和键盘操作，支持精确回放，可设置回放次数和速度调节</p>
+                    <div class="feature-tag">精准控制</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>条件触发</h3>
+                    <p>基于 OCR 识别结果智能触发子回放，支持 AND/OR 规则匹配</p>
+                    <div class="feature-tag">智能判断</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔐</div>
+                    <h3>设备鉴权</h3>
+                    <p>云端设备鉴权管理，支持多设备授权控制，保障使用安全</p>
+                    <div class="feature-tag">安全可靠</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="quick-start">
+        <div class="container">
+            <h2 class="section-title"><span class="title-icon">🚀</span>快速开始</h2>
+            <div class="steps">
+                <div class="step-item">
+                    <div class="step-num">1</div>
+                    <div class="step-content"><h4>下载与解压</h4><p>点击上方下载按钮，获取压缩包并解压到任意目录</p></div>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="step-item">
+                    <div class="step-num">2</div>
+                    <div class="step-content"><h4>运行程序</h4><p>双击 exe 文件启动程序，首次运行需联网鉴权</p></div>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="step-item">
+                    <div class="step-num">3</div>
+                    <div class="step-content"><h4>开始使用</h4><p>输入验证码完成授权，即可录制脚本自动执行</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="tech-stack">
+        <div class="container">
+            <h2 class="section-title"><span class="title-icon">🛠️</span>技术栈</h2>
+            <div class="tech-tags">
+                <span class="tech-tag">PyQt5</span>
+                <span class="tech-tag">EasyOCR</span>
+                <span class="tech-tag">PaddleOCR</span>
+                <span class="tech-tag">OpenCV</span>
+                <span class="tech-tag">NumPy</span>
+                <span class="tech-tag">Python</span>
+                <span class="tech-tag">PyInstaller</span>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo"><span class="logo-icon">☁️</span><span>燕云脚本</span></div>
+                <p class="footer-desc">让游戏操作更简单</p>
+                <div class="footer-links">
+                    <a href="intro.html">脚本介绍</a>
+                    <a href="notice.html">公告</a>
+                    <a href="download/燕云脚本_v1.0.zip" download>下载</a>
+                </div>
+                <p class="footer-copyright">© 2026 燕云脚本. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="js/main.js"></script>
+</body>
+</html>
