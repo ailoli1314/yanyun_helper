@@ -28,50 +28,27 @@
 
     <section class="notice-section">
         <div class="container">
-            <div class="notice-grid">
-                <article class="notice-card">
-                    <div class="notice-badge hot">热门</div>
-                    <div class="notice-date">2026-03-17</div>
-                    <h3>🎉 燕云脚本 v1.0 正式版发布！</h3>
-                    <p>燕云脚本正式版发布！全新的界面设计，更强大的功能，更稳定的使用体验。欢迎大家下载使用！</p>
-                    <a href="#" class="notice-link">查看详情 →</a>
-                </article>
-                <article class="notice-card">
-                    <div class="notice-badge">更新</div>
-                    <div class="notice-date">2026-03-15</div>
-                    <h3>🔧 版本更新日志 v1.0.1</h3>
-                    <p>优化了 OCR 识别速度，提升了回放稳定性，修复了若干已知问题。</p>
-                    <a href="#" class="notice-link">查看详情 →</a>
-                </article>
-                <article class="notice-card">
-                    <div class="notice-badge">优惠</div>
-                    <div class="notice-date">2026-03-10</div>
-                    <h3>💰 限时优惠活动</h3>
-                    <p>即日起至月底，购买年卡享8折优惠！邀请好友可获得额外使用时...</p>
-                    <a href="#" class="notice-link">查看详情 →</a>
-                </article>
-                <article class="notice-card">
-                    <div class="notice-badge">公告</div>
-                    <div class="notice-date">2026-03-05</div>
-                    <h3>📢 关于设备鉴权的说明</h3>
-                    <p>为保障用户权益，燕云脚本实行设备鉴权机制。每个验证码最多绑定3台设备...</p>
-                    <a href="#" class="notice-link">查看详情 →</a>
-                </article>
-                <article class="notice-card">
-                    <div class="notice-badge">教程</div>
-                    <div class="notice-date">2026-02-28</div>
-                    <h3>📚 新手入门教程</h3>
-                    <p>燕云脚本新手入门教程上线！从零开始教你如何使用录制回放功能...</p>
-                    <a href="#" class="notice-link">查看详情 →</a>
-                </article>
-                <article class="notice-card">
-                    <div class="notice-badge">公告</div>
-                    <div class="notice-date">2026-02-20</div>
-                    <h3>🔔 春节期间服务安排</h3>
-                    <p>春节期间客服安排通知，请用户朋友们提前做好安排，祝大家新年快乐！</p>
-                    <a href="#" class="notice-link">查看详情 →</a>
-                </article>
+            <!-- 加载状态 -->
+            <div id="loading" class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>正在加载公告...</p>
             </div>
+            
+            <!-- 错误提示 -->
+            <div id="error" class="error-container" style="display: none;">
+                <div class="error-icon">⚠️</div>
+                <p id="error-msg">加载失败，请稍后重试</p>
+                <button onclick="loadNotices()" class="btn btn-secondary">重新加载</button>
+            </div>
+
+            <!-- 空状态 -->
+            <div id="empty" class="empty-container" style="display: none;">
+                <div class="empty-icon">📭</div>
+                <p>暂无公告</p>
+            </div>
+
+            <!-- 公告列表 -->
+            <div id="notice-grid" class="notice-grid" style="display: none;"></div>
         </div>
     </section>
 
@@ -102,6 +79,122 @@
             </div>
         </div>
     </footer>
+
+    <script src="js/coze-api.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        // 公告页面配置
+        const NOTICE_CONFIG = {
+            API_TOKEN: "",  // 在这里设置你的 Coze API Token
+            // 如果遇到跨域问题，可以配置代理
+            PROXY_URL: ""   // 例如: "https://your-proxy.com/api/coze"
+        };
+
+        // 设置 Token
+        if (NOTICE_CONFIG.API_TOKEN) {
+            CozeAPI.setToken(NOTICE_CONFIG.API_TOKEN);
+        }
+
+        // 加载公告
+        async function loadNotices() {
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+            const emptyEl = document.getElementById('empty');
+            const gridEl = document.getElementById('notice-grid');
+
+            // 显示加载状态
+            loadingEl.style.display = 'flex';
+            errorEl.style.display = 'none';
+            emptyEl.style.display = 'none';
+            gridEl.style.display = 'none';
+
+            try {
+                const notices = await NoticeManager.getNotices();
+                
+                loadingEl.style.display = 'none';
+                
+                if (!notices || notices.length === 0) {
+                    emptyEl.style.display = 'flex';
+                    return;
+                }
+
+                // 渲染公告列表
+                gridEl.innerHTML = notices.map(notice => `
+                    <article class="notice-card">
+                        <div class="notice-badge ${notice.type === 'hot' ? 'hot' : ''}">${NoticeManager.getTypeLabel(notice.type)}</div>
+                        <div class="notice-date">${notice.date}</div>
+                        <h3>${NoticeManager.getTypeEmoji(notice.type)} ${notice.title}</h3>
+                        <p>${notice.content}</p>
+                        ${notice.link ? `<a href="${notice.link}" class="notice-link">查看详情 →</a>` : ''}
+                    </article>
+                `).join('');
+
+                gridEl.style.display = 'grid';
+                
+                // 触发滚动动画
+                initScrollAnimations();
+
+            } catch (error) {
+                console.error('加载公告失败:', error);
+                loadingEl.style.display = 'none';
+                document.getElementById('error-msg').textContent = '加载失败: ' + error.message;
+                errorEl.style.display = 'flex';
+            }
+        }
+
+        // 初始化滚动动画
+        function initScrollAnimations() {
+            const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.notice-card').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+        }
+
+        // 页面加载时获取公告
+        document.addEventListener('DOMContentLoaded', loadNotices);
+    </script>
+
+    <style>
+        /* 加载状态 */
+        .loading-container, .error-container, .empty-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(108, 92, 231, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .error-icon, .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .error-container p {
+            margin-bottom: 20px;
+        }
+    </style>
 </body>
 </html>

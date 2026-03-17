@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公告管理 - 燕云脚本</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --primary-light: #a29bfe;
+            --secondary: #00cec9;
+            --accent: #fd79a8;
+            --dark-bg: #1e1e2e;
+            --text: #dfe6e9;
+            --text-muted: #b2bec3;
+            --gradient-2: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            --radius: 12px;
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: linear-gradient(135deg, #1e1e2e 0%, #2d3436 100%); color: var(--text); min-height: 100vh; padding: 40px 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 2rem; margin-bottom: 10px; background: var(--gradient-2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { color: var(--text-muted); margin-bottom: 30px; }
+        
+        /* 配置区 */
+        .config-section { background: rgba(255,255,255,0.05); border-radius: var(--radius); padding: 20px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); }
+        .config-section h3 { margin-bottom: 15px; color: var(--primary-light); }
+        .config-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .config-row input { flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: var(--text); font-size: 1rem; }
+        .config-row input::placeholder { color: var(--text-muted); }
+        .config-row input:focus { outline: none; border-color: var(--primary); }
+        .btn { padding: 12px 24px; border-radius: 8px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: var(--gradient-2); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4); }
+        .btn-danger { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; padding: 8px 16px; font-size: 0.9rem; }
+        .btn-sm { padding: 8px 16px; font-size: 0.9rem; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* 表单区 */
+        .form-section { background: rgba(255,255,255,0.05); border-radius: var(--radius); padding: 25px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); }
+        .form-section h3 { margin-bottom: 20px; color: var(--primary-light); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: var(--text); font-size: 1rem; }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .form-group select { cursor: pointer; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+
+        /* 公告列表 */
+        .list-section { background: rgba(255,255,255,0.05); border-radius: var(--radius); padding: 25px; border: 1px solid rgba(255,255,255,0.1); }
+        .list-section h3 { margin-bottom: 20px; color: var(--primary-light); }
+        .notice-item { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        .notice-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .notice-item-title { font-weight: 600; font-size: 1.1rem; }
+        .notice-item-meta { display: flex; gap: 15px; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px; }
+        .notice-item-badge { display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+        .badge-hot { background: rgba(253, 121, 168, 0.3); color: var(--accent); }
+        .badge-update { background: rgba(108, 92, 231, 0.3); color: var(--primary-light); }
+        .badge-discount { background: rgba(253, 203, 110, 0.3); color: #fdcb6e; }
+        .badge-notice { background: rgba(0, 206, 201, 0.3); color: var(--secondary); }
+        .badge-tutorial { background: rgba(162, 155, 254, 0.3); color: var(--primary-light); }
+        .notice-item-content { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 10px; }
+        .notice-item-actions { display: flex; gap: 10px; }
+
+        /* 状态提示 */
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 15px 30px; border-radius: 8px; font-weight: 500; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
+        .toast.show { opacity: 1; }
+        .toast-success { background: #27ae60; color: white; }
+        .toast-error { background: #e74c3c; color: white; }
+        
+        /* 空状态 */
+        .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+        .empty-icon { font-size: 3rem; margin-bottom: 15px; }
+        
+        /* 加载状态 */
+        .loading { display: flex; align-items: center; gap: 10px; }
+        .spinner { width: 20px; height: 20px; border: 2px solid rgba(108, 92, 231, 0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>公告管理中心</h1>
+        <p class="subtitle">管理燕云脚本的公告内容（独立管理页面）</p>
+
+        <!-- API 配置 -->
+        <div class="config-section">
+            <h3>🔑 API 配置</h3>
+            <div class="config-row">
+                <input type="password" id="apiToken" placeholder="输入 Coze API Token (pat_xxx...)" />
+                <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Token 将保存在本地浏览器中，用于调用 Coze API</p>
+        </div>
+
+        <!-- 新增公告表单 -->
+        <div class="form-section">
+            <h3>📝 发布新公告</h3>
+            <div class="form-group">
+                <label>公告类型</label>
+                <select id="noticeType">
+                    <option value="notice">📢 公告</option>
+                    <option value="hot">🔥 热门</option>
+                    <option value="update">🔧 更新</option>
+                    <option value="discount">💰 优惠</option>
+                    <option value="tutorial">📚 教程</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>公告标题</label>
+                <input type="text" id="noticeTitle" placeholder="输入公告标题" />
+            </div>
+            <div class="form-group">
+                <label>公告内容</label>
+                <textarea id="noticeContent" placeholder="输入公告内容..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>详情链接（可选）</label>
+                <input type="text" id="noticeLink" placeholder="https://..." />
+            </div>
+            <button class="btn btn-primary" onclick="addNotice()" id="addBtn">发布公告</button>
+        </div>
+
+        <!-- 现有公告列表 -->
+        <div class="list-section">
+            <h3>📋 现有公告</h3>
+            <div id="noticeList">
+                <div class="loading"><div class="spinner"></div><span>加载中...</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div id="toast" class="toast"></div>
+
+    <script src="js/coze-api.js"></script>
+    <script>
+        // 初始化配置
+        function init() {
+            const savedToken = localStorage.getItem('coze_api_token');
+            if (savedToken) {
+                document.getElementById('apiToken').value = savedToken;
+                CozeAPI.setToken(savedToken);
+                loadNotices();
+            }
+        }
+
+        // 保存配置
+        function saveConfig() {
+            const token = document.getElementById('apiToken').value.trim();
+            if (!token) {
+                showToast('请输入 API Token', 'error');
+                return;
+            }
+            localStorage.setItem('coze_api_token', token);
+            CozeAPI.setToken(token);
+            showToast('配置已保存', 'success');
+            loadNotices();
+        }
+
+        // 显示提示
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast-${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // 加载公告列表
+        async function loadNotices() {
+            const listEl = document.getElementById('noticeList');
+            listEl.innerHTML = '<div class="loading"><div class="spinner"></div><span>加载中...</span></div>';
+
+            try {
+                const notices = await NoticeManager.getNotices();
+                
+                if (!notices || notices.length === 0) {
+                    listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>暂无公告</p></div>';
+                    return;
+                }
+
+                listEl.innerHTML = notices.map(notice => `
+                    <div class="notice-item">
+                        <div class="notice-item-header">
+                            <div class="notice-item-title">${getTypeEmoji(notice.type)} ${notice.title}</div>
+                            <span class="notice-item-badge badge-${notice.type}">${getTypeLabel(notice.type)}</span>
+                        </div>
+                        <div class="notice-item-meta">
+                            <span>📅 ${notice.date}</span>
+                            <span>ID: ${notice.id}</span>
+                        </div>
+                        <div class="notice-item-content">${notice.content}</div>
+                        <div class="notice-item-actions">
+                            <button class="btn btn-danger btn-sm" onclick="deleteNotice('${notice.id}')">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>加载失败: ${error.message}</p></div>`;
+            }
+        }
+
+        // 获取类型标签
+        function getTypeLabel(type) {
+            const labels = { 'hot': '热门', 'update': '更新', 'discount': '优惠', 'notice': '公告', 'tutorial': '教程' };
+            return labels[type] || '公告';
+        }
+
+        // 获取类型 emoji
+        function getTypeEmoji(type) {
+            const emojis = { 'hot': '🔥', 'update': '🔧', 'discount': '💰', 'notice': '📢', 'tutorial': '📚' };
+            return emojis[type] || '📢';
+        }
+
+        // 添加公告
+        async function addNotice() {
+            const type = document.getElementById('noticeType').value;
+            const title = document.getElementById('noticeTitle').value.trim();
+            const content = document.getElementById('noticeContent').value.trim();
+            const link = document.getElementById('noticeLink').value.trim();
+
+            if (!title || !content) {
+                showToast('请填写标题和内容', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('addBtn');
+            btn.disabled = true;
+            btn.textContent = '发布中...';
+
+            try {
+                const notice = { type, title, content };
+                if (link) notice.link = link;
+                
+                const success = await NoticeManager.addNotice(notice);
+                
+                if (success) {
+                    showToast('公告发布成功！', 'success');
+                    // 清空表单
+                    document.getElementById('noticeTitle').value = '';
+                    document.getElementById('noticeContent').value = '';
+                    document.getElementById('noticeLink').value = '';
+                    // 刷新列表
+                    loadNotices();
+                } else {
+                    showToast('发布失败，请检查 API Token', 'error');
+                }
+            } catch (error) {
+                showToast('发布失败: ' + error.message, 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = '发布公告';
+        }
+
+        // 删除公告
+        async function deleteNotice(id) {
+            if (!confirm('确定要删除这条公告吗？')) return;
+
+            try {
+                const success = await NoticeManager.deleteNotice(id);
+                if (success) {
+                    showToast('删除成功', 'success');
+                    loadNotices();
+                } else {
+                    showToast('删除失败', 'error');
+                }
+            } catch (error) {
+                showToast('删除失败: ' + error.message, 'error');
+            }
+        }
+
+        // 初始化
+        init();
+    </script>
+</body>
+</html>
