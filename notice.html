@@ -80,20 +80,25 @@
         </div>
     </footer>
 
-    <script src="js/coze-api.js"></script>
     <script src="js/main.js"></script>
     <script>
-        // 公告页面配置
-        const NOTICE_CONFIG = {
-            API_TOKEN: "",  // 在这里设置你的 Coze API Token
-            // 如果遇到跨域问题，可以配置代理
-            PROXY_URL: ""   // 例如: "https://your-proxy.com/api/coze"
+        // 公告类型配置
+        const NoticeTypeConfig = {
+            labels: {
+                'hot': '热门',
+                'update': '更新',
+                'discount': '优惠',
+                'notice': '公告',
+                'tutorial': '教程'
+            },
+            emojis: {
+                'hot': '🔥',
+                'update': '🔧',
+                'discount': '💰',
+                'notice': '📢',
+                'tutorial': '📚'
+            }
         };
-
-        // 设置 Token
-        if (NOTICE_CONFIG.API_TOKEN) {
-            CozeAPI.setToken(NOTICE_CONFIG.API_TOKEN);
-        }
 
         // 加载公告
         async function loadNotices() {
@@ -102,14 +107,20 @@
             const emptyEl = document.getElementById('empty');
             const gridEl = document.getElementById('notice-grid');
 
-            // 显示加载状态
             loadingEl.style.display = 'flex';
             errorEl.style.display = 'none';
             emptyEl.style.display = 'none';
             gridEl.style.display = 'none';
 
             try {
-                const notices = await NoticeManager.getNotices();
+                // 加载本地 JSON 文件
+                const response = await fetch('data/notices.json');
+                if (!response.ok) {
+                    throw new Error('无法加载公告数据');
+                }
+                
+                const data = await response.json();
+                const notices = data.notices || [];
                 
                 loadingEl.style.display = 'none';
                 
@@ -121,9 +132,9 @@
                 // 渲染公告列表
                 gridEl.innerHTML = notices.map(notice => `
                     <article class="notice-card">
-                        <div class="notice-badge ${notice.type === 'hot' ? 'hot' : ''}">${NoticeManager.getTypeLabel(notice.type)}</div>
+                        <div class="notice-badge ${notice.type === 'hot' ? 'hot' : ''}">${NoticeTypeConfig.labels[notice.type] || '公告'}</div>
                         <div class="notice-date">${notice.date}</div>
-                        <h3>${NoticeManager.getTypeEmoji(notice.type)} ${notice.title}</h3>
+                        <h3>${NoticeTypeConfig.emojis[notice.type] || '📢'} ${notice.title}</h3>
                         <p>${notice.content}</p>
                         ${notice.link ? `<a href="${notice.link}" class="notice-link">查看详情 →</a>` : ''}
                     </article>
