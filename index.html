@@ -19,7 +19,7 @@
                 <li><a href="intro.html">脚本介绍</a></li>
                 <li><a href="notice.html">公告</a></li>
             </ul>
-            <a href="download/游戏秘籍_v1.0.zip" class="nav-download" download>立即下载</a>
+            <a href="#" id="navDownload" class="nav-download" download>立即下载</a>
         </div>
     </nav>
 
@@ -30,7 +30,7 @@
             <h1>游戏秘籍</h1>
             <p class="hero-subtitle">游戏自动化辅助工具 | OCR + 录制回放 + 智能触发</p>
             <div class="hero-actions">
-                <a href="download/游戏秘籍_v1.0.zip" class="btn btn-primary" download>
+                <a href="#" id="heroDownload" class="btn btn-primary" download>
                     <span class="btn-icon">⬇️</span>
                     立即下载
                 </a>
@@ -138,12 +138,24 @@
                 <div class="footer-links">
                     <a href="intro.html">脚本介绍</a>
                     <a href="notice.html">公告</a>
-                    <a href="download/游戏秘籍_v1.0.zip" download>下载</a>
+                    <a href="#" id="footerDownload" download>下载</a>
                 </div>
                 <p class="footer-copyright">© 2026 游戏秘籍. All rights reserved.</p>
             </div>
         </div>
     </footer>
+    <script src="js/config.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        // 从配置动态加载下载链接
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof RESOURCE_CONFIG !== 'undefined' && RESOURCE_CONFIG.download && RESOURCE_CONFIG.download.app) {
+                var downloadUrl = RESOURCE_CONFIG.download.app;
+                document.getElementById('navDownload').href = downloadUrl;
+                document.getElementById('heroDownload').href = downloadUrl;
+                document.getElementById('footerDownload').href = downloadUrl;
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资源管理 - 游戏秘籍</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --primary-light: #a29bfe;
+            --secondary: #00cec9;
+            --accent: #fd79a8;
+            --dark-bg: #1e1e2e;
+            --text: #dfe6e9;
+            --text-muted: #b2bec3;
+            --gradient-2: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: linear-gradient(135deg, #1e1e2e 0%, #2d3436 100%); color: var(--text); min-height: 100vh; padding: 40px 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 2rem; margin-bottom: 10px; background: var(--gradient-2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { color: var(--text-muted); margin-bottom: 30px; }
+
+        .section { background: rgba(255,255,255,0.05); border-radius: var(--radius); padding: 25px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
+        .section h2 { font-size: 1.3rem; margin-bottom: 20px; color: var(--primary-light); display: flex; align-items: center; gap: 10px; }
+
+        .platform-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .platform-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 20px; transition: all 0.3s; }
+        .platform-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        .platform-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+        .platform-card p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px; }
+        .platform-card .tag { display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 0.75rem; margin-right: 5px; }
+        .tag-free { background: rgba(39, 174, 96, 0.2); color: #2ecc71; }
+        .tag-china { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 8px; border: none; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
+        .btn-primary { background: var(--gradient-2); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4); }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: var(--text); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+        .btn-sm { padding: 8px 16px; font-size: 0.85rem; }
+        .btn-block { width: 100%; }
+
+        .url-list { margin-top: 20px; }
+        .url-item { background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px; margin-bottom: 12px; }
+        .url-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .url-item-title { font-weight: 600; }
+        .url-item-type { font-size: 0.8rem; padding: 3px 10px; border-radius: 50px; background: rgba(108, 92, 231, 0.2); color: var(--primary-light); }
+        .url-item input { width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--secondary); font-family: monospace; font-size: 0.9rem; }
+        .url-item .btn-copy { margin-top: 10px; }
+
+        .config-section { margin-top: 25px; }
+        .config-section h3 { margin-bottom: 15px; color: var(--primary-light); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-group input { width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: var(--text); font-size: 1rem; }
+        .form-group input:focus { outline: none; border-color: var(--primary); }
+
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 15px 30px; border-radius: 8px; font-weight: 500; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
+        .toast.show { opacity: 1; }
+        .toast-success { background: #27ae60; color: white; }
+        .toast-error { background: #e74c3c; color: white; }
+
+        .help-box { background: rgba(52, 152, 219, 0.1); border: 1px solid rgba(52, 152, 219, 0.3); border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+        .help-box h4 { color: #3498db; margin-bottom: 10px; }
+        .help-box ol { padding-left: 20px; color: var(--text-muted); font-size: 0.9rem; line-height: 1.8; }
+
+        .back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); margin-bottom: 20px; transition: color 0.3s; }
+        .back-link:hover { color: var(--primary-light); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← 返回首页</a>
+        <h1>资源管理中心</h1>
+        <p class="subtitle">一站式管理图片、视频、下载链接</p>
+
+        <!-- 快速入口 -->
+        <div class="section">
+            <h2>📤 快速上传入口</h2>
+            <div class="platform-grid">
+                <div class="platform-card">
+                    <h3>🖼️ SM.MS 图床</h3>
+                    <p>免费 5GB 图床，支持外链，适合小图片</p>
+                    <span class="tag tag-free">免费</span>
+                    <span class="tag tag-china">国内快</span>
+                    <a href="https://sm.ms" target="_blank" class="btn btn-primary btn-block">打开 SM.MS</a>
+                </div>
+                <div class="platform-card">
+                    <h3>📷 imgbb 图床</h3>
+                    <p>免费无限空间，无需注册即可上传</p>
+                    <span class="tag tag-free">免费</span>
+                    <a href="https://imgbb.com" target="_blank" class="btn btn-primary btn-block">打开 imgbb</a>
+                </div>
+                <div class="platform-card">
+                    <h3>📦 蓝奏云</h3>
+                    <p>免费大文件存储，不限速，单文件100MB</p>
+                    <span class="tag tag-free">免费</span>
+                    <span class="tag tag-china">国内快</span>
+                    <a href="https://www.lanzou.com" target="_blank" class="btn btn-primary btn-block">打开 蓝奏云</a>
+                </div>
+                <div class="platform-card">
+                    <h3>🎬 B站 视频</h3>
+                    <p>上传视频后获取嵌入代码，用于网页播放</p>
+                    <span class="tag tag-free">免费</span>
+                    <span class="tag tag-china">国内快</span>
+                    <a href="https://member.bilibili.com/vupload" target="_blank" class="btn btn-primary btn-block">打开 B站投稿</a>
+                </div>
+                <div class="platform-card">
+                    <h3>🐙 Gitee</h3>
+                    <p>代码托管平台，可作为免费图床使用</p>
+                    <span class="tag tag-free">免费</span>
+                    <span class="tag tag-china">国内快</span>
+                    <a href="https://gitee.com" target="_blank" class="btn btn-primary btn-block">打开 Gitee</a>
+                </div>
+                <div class="platform-card">
+                    <h3>📤 临时传输</h3>
+                    <p>临时文件传输，适合一次性大文件</p>
+                    <span class="tag tag-free">免费</span>
+                    <a href="https://transfer.sh" target="_blank" class="btn btn-primary btn-block">打开 transfer.sh</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- URL 管理 -->
+        <div class="section">
+            <h2>🔗 已获取的链接</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">在此手动粘贴或管理已获取的资源链接</p>
+
+            <div class="url-list" id="urlList">
+                <!-- 视频链接 -->
+                <div class="url-item">
+                    <div class="url-item-header">
+                        <span class="url-item-title">🎬 B站视频嵌入链接</span>
+                        <span class="url-item-type">视频</span>
+                    </div>
+                    <input type="text" id="urlVideo" placeholder="粘贴 B站嵌入链接，如：//player.bilibili.com/player.html?bvid=xxx" value="">
+                    <button class="btn btn-secondary btn-sm btn-copy" onclick="copyUrl('urlVideo')">复制链接</button>
+                </div>
+
+                <!-- 下载链接 -->
+                <div class="url-item">
+                    <div class="url-item-header">
+                        <span class="url-item-title">📦 应用下载链接</span>
+                        <span class="url-item-type">下载</span>
+                    </div>
+                    <input type="text" id="urlDownload" placeholder="粘贴蓝奏云或其他下载链接" value="">
+                    <button class="btn btn-secondary btn-sm btn-copy" onclick="copyUrl('urlDownload')">复制链接</button>
+                </div>
+
+                <!-- 图片链接 -->
+                <div class="url-item">
+                    <div class="url-item-header">
+                        <span class="url-item-title">📷 OCR识别演示图</span>
+                        <span class="url-item-type">图片</span>
+                    </div>
+                    <input type="text" id="urlOcr" placeholder="粘贴图片直链" value="">
+                    <button class="btn btn-secondary btn-sm btn-copy" onclick="copyUrl('urlOcr')">复制链接</button>
+                </div>
+
+                <div class="url-item">
+                    <div class="url-item-header">
+                        <span class="url-item-title">📷 录制回放演示图</span>
+                        <span class="url-item-type">图片</span>
+                    </div>
+                    <input type="text" id="urlRecord" placeholder="粘贴图片直链" value="">
+                    <button class="btn btn-secondary btn-sm btn-copy" onclick="copyUrl('urlRecord')">复制链接</button>
+                </div>
+
+                <div class="url-item">
+                    <div class="url-item-header">
+                        <span class="url-item-title">📷 条件触发演示图</span>
+                        <span class="url-item-type">图片</span>
+                    </div>
+                    <input type="text" id="urlTrigger" placeholder="粘贴图片直链" value="">
+                    <button class="btn btn-secondary btn-sm btn-copy" onclick="copyUrl('urlTrigger')">复制链接</button>
+                </div>
+
+                <div class="url-item">
+                    <div class="url-item-header">
+                        <span class="url-item-title">📷 设备鉴权演示图</span>
+                        <span class="url-item-type">图片</span>
+                    </div>
+                    <input type="text" id="urlAuth" placeholder="粘贴图片直链" value="">
+                    <button class="btn btn-secondary btn-sm btn-copy" onclick="copyUrl('urlAuth')">复制链接</button>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-block" style="margin-top: 20px;" onclick="saveToConfig()">保存到 config.js</button>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="section">
+            <h2>📖 使用说明</h2>
+            <div class="help-box">
+                <h4>快速开始</h4>
+                <ol>
+                    <li>根据资源类型，点击上方相应的平台入口</li>
+                    <li>上传图片/视频/文件，获取分享链接</li>
+                    <li>将链接粘贴到「已获取的链接」对应区域</li>
+                    <li>点击「保存到 config.js」，复制配置内容</li>
+                    <li>覆盖 <code>js/config.js</code> 文件，所有页面自动更新</li>
+                </ol>
+            </div>
+            <div class="help-box">
+                <h4>链接格式说明</h4>
+                <ol>
+                    <li><strong>B站视频</strong>：嵌入链接格式 <code>//player.bilibili.com/player.html?bvid=你的BV号</code></li>
+                    <li><strong>图片直链</strong>：类似 <code>https://i.loli.net/xxx.jpg</code></li>
+                    <li><strong>下载链接</strong>：蓝奏云分享链接或其他直链</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // 从 config.js 和 localStorage 加载保存的链接（优先 config.js）
+        function loadUrls() {
+            // 先从 localStorage 获取已保存的值
+            const savedUrls = JSON.parse(localStorage.getItem('resource_urls') || '{}');
+
+            // 优先使用 config.js 中的配置，其次使用 localStorage
+            if (typeof RESOURCE_CONFIG !== 'undefined') {
+                document.getElementById('urlVideo').value = RESOURCE_CONFIG.video?.demo || savedUrls.video || '';
+                document.getElementById('urlDownload').value = RESOURCE_CONFIG.download?.app || savedUrls.download || '';
+                // 4张介绍页图片
+                document.getElementById('urlOcr').value = RESOURCE_CONFIG.images?.ocr || savedUrls.ocr || '';
+                document.getElementById('urlRecord').value = RESOURCE_CONFIG.images?.record || savedUrls.record || '';
+                document.getElementById('urlTrigger').value = RESOURCE_CONFIG.images?.trigger || savedUrls.trigger || '';
+                document.getElementById('urlAuth').value = RESOURCE_CONFIG.images?.auth || savedUrls.auth || '';
+            } else {
+                document.getElementById('urlVideo').value = savedUrls.video || '';
+                document.getElementById('urlDownload').value = savedUrls.download || '';
+                document.getElementById('urlOcr').value = savedUrls.ocr || '';
+                document.getElementById('urlRecord').value = savedUrls.record || '';
+                document.getElementById('urlTrigger').value = savedUrls.trigger || '';
+                document.getElementById('urlAuth').value = savedUrls.auth || '';
+            }
+        }
+
+        // 保存链接到 localStorage
+        function saveUrls() {
+            const urls = {
+                video: document.getElementById('urlVideo').value.trim(),
+                download: document.getElementById('urlDownload').value.trim(),
+                ocr: document.getElementById('urlOcr').value.trim(),
+                record: document.getElementById('urlRecord').value.trim(),
+                trigger: document.getElementById('urlTrigger').value.trim(),
+                auth: document.getElementById('urlAuth').value.trim()
+            };
+            localStorage.setItem('resource_urls', JSON.stringify(urls));
+            return urls;
+        }
+
+        // 复制链接
+        function copyUrl(inputId) {
+            const input = document.getElementById(inputId);
+            const url = input.value.trim();
+            if (!url) {
+                showToast('请先粘贴链接', 'error');
+                return;
+            }
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('已复制到剪贴板', 'success');
+            }).catch(() => {
+                showToast('复制失败，请手动复制', 'error');
+            });
+        }
+
+        // 保存到 config.js（生成配置内容供用户复制）
+        function saveToConfig() {
+            const urls = saveUrls();
+
+            const configContent = `/**
+ * 统一资源配置
+ * 所有资源URL在此集中管理，便于后续替换
+ */
+const RESOURCE_CONFIG = {
+    // 视频资源
+    video: {
+        demo: "${urls.video || '//player.bilibili.com/player.html?bvid=BV号待替换'}"
+    },
+
+    // 下载资源
+    download: {
+        app: "${urls.download || '蓝奏云链接待替换'}"
+    },
+
+    // 图片资源
+    images: {
+        ocr: "${urls.ocr || ''}",
+        record: "${urls.record || ''}",
+        trigger: "${urls.trigger || ''}",
+        auth: "${urls.auth || ''}"
+    }
+};
+
+// 导出配置
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { RESOURCE_CONFIG };
+}`;
+
+            // 复制配置内容
+            navigator.clipboard.writeText(configContent).then(() => {
+                showToast('配置已复制到剪贴板！请覆盖 js/config.js 文件', 'success');
+            }).catch(() => {
+                showToast('复制失败，请手动复制', 'error');
+            });
+        }
+
+        // 显示提示
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast-${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // 初始化
+        loadUrls();
+    </script>
+</body>
+</html>

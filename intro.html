@@ -15,7 +15,7 @@
                 <li><a href="intro.html" class="active">脚本介绍</a></li>
                 <li><a href="notice.html">公告</a></li>
             </ul>
-            <a href="download/游戏秘籍_v1.0.zip" class="nav-download" download>立即下载</a>
+            <a href="#" id="navDownload" class="nav-download" download>立即下载</a>
         </div>
     </nav>
 
@@ -30,10 +30,8 @@
         <div class="container">
             <h2 class="section-title"><span class="title-icon">🎬</span>功能演示</h2>
             <div class="video-container">
-                <video controls poster="assets/images/poster.jpg">
-                    <source src="assets/videos/demo.mp4" type="video/mp4">
-                    您的浏览器不支持视频播放
-                </video>
+                <!-- B站视频嵌入 - 用户上传B站后替换BV号 -->
+                <iframe id="bilibiliPlayer" src="" allowfullscreen></iframe>
             </div>
             <p class="video-tip">点击上方视频查看游戏秘籍功能演示</p>
         </div>
@@ -44,7 +42,10 @@
             <h2 class="section-title"><span class="title-icon">📋</span>详细功能</h2>
             
             <div class="detail-item">
-                <div class="detail-image"><div class="image-placeholder"><span>📷</span><p>OCR识别演示图</p></div></div>
+                <div class="detail-image">
+                    <img id="imgOcr" src="" alt="OCR识别演示图" style="display:none;">
+                    <div class="image-placeholder" id="placeholderOcr"><span>📷</span><p>OCR识别演示图</p></div>
+                </div>
                 <div class="detail-content">
                     <h3>🔍 OCR 文字识别</h3>
                     <p>游戏秘籍内置强大的 OCR 文字识别功能，支持 EasyOCR 和 PaddleOCR 双引擎：</p>
@@ -58,7 +59,10 @@
             </div>
 
             <div class="detail-item reverse">
-                <div class="detail-image"><div class="image-placeholder"><span>🎮</span><p>录制回放演示图</p></div></div>
+                <div class="detail-image">
+                    <img id="imgRecord" src="" alt="录制回放演示图" style="display:none;">
+                    <div class="image-placeholder" id="placeholderRecord"><span>🎮</span><p>录制回放演示图</p></div>
+                </div>
                 <div class="detail-content">
                     <h3>🎬 录制与回放</h3>
                     <p>强大的鼠标键盘录制回放功能，满足各种自动化需求：</p>
@@ -73,7 +77,10 @@
             </div>
 
             <div class="detail-item">
-                <div class="detail-image"><div class="image-placeholder"><span>⚡</span><p>条件触发演示图</p></div></div>
+                <div class="detail-image">
+                    <img id="imgTrigger" src="" alt="条件触发演示图" style="display:none;">
+                    <div class="image-placeholder" id="placeholderTrigger"><span>⚡</span><p>条件触发演示图</p></div>
+                </div>
                 <div class="detail-content">
                     <h3>⚡ 条件触发智能回放</h3>
                     <p>基于 OCR 识别结果的智能触发机制，让脚本更智能：</p>
@@ -88,7 +95,10 @@
             </div>
 
             <div class="detail-item reverse">
-                <div class="detail-image"><div class="image-placeholder"><span>🔐</span><p>设备鉴权演示图</p></div></div>
+                <div class="detail-image">
+                    <img id="imgAuth" src="" alt="设备鉴权演示图" style="display:none;">
+                    <div class="image-placeholder" id="placeholderAuth"><span>🔐</span><p>设备鉴权演示图</p></div>
+                </div>
                 <div class="detail-content">
                     <h3>🔐 设备鉴权管理</h3>
                     <p>完善的设备鉴权系统，保障软件安全：</p>
@@ -123,12 +133,55 @@
                 <div class="footer-links">
                     <a href="index.html">首页</a>
                     <a href="notice.html">公告</a>
-                    <a href="download/游戏秘籍_v1.0.zip" download>下载</a>
+                    <a href="#" id="footerDownload" download>下载</a>
                 </div>
                 <p class="footer-copyright">© 2026 游戏秘籍. All rights reserved.</p>
             </div>
         </div>
     </footer>
+    <script src="js/config.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        // 从配置动态加载资源链接
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof RESOURCE_CONFIG !== 'undefined') {
+                // 加载视频
+                if (RESOURCE_CONFIG.video && RESOURCE_CONFIG.video.demo) {
+                    document.getElementById('bilibiliPlayer').src = RESOURCE_CONFIG.video.demo;
+                }
+                // 加载下载链接
+                if (RESOURCE_CONFIG.download && RESOURCE_CONFIG.download.app) {
+                    var downloadUrl = RESOURCE_CONFIG.download.app;
+                    document.getElementById('navDownload').href = downloadUrl;
+                    document.getElementById('footerDownload').href = downloadUrl;
+                }
+                // 加载介绍页图片
+                if (RESOURCE_CONFIG.images) {
+                    loadImage('imgOcr', 'placeholderOcr', RESOURCE_CONFIG.images.ocr);
+                    loadImage('imgRecord', 'placeholderRecord', RESOURCE_CONFIG.images.record);
+                    loadImage('imgTrigger', 'placeholderTrigger', RESOURCE_CONFIG.images.trigger);
+                    loadImage('imgAuth', 'placeholderAuth', RESOURCE_CONFIG.images.auth);
+                }
+            }
+
+            // 加载单张图片的函数
+            function loadImage(imgId, placeholderId, url) {
+                if (url) {
+                    var img = document.getElementById(imgId);
+                    var placeholder = document.getElementById(placeholderId);
+                    img.src = url;
+                    img.onload = function() {
+                        img.style.display = 'block';
+                        if (placeholder) placeholder.style.display = 'none';
+                    };
+                    img.onerror = function() {
+                        img.style.display = 'none';
+                        if (placeholder) placeholder.style.display = 'flex';
+                    };
+                }
+            }
+        });
+    </script>
+    </script>
 </body>
 </html>

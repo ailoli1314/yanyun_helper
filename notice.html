@@ -15,7 +15,7 @@
                 <li><a href="intro.html">脚本介绍</a></li>
                 <li><a href="notice.html" class="active">公告</a></li>
             </ul>
-            <a href="download/游戏秘籍_v1.0.zip" class="nav-download" download>立即下载</a>
+            <a href="#" id="navDownload" class="nav-download" download>立即下载</a>
         </div>
     </nav>
 
@@ -73,14 +73,25 @@
                 <div class="footer-links">
                     <a href="index.html">首页</a>
                     <a href="intro.html">脚本介绍</a>
-                    <a href="download/游戏秘籍_v1.0.zip" download>下载</a>
+                    <a href="#" id="footerDownload" download>下载</a>
                 </div>
                 <p class="footer-copyright">© 2026 游戏秘籍. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
+    <script src="js/config.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        // 从配置动态加载下载链接
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof RESOURCE_CONFIG !== 'undefined' && RESOURCE_CONFIG.download && RESOURCE_CONFIG.download.app) {
+                var downloadUrl = RESOURCE_CONFIG.download.app;
+                document.getElementById('navDownload').href = downloadUrl;
+                document.getElementById('footerDownload').href = downloadUrl;
+            }
+        });
+    </script>
     <script>
         // 公告类型配置
         const NoticeTypeConfig = {
