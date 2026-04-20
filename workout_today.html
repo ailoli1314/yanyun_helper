@@ -380,41 +380,6 @@
             font-size: 13px;
             color: var(--text-secondary);
         }
-        
-        /* 训练记录面板 */
-        .log-toggle {
-            background: var(--card-bg);
-            border: 1px solid var(--accent-light);
-            border-radius: var(--radius);
-            padding: 8px 16px;
-            font-size: 13px;
-            cursor: pointer;
-            color: var(--text-secondary);
-            margin: 16px 0;
-            width: 100%;
-            text-align: center;
-        }
-        .log-panel {
-            display: none;
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-        }
-        .log-panel.open { display: block; }
-        .log-entry {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--accent-light);
-            font-size: 13px;
-        }
-        .log-entry:last-child { border-bottom: none; }
-        .log-entry .log-date { font-weight: 600; color: var(--accent); }
-        .log-entry .log-info { color: var(--text-secondary); }
-        .log-empty { text-align: center; color: var(--text-secondary); padding: 20px; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -442,9 +407,6 @@
     </div>
     
     <div class="divider">💪 训练动作 💪</div>
-    
-    <button class="log-toggle" onclick="toggleLog()">📊 查看训练记录</button>
-    <div id="logPanel" class="log-panel"></div>
     
     
         <div class="exercise-card">
@@ -640,13 +602,6 @@
         let completed = 0;
         const total = 5;
         
-        function markDone() {
-            if (completed < total) {
-                completed++;
-                updateProgress();
-            }
-        }
-        
         function updateProgress() {
             const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
             document.getElementById('progressFill').style.width = pct + '%';
@@ -656,137 +611,57 @@
         document.querySelectorAll('.exercise-card').forEach(card => {
             card.addEventListener('click', function(e) {
                 if (e.target.closest('.home-alt') || e.target.closest('button')) return;
-                this.style.opacity = this.style.opacity === '0.5' ? '1' : '0.5';
-                markDone();
+                if (completed < total) {
+                    completed++;
+                    this.style.opacity = '0.5';
+                    updateProgress();
+                } else {
+                    this.style.opacity = '1';
+                    completed--;
+                    updateProgress();
+                }
             });
         });
         
-        // ===== 本地存储：恢复完成状态 =====
-        const LOG_PREFIX = "workout_log_";
+        // ===== 保存训练记录 =====
+        // 流程：点击保存 → 生成报告复制到剪贴板 → 微信发给我 → 我解析后推GitHub
         const pageTitle = document.querySelector(".day-title").textContent;
-        const dayMatch = pageTitle.match(/Day(\d+)/);
-        const dayKey = dayMatch ? "day" + dayMatch[1] : "rest";
         const today = new Date();
         const dateStr = today.getFullYear() + "-" + 
             String(today.getMonth()+1).padStart(2,"0") + "-" + 
             String(today.getDate()).padStart(2,"0");
-        const storageKey = LOG_PREFIX + dateStr + "_" + dayKey;
         
-        // 读取 localStorage 恢复完成状态
-        function loadSavedState() {
-            const saved = localStorage.getItem(storageKey);
-            if (saved) {
-                try {
-                    const state = JSON.parse(saved);
-                    completed = state.completed || 0;
-                    // 根据完成数量给卡片上色
-                    const cards = document.querySelectorAll('.exercise-card');
-                    cards.forEach((card, i) => {
-                        if (i < completed) card.style.opacity = '0.5';
-                    });
-                    updateProgress();
-                } catch(e) {}
-            }
-        }
-        
-        // 每次点击卡片时保存状态
-        function persistState() {
-            const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-            const entry = {
-                date: dateStr,
-                dayKey: dayKey,
-                dayName: pageTitle.trim(),
-                completed: completed,
-                total: total,
-                percent: pct,
-                timestamp: new Date().toISOString()
-            };
-            localStorage.setItem(storageKey, JSON.stringify(entry));
-        }
-        
-        // 覆盖 markDone 顺便保存
-        const _origMarkDone = markDone;
-        markDone = function() {
-            if (completed < total) {
-                completed++;
-                const cards = document.querySelectorAll('.exercise-card');
-                if (cards[completed-1]) cards[completed-1].style.opacity = '0.5';
-                updateProgress();
-                persistState();
-            }
-        };
-        
-        // 加载时恢复
-        loadSavedState();
-        
-        // ===== GitHub 云端同步（通过网关代理，避免token暴露）=====
-        // 注意：浏览器直接调GitHub API需要token，但token在公开页面里有泄露风险
-        // 改用 fetch 发送到网关，让网关处理 GitHub API 调用
         function saveProgress() {
             const status = document.getElementById("saveStatus");
-            status.textContent = "正在保存...";
+            status.textContent = "正在生成报告...";
             
-            // 准备数据
             const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-            const logEntry = {
-                date: dateStr,
-                dayKey: dayKey,
-                dayName: pageTitle.trim(),
-                completed: completed,
-                total: total,
-                percent: pct,
-                timestamp: new Date().toISOString()
-            };
-            
-            // 先保存到 localStorage（永久）
-            localStorage.setItem(storageKey, JSON.stringify(logEntry));
-            
-            // 尝试通过网关发送到 GitHub
-            fetch("/api/agent", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ type: "save_workout_log", log: logEntry })
-            }).then(r => r.json()).then(data => {
-                status.textContent = "✅ 已保存（本地+云端）";
-                setTimeout(() => status.textContent = "", 3000);
-            }).catch(() => {
-                // 网关不通，只用本地保存
-                status.textContent = "✅ 已保存到本地";
-                setTimeout(() => status.textContent = "", 3000);
+            const cardList = [];
+            document.querySelectorAll(".exercise-card").forEach((card) => {
+                const title = card.querySelector(".card-title");
+                const label = card.querySelector(".sets-label");
+                if (title) cardList.push(title.textContent.trim() + " " + (label ? label.textContent.trim() : ""));
             });
-        }
-        
-        // ===== 本地训练记录面板 =====
-        function renderLogPanel() {
-            const panel = document.getElementById("logPanel");
-            const entries = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && key.startsWith(LOG_PREFIX)) {
-                    try {
-                        const v = JSON.parse(localStorage.getItem(key));
-                        entries.push(v);
-                    } catch(e) {}
-                }
-            }
-            entries.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
             
-            if (entries.length === 0) {
-                panel.innerHTML = '<div class="log-empty">暂无训练记录</div>';
-                return;
+            const completedNames = cardList.slice(0, completed);
+            let report = "[训练报告] " + dateStr + " " + pageTitle.trim() + "
+完成：" + completed + "/" + total + "个动作（" + pct + "%）";
+            if (completedNames.length > 0) {
+                report += "
+动作：" + completedNames.map((t,i) => (i+1) + ". " + t).join("
+");
             }
-            panel.innerHTML = entries.slice(0, 14).map(e => `
-                <div class="log-entry">
-                    <span class="log-date">${e.date}</span>
-                    <span class="log-info">${e.dayName || e.dayKey} · ${e.completed || 0}/${e.total || 0} · ${e.percent || 0}%</span>
-                </div>
-            `).join('');
-        }
-        
-        function toggleLog() {
-            const panel = document.getElementById("logPanel");
-            panel.classList.toggle("open");
-            if (panel.classList.contains("open")) renderLogPanel();
+            report += "
+---
+发给我记录训练，我来更新GitHub训练日志~";
+            
+            navigator.clipboard.writeText(report).then(() => {
+                status.textContent = "✅ 报告已复制！去微信发给我";
+                setTimeout(() => status.textContent = "", 5000);
+            }).catch(() => {
+                status.textContent = "⚠️ 复制失败，请手动发我";
+                setTimeout(() => status.textContent = "", 5000);
+            });
         }
     </script>
 </body>
