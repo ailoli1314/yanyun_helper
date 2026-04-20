@@ -146,6 +146,10 @@
             transform: scale(0.98);
         }
         
+        .exercise-card.done {
+            opacity: 0.5;
+        }
+        
         .exercise-img {
             width: 100%;
             height: 200px;
@@ -621,19 +625,14 @@
             document.getElementById('progressFill').style.width = pct + '%';
         }
         
-        // 点击卡片标记完成
-        document.querySelectorAll('.exercise-card').forEach(card => {
+        // 点击卡片标记完成（每张卡独立状态，不依赖opacity）
+        document.querySelectorAll('.exercise-card').forEach((card, idx) => {
             card.addEventListener('click', function(e) {
                 if (e.target.closest('.home-alt') || e.target.closest('button')) return;
-                if (completed < total) {
-                    completed++;
-                    this.style.opacity = '0.5';
-                    updateProgress();
-                } else {
-                    this.style.opacity = '1';
-                    completed--;
-                    updateProgress();
-                }
+                const isDone = this.classList.toggle('done');
+                completed = Array.from(document.querySelectorAll('.exercise-card'))
+                    .filter(c => c.classList.contains('done')).length;
+                updateProgress();
             });
         });
         
