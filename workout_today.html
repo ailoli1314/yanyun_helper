@@ -681,24 +681,26 @@
             
             // 准备记录数据
             const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-            const cardList = [];
-            document.querySelectorAll('.exercise-card').forEach((card) => {
+            // 只取真正标记完成的卡片（.done class）
+            const doneCards = Array.from(document.querySelectorAll('.exercise-card'))
+                .filter(card => card.classList.contains('done'));
+            const doneExercises = doneCards.map(card => {
                 const title = card.querySelector('.card-title');
                 const label = card.querySelector('.sets-label');
-                if (title) cardList.push({
-                    name: title.textContent.trim(),
+                return {
+                    name: title ? title.textContent.trim() : '',
                     sets: label ? label.textContent.trim() : ''
-                });
+                };
             });
             
             const logEntry = {
                 date: dateStr,
                 dayName: pageTitle.trim(),
-                completed: completed,
+                completed: doneExercises.length,
                 total: total,
                 percent: pct,
                 timestamp: new Date().toISOString(),
-                exercises: cardList.slice(0, completed)
+                exercises: doneExercises
             };
             
             try {
