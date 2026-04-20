@@ -152,11 +152,12 @@
         
         .exercise-img {
             width: 100%;
-            height: 200px;
+            height: 180px;
             object-fit: cover;
             object-position: center;
-            border-radius: var(--radius) var(--radius) 0 0;
             display: block;
+            background: var(--accent-light);
+            cursor: pointer;
         }
         
         .card-header {
@@ -393,6 +394,14 @@
             font-size: 13px;
             color: var(--text-secondary);
         }
+
+        /* 图片全屏查看器 */
+        #imgLightbox {
+            display: flex !important;
+        }
+        #lightboxImg {
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -423,7 +432,7 @@
     
     
         <div class="exercise-card">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/bench_press.jpg" alt="平板卧推" loading="lazy" onerror="this.style.display='none'">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/bench_press.jpg" alt="平板卧推" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">💪</span>
@@ -454,7 +463,7 @@
         </div>
         
         <div class="exercise-card">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/incline_dumbbell_press.png" alt="上斜哑铃卧推" loading="lazy" onerror="this.style.display='none'">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/incline_dumbbell_press.png" alt="上斜哑铃卧推" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">💪</span>
@@ -485,7 +494,7 @@
         </div>
         
         <div class="exercise-card">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/dumbbell_shoulder_press.jpg" alt="哑铃肩推" loading="lazy" onerror="this.style.display='none'">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/dumbbell_shoulder_press.jpg" alt="哑铃肩推" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">🦴</span>
@@ -516,7 +525,7 @@
         </div>
         
         <div class="exercise-card">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/lateral_raise.png" alt="侧平举" loading="lazy" onerror="this.style.display='none'">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/lateral_raise.png" alt="侧平举" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">🦴</span>
@@ -547,7 +556,7 @@
         </div>
         
         <div class="exercise-card">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/tricep_pushdown.gif" alt="绳索/器械肱三头肌下压" loading="lazy" onerror="this.style.display='none'">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/tricep_pushdown.gif" alt="绳索/器械肱三头肌下压" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">🦾</span>
@@ -753,11 +762,25 @@
         
         // 点击保存按钮
         document.addEventListener('DOMContentLoaded', () => {
+
+        function openLightbox(src) {
+            const lb = document.getElementById('imgLightbox');
+            const img = document.getElementById('lightboxImg');
+            img.src = src;
+            lb.style.display = 'flex';
+        }
+        function closeLightbox() {
+            document.getElementById('imgLightbox').style.display = 'none';
+        }
             const saveBtn = document.getElementById('saveBtn');
             if (saveBtn) {
                 saveBtn.addEventListener('click', saveToGitHub);
             }
         });
     </script>
+
+    <div id="imgLightbox" onclick="closeLightbox()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;cursor:pointer;align-items:center;justify-content:center;">
+        <img id="lightboxImg" style="max-width:95%;max-height:95%;object-fit:contain;border-radius:8px;">
+    </div>
 </body>
 </html>
