@@ -6,6 +6,7 @@
 
 import json
 import os
+import re
 from datetime import datetime
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "workout_config.json")
@@ -69,6 +70,9 @@ def generate_html(config, day_key):
     
     today_date = datetime.now().strftime("%Y年%m月%d日")
     weekday_name = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"][datetime.now().weekday()]
+    
+    # 预计算总组数（避免f-string中用re导致Python3.11语法错误）
+    total_sets = sum(int(re.sub(r'\D', '', ex.get('sets_reps', '').split('×')[0])) for ex in exercises if '×' in ex.get('sets_reps', ''))
     
     # 生成动作卡片
     exercise_cards = ""
@@ -511,7 +515,7 @@ def generate_html(config, day_key):
             <span class="summary-label">训练动作</span>
         </div>
         <div class="summary-item">
-            <span class="summary-num">{sum(int(ex.get('sets_reps','').split('×')[0].strip()) for ex in exercises if '×' in ex.get('sets_reps',''))}</span>
+            <span class="summary-num">{total_sets}</span>
             <span class="summary-label">总组数</span>
         </div>
         <div class="summary-item">
