@@ -567,7 +567,7 @@
     
     <div class="progress-bar">
         <div class="save-bar">
-            <button class="save-btn" onclick="saveProgress()">💾 保存今日训练</button>
+            <button class="save-btn" id="saveBtn">💾 保存今日训练</button>
             <span id="saveStatus"></span>
         </div>
         <div class="progress-label">今日训练完成进度</div>
@@ -623,46 +623,128 @@
             });
         });
         
-        // ===== 保存训练记录 =====
-        // 流程：点击保存 → 生成报告复制到剪贴板 → 微信发给我 → 我解析后推GitHub
+        // ===== 保存训练记录 → 直接推 GitHub =====
+        const GITHUB_TOKEN_KEY = 'github_token';
+        const REPO = 'ailoli1314/yanyun_helper';
+        const LOG_FILE = 'training_log.json';
         const pageTitle = document.querySelector(".day-title").textContent;
         const today = new Date();
         const dateStr = today.getFullYear() + "-" + 
             String(today.getMonth()+1).padStart(2,"0") + "-" + 
             String(today.getDate()).padStart(2,"0");
         
-        function saveProgress() {
-            const status = document.getElementById("saveStatus");
-            status.textContent = "正在生成报告...";
+        // token 输入框逻辑
+        function showTokenInput() {
+            const existing = localStorage.getItem(GITHUB_TOKEN_KEY) || '';
+            const saved = confirm('需要 GitHub Token 来保存训练记录。\n\n如果你还没创建过 Token：\n1. 打开 https://github.com/settings/tokens\n2. 点 Generate new token (classic)\n3. 勾选 repo 权限\n4. 复制生成的 token 粘贴进来\n\n已有 token 的话直接点确定继续。');
+            if (!saved) return;
+            const token = prompt('请粘贴你的 GitHub Personal Access Token：', existing);
+            if (token && token.trim()) {
+                localStorage.setItem(GITHUB_TOKEN_KEY, token.trim());
+                alert('✅ Token 已保存！以后会自动使用。');
+            }
+        }
+        
+        function getToken() {
+            return localStorage.getItem(GITHUB_TOKEN_KEY);
+        }
+        
+        async function saveToGitHub() {
+            const status = document.getElementById('saveStatus');
+            const token = getToken();
             
+            if (!token) {
+                showTokenInput();
+                return;
+            }
+            
+            status.textContent = '正在保存...';
+            
+            // 准备记录数据
             const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
             const cardList = [];
-            document.querySelectorAll(".exercise-card").forEach((card) => {
-                const title = card.querySelector(".card-title");
-                const label = card.querySelector(".sets-label");
-                if (title) cardList.push(title.textContent.trim() + " " + (label ? label.textContent.trim() : ""));
+            document.querySelectorAll('.exercise-card').forEach((card) => {
+                const title = card.querySelector('.card-title');
+                const label = card.querySelector('.sets-label');
+                if (title) cardList.push({
+                    name: title.textContent.trim(),
+                    sets: label ? label.textContent.trim() : ''
+                });
             });
             
-            const completedNames = cardList.slice(0, completed);
-            let report = "[训练报告] " + dateStr + " " + pageTitle.trim() + "
-完成：" + completed + "/" + total + "个动作（" + pct + "%）";
-            if (completedNames.length > 0) {
-                report += "
-动作：" + completedNames.map((t,i) => (i+1) + ". " + t).join("
-");
+            const logEntry = {
+                date: dateStr,
+                dayName: pageTitle.trim(),
+                completed: completed,
+                total: total,
+                percent: pct,
+                timestamp: new Date().toISOString(),
+                exercises: cardList.slice(0, completed)
+            };
+            
+            try {
+                // 1. 读取现有 training_log.json 获取 SHA
+                let currentLog = {};
+                let sha = null;
+                try {
+                    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${LOG_FILE}`, {
+                        headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
+                    });
+                    if (r.ok) {
+                        const data = await r.json();
+                        sha = data.sha;
+                        currentLog = JSON.parse(atob(data.content));
+                    }
+                } catch(e) { /* 文件不存在或读取失败 */ }
+                
+                // 2. 更新记录
+                currentLog[dateStr] = logEntry;
+                currentLog._lastUpdated = new Date().toISOString();
+                
+                // 3. 推送到 GitHub
+                const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(currentLog, null, 2))));
+                const body = JSON.stringify({
+                    message: `训练记录 ${dateStr}`,
+                    content: encoded,
+                    sha: sha || undefined
+                });
+                
+                const resp = await fetch(`https://api.github.com/repos/${REPO}/contents/${LOG_FILE}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'token ' + token,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: body
+                });
+                
+                if (resp.ok || resp.status === 200) {
+                    status.textContent = '✅ 已保存到 GitHub！';
+                } else {
+                    const err = await resp.json().catch(() => {});
+                    throw new Error(err.message || '保存失败');
+                }
+            } catch(e) {
+                if (e.message.includes('401') || e.message.includes('Bad credentials')) {
+                    localStorage.removeItem(GITHUB_TOKEN_KEY);
+                    status.textContent = '❌ Token 无效，已清除，请重新输入';
+                    setTimeout(() => showTokenInput(), 1000);
+                } else {
+                    status.textContent = '⚠️ ' + (e.message || '保存失败');
+                }
             }
-            report += "
----
-发给我记录训练，我来更新GitHub训练日志~";
             
-            navigator.clipboard.writeText(report).then(() => {
-                status.textContent = "✅ 报告已复制！去微信发给我";
-                setTimeout(() => status.textContent = "", 5000);
-            }).catch(() => {
-                status.textContent = "⚠️ 复制失败，请手动发我";
-                setTimeout(() => status.textContent = "", 5000);
-            });
+            setTimeout(() => { if (!status.textContent.includes('正在')) status.textContent = ''; }, 5000);
         }
+        
+        // 点击保存按钮
+        document.addEventListener('DOMContentLoaded', () => {
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', saveToGitHub);
+            }
+        });
     </script>
 </body>
 </html>
