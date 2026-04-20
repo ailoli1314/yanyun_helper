@@ -757,9 +757,7 @@
             setTimeout(() => { if (!status.textContent.includes('正在')) status.textContent = ''; }, 5000);
         }
         
-        // 点击保存按钮
-        document.addEventListener('DOMContentLoaded', () => {
-
+        // 全屏查看器
         function openLightbox(src) {
             const lb = document.getElementById('imgLightbox');
             const img = document.getElementById('lightboxImg');
@@ -769,10 +767,11 @@
         function closeLightbox() {
             document.getElementById('imgLightbox').style.display = 'none';
         }
+        
+        // 保存按钮
+        document.addEventListener('DOMContentLoaded', () => {
             const saveBtn = document.getElementById('saveBtn');
-            if (saveBtn) {
-                saveBtn.addEventListener('click', saveToGitHub);
-            }
+            if (saveBtn) saveBtn.addEventListener('click', saveToGitHub);
         });
     </script>
 
