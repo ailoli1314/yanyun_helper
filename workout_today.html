@@ -429,7 +429,7 @@
     
     
         <div class="exercise-card">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/bench_press.jpg" alt="平板卧推" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/bench_press.jpg" alt="平板卧推" loading="lazy" onclick="openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">💪</span>
@@ -460,7 +460,7 @@
         </div>
         
         <div class="exercise-card">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/incline_dumbbell_press.png" alt="上斜哑铃卧推" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/incline_dumbbell_press.png" alt="上斜哑铃卧推" loading="lazy" onclick="openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">💪</span>
@@ -491,7 +491,7 @@
         </div>
         
         <div class="exercise-card">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/dumbbell_shoulder_press.jpg" alt="哑铃肩推" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/dumbbell_shoulder_press.jpg" alt="哑铃肩推" loading="lazy" onclick="openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">🦴</span>
@@ -522,7 +522,7 @@
         </div>
         
         <div class="exercise-card">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/lateral_raise.png" alt="侧平举" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/lateral_raise.png" alt="侧平举" loading="lazy" onclick="openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">🦴</span>
@@ -553,7 +553,7 @@
         </div>
         
         <div class="exercise-card">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/tricep_pushdown.gif" alt="绳索/器械肱三头肌下压" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/tricep_pushdown.gif" alt="绳索/器械肱三头肌下压" loading="lazy" onclick="openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">🦾</span>
@@ -634,8 +634,8 @@
         // 点击卡片标记完成（每张卡独立状态，不依赖opacity）
         document.querySelectorAll('.exercise-card').forEach((card, idx) => {
             card.addEventListener('click', function(e) {
-                if (e.target.closest('.home-alt') || e.target.closest('button')) return;
-                const isDone = this.classList.toggle('done');
+                if (e.target.closest('.home-alt') || e.target.closest('button') || e.target.closest('.exercise-img')) return;
+                this.classList.toggle('done');
                 completed = Array.from(document.querySelectorAll('.exercise-card'))
                     .filter(c => c.classList.contains('done')).length;
                 updateProgress();
