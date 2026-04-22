@@ -1,5 +1,13 @@
 {
   "name": "张贵彬健身计划",
+  "mode": "sequential",
+  "current_day": "day3",
+  "day_sequence": [
+    "day1",
+    "day2",
+    "day3",
+    "rest"
+  ],
   "weekdays": {
     "0": "day1",
     "1": "day2",
