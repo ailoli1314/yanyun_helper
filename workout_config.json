@@ -5,8 +5,7 @@
   "day_sequence": [
     "day1",
     "day2",
-    "day3",
-    "rest"
+    "day3"
   ],
   "weekdays": {
     "0": "day1",
