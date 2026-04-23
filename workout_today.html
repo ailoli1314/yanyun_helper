@@ -1,221 +1,252 @@
 <!DOCTYPE html>
-<html lang=en>
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Day3 腿 (Legs) - Workout Plan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Day3 腿 (Legs) - 健身计划</title>
 <style>
-:root{--bg:#f5f6fa;--card:#fff;--text:#2d3436;--sub:#636e72;--accent:#0984e3;--light:#dfe6e9;--success:#00b894;--shadow:0 2px 12px rgba(0,0,0,.08);--r:16px}
-[data-theme="dark"]{--bg:#1a1a2e;--card:#16213e;--text:#eaeaea;--sub:#a0a0a0;--accent:#4cc9f0;--light:#2a3f5f;--shadow:0 2px 12px rgba(0,0,0,.4)}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);padding:16px;padding-bottom:90px;transition:background .3s}
-.theme-toggle{position:fixed;top:16px;right:16px;z-index:999;background:var(--card);border:none;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center}
-.header{text-align:center;margin:30px 0 20px}
-.date-info{font-size:14px;color:var(--sub);margin-bottom:6px}
-.day-title{font-size:26px;font-weight:700;color:var(--accent);margin-bottom:6px}
-.day-desc{font-size:15px;color:var(--sub);margin-bottom:4px}
-.day-summary{background:var(--card);border-radius:var(--r);padding:14px 18px;margin:14px 0;box-shadow:var(--shadow);display:flex;justify-content:space-around;text-align:center}
-.summary-item{display:flex;flex-direction:column;align-items:center;gap:4px}
-.summary-num{font-size:24px;font-weight:700;color:var(--accent)}
-.summary-label{font-size:12px;color:var(--sub)}
-.divider{text-align:center;color:var(--sub);font-size:13px;margin:24px 0 16px;display:flex;align-items:center;gap:12px}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--light)}
-.exercise-card{background:var(--card);border-radius:var(--r);margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden;transition:transform .2s}
-.exercise-card:active{transform:scale(.98)}
-.exercise-card.done{opacity:.5}
-.exercise-img{width:100%;height:180px;object-fit:cover;background:var(--light);cursor:pointer;display:block}
-.card-header{padding:16px 18px 12px;border-bottom:1px solid var(--light)}
-.card-title-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
-.card-emoji{font-size:28px}
-.card-title{font-size:18px;font-weight:700}
-.card-en{font-size:12px;color:var(--sub);margin-left:38px;font-style:italic}
-.sets-label{display:inline-block;background:var(--light);color:var(--accent);font-size:13px;font-weight:600;padding:4px 12px;border-radius:20px;margin-top:8px}
-/* weight input */
-.weight-row{display:flex;align-items:center;gap:10px;margin:10px 0 14px}
-.weight-label{font-size:13px;color:var(--sub);white-space:nowrap}
-.weight-input{flex:1;padding:6px 12px;border:1.5px solid var(--light);border-radius:10px;background:var(--bg);color:var(--text);font-size:14px;font-weight:600;outline:none;transition:border-color .2s;min-width:0}
-.weight-input:focus{border-color:var(--accent)}
-.weight-input.saved{border-color:var(--success)}
-.weight-input::placeholder{color:var(--sub);font-weight:400}
-.section-title{font-size:13px;font-weight:700;color:var(--accent);margin:14px 0 8px}
-.steps{margin-bottom:12px}
-.step{display:flex;gap:10px;margin-bottom:8px;font-size:14px;line-height:1.5}
-.step-num{min-width:22px;height:22px;background:var(--light);color:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
-.tips{margin-bottom:10px}
-.tip{font-size:13px;color:var(--sub);margin-bottom:6px;line-height:1.4}
-.home-alt{font-size:13px;color:var(--sub);background:var(--light);border-radius:10px;padding:10px 12px;margin-top:8px}
-.rest-day{background:var(--card);border-radius:var(--r);padding:48px 24px;text-align:center;box-shadow:var(--shadow)}
-.rest-emoji{font-size:64px;margin-bottom:16px}
-.rest-day h2{font-size:24px;color:var(--accent);margin-bottom:8px}
-.rest-day p{color:var(--sub);font-size:15px;margin-bottom:6px}
-.lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:9999;cursor:pointer;align-items:center;justify-content:center}
-.lightbox img{max-width:95%;max-height:95%;object-fit:contain;border-radius:8px}
-/* save bar */
-.save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--light);padding:12px 16px;display:flex;gap:10px;z-index:998;box-shadow:0 -2px 12px rgba(0,0,0,.08)}
-.save-bar .btn{flex:1;padding:10px;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;text-align:center}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-secondary{background:var(--light);color:var(--accent)}
-.save-status{font-size:12px;color:var(--sub);display:flex;align-items:center;min-width:60px}
-.toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%);background:var(--success);color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
-.toast.show{opacity:1}
+:root {
+    --bg: #f5f6fa;
+    --card-bg: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --accent: #0984e3;
+    --accent-light: #dfe6e9;
+    --success: #00b894;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --radius: 16px;
+}
+[data-theme="dark"] {
+    --bg: #1a1a2e;
+    --card-bg: #16213e;
+    --text: #eaeaea;
+    --text-secondary: #a0a0a0;
+    --accent: #4cc9f0;
+    --accent-light: #2a3f5f;
+    --shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); padding: 16px; padding-bottom: 90px; transition: background 0.3s, color 0.3s; min-height: 100vh; }
+.theme-toggle { position: fixed; top: 16px; right: 16px; z-index: 999; background: var(--card-bg); border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 20px; cursor: pointer; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; }
+.header { text-align: center; margin: 30px 0 20px; }
+.date-info { font-size: 14px; color: var(--text-secondary); margin-bottom: 6px; }
+.day-title { font-size: 26px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+.day-desc { font-size: 15px; color: var(--text-secondary); margin-bottom: 4px; }
+.day-summary { background: var(--card-bg); border-radius: var(--radius); padding: 14px 18px; margin: 14px 0; box-shadow: var(--shadow); display: flex; justify-content: space-around; text-align: center; }
+.summary-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.summary-num { font-size: 24px; font-weight: 700; color: var(--accent); }
+.summary-label { font-size: 12px; color: var(--text-secondary); }
+.divider { text-align: center; color: var(--text-secondary); font-size: 13px; margin: 24px 0 16px; display: flex; align-items: center; gap: 12px; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--accent-light); }
+.exercise-card { background: var(--card-bg); border-radius: var(--radius); margin-bottom: 16px; box-shadow: var(--shadow); overflow: hidden; transition: transform 0.2s; }
+.exercise-card:active { transform: scale(0.98); }
+.exercise-card.done { opacity: 0.5; }
+.exercise-img { width: 100%; height: 180px; object-fit: cover; object-position: center; display: block; background: var(--accent-light); cursor: pointer; }
+.card-header { padding: 16px 18px 12px; border-bottom: 1px solid var(--accent-light); }
+.card-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.card-emoji { font-size: 28px; }
+.card-title { font-size: 18px; font-weight: 700; }
+.card-en { font-size: 12px; color: var(--text-secondary); margin-left: 38px; font-style: italic; }
+.sets-label { display: inline-block; background: var(--accent-light); color: var(--accent); font-size: 13px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-top: 8px; }
+/* 重量输入 */
+.weight-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 14px; }
+.weight-label { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
+.weight-input { flex: 1; padding: 6px 12px; border: 1.5px solid var(--accent-light); border-radius: 10px; background: var(--bg); color: var(--text); font-size: 14px; font-weight: 600; outline: none; transition: border-color 0.2s; min-width: 0; }
+.weight-input:focus { border-color: var(--accent); }
+.weight-input.saved { border-color: var(--success); }
+.weight-input::placeholder { color: var(--text-secondary); font-weight: 400; }
+.section-title { font-size: 13px; font-weight: 700; color: var(--accent); margin: 14px 0 8px; }
+.steps { margin-bottom: 12px; }
+.step { display: flex; gap: 10px; margin-bottom: 8px; font-size: 14px; line-height: 1.5; }
+.step-num { min-width: 22px; height: 22px; background: var(--accent-light); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.tips { margin-bottom: 10px; }
+.tip { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.4; }
+.home-alt { font-size: 13px; color: var(--text-secondary); background: var(--accent-light); border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
+.rest-day { background: var(--card-bg); border-radius: var(--radius); padding: 48px 24px; text-align: center; box-shadow: var(--shadow); }
+.rest-emoji { font-size: 64px; margin-bottom: 16px; }
+.rest-day h2 { font-size: 24px; color: var(--accent); margin-bottom: 8px; }
+.rest-day p { color: var(--text-secondary); font-size: 15px; margin-bottom: 6px; }
+.lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; cursor: pointer; align-items: center; justify-content: center; }
+.lightbox img { max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 8px; }
+/* 底部保存栏 */
+.save-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--accent-light); padding: 12px 16px; display: flex; gap: 10px; z-index: 998; box-shadow: 0 -2px 12px rgba(0,0,0,0.08); }
+.save-bar .btn { flex: 1; padding: 10px; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:active { opacity: 0.85; }
+.btn-secondary { background: var(--accent-light); color: var(--accent); }
+.save-status { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; min-width: 60px; }
+.toast { position: fixed; bottom: 75px; left: 50%; transform: translateX(-50%); background: var(--success); color: white; padding: 8px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.toast.show { opacity: 1; }
 </style>
 </head>
 <body>
-<button class=theme-toggle onclick=toggleTheme() title="Toggle theme">sun</button>
-<div class=header>
-<div class=date-info>Thu 2026-04-23</div>
-<div class=day-title>🦵 Day3 腿 (Legs)</div>
-<div class=day-desc>股四头肌 + 臀大肌 + 腘绳肌 + 小腿</div>
+<button class="theme-toggle" onclick="toggleTheme()">☼</button>
+<div class="header">
+<div class="date-info">周四 · 2026年04月23日</div>
+<div class="day-title">🦵 Day3 腿 (Legs)</div>
+<div class="day-desc">股四头肌 + 臀大肌 + 腘绳肌 + 小腿</div>
 </div>
-<div class=day-summary>
-<div class=summary-item><span class=summary-num>5</span><span class=summary-label>exercises</span></div>
-<div class=summary-item><span class=summary-num>0</span><span class=summary-label>total sets</span></div>
+<div class="day-summary">
+<div class="summary-item"><span class="summary-num">5</span><span class="summary-label">个动作</span></div>
+<div class="summary-item"><span class="summary-num">21</span><span class="summary-label">总组数</span></div>
 </div>
-<div class=divider>Exercises</div>
-<div class=exercise-card><img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/barbell_squat.jpg" alt="深蹲" loading="lazy" onclick="openLightbox(this.src)" onerror="this.style.display='none'"><div class=card-header><div class=card-title-row><span class=card-emoji></span><h3 class=card-title>深蹲</h3></div><div class=card-en>Barbell Back Squat</div><div class=sets-label>5组 × 8-12次 | Rest 120秒s</div></div><div class=card-body><div class=parts-row><div class=part-badge>股四头肌、臀大肌</div><div class="part-badge secondary">腘绳肌、内收肌、竖脊肌</div></div><div class=weight-row><span class=weight-label>Actual Weight</span><input class="weight-input" type=text value="" placeholder="e.g. 60kg" data-exercise="深蹲" oninput="saveWeight(this,'深蹲')" onblur="saveWeightToGit(this,'深蹲')"></div><div class=section-title>Steps</div><div class=steps><div class=step><span class=step-num>1</span><span>将杠铃置于斜方肌上（高位深蹲），双脚与肩同宽或略宽</span></div>
-<div class=step><span class=step-num>2</span><span>调整脚尖朝向（外展15-30度），挺胸收紧核心</span></div>
-<div class=step><span class=step-num>3</span><span>臀部向后坐，屈膝屈髋下蹲</span></div>
-<div class=step><span class=step-num>4</span><span>下蹲至大腿与地面平行或略低</span></div>
-<div class=step><span class=step-num>5</span><span>双脚发力蹬地站起，全程保持背部挺直</span></div>
-</div><div class=section-title>Tips</div><div class=tips><div class=tip>膝盖方向要与脚尖方向一致，不要内扣</div>
-<div class=tip>下蹲时重心在脚掌中后部，不要踮起脚跟</div>
-<div class=tip>保持呼吸：下蹲吸气，站起呼气</div>
-<div class=tip>新手建议从徒手或轻重量开始练习动作模式</div>
-</div><div class=home-alt>Home: 徒手深蹲 或 背背包深蹲</div></div></div><div class=exercise-card><img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/leg_press.jpg" alt="腿举" loading="lazy" onclick="openLightbox(this.src)" onerror="this.style.display='none'"><div class=card-header><div class=card-title-row><span class=card-emoji></span><h3 class=card-title>腿举</h3></div><div class=card-en>Leg Press</div><div class=sets-label>4组 × 10-12次 | Rest 90秒s</div></div><div class=card-body><div class=parts-row><div class=part-badge>股四头肌</div><div class="part-badge secondary">臀大肌、腘绳肌</div></div><div class=weight-row><span class=weight-label>Actual Weight</span><input class="weight-input" type=text value="" placeholder="e.g. 60kg" data-exercise="腿举" oninput="saveWeight(this,'腿举')" onblur="saveWeightToGit(this,'腿举')"></div><div class=section-title>Steps</div><div class=steps><div class=step><span class=step-num>1</span><span>背部和头部紧贴靠垫，坐在腿举机上</span></div>
-<div class=step><span class=step-num>2</span><span>双脚踩在踏板上，间距与肩同宽</span></div>
-<div class=step><span class=step-num>3</span><span>解除保险锁，屈膝下放重量至约90度</span></div>
-<div class=step><span class=step-num>4</span><span>股四头肌发力将重量向上推起</span></div>
-<div class=step><span class=step-num>5</span><span>推至腿不完全伸直，保持微屈状态</span></div>
-</div><div class=section-title>Tips</div><div class=tips><div class=tip>下放深度不要过低，以免腰椎离开靠垫</div>
-<div class=tip>双脚位置高低可以改变刺激部位</div>
-<div class=tip>脚尖朝前侧重股四头，脚尖外旋侧重内收肌</div>
-<div class=tip>切勿锁死膝关节，保护关节安全</div>
-</div><div class=home-alt>Home: 靠墙深蹲 或 单腿蹲</div></div></div><div class=exercise-card><img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/romanian_deadlift.png" alt="罗马尼亚硬拉" loading="lazy" onclick="openLightbox(this.src)" onerror="this.style.display='none'"><div class=card-header><div class=card-title-row><span class=card-emoji></span><h3 class=card-title>罗马尼亚硬拉</h3></div><div class=card-en>Romanian Deadlift (RDL)</div><div class=sets-label>4组 × 10-12次 | Rest 75秒s</div></div><div class=card-body><div class=parts-row><div class=part-badge>腘绳肌</div><div class="part-badge secondary">臀大肌、下背部（竖脊肌）</div></div><div class=weight-row><span class=weight-label>Actual Weight</span><input class="weight-input" type=text value="" placeholder="e.g. 60kg" data-exercise="罗马尼亚硬拉" oninput="saveWeight(this,'罗马尼亚硬拉')" onblur="saveWeightToGit(this,'罗马尼亚硬拉')"></div><div class=section-title>Steps</div><div class=steps><div class=step><span class=step-num>1</span><span>双手正握杠铃，双脚与肩同宽站立</span></div>
-<div class=step><span class=step-num>2</span><span>屈髋微屈膝，杠铃沿着大腿前侧下放</span></div>
-<div class=step><span class=step-num>3</span><span>保持背部挺直，杠铃贴近身体</span></div>
-<div class=step><span class=step-num>4</span><span>下放至腘绳肌有充分拉伸感即可</span></div>
-<div class=step><span class=step-num>5</span><span>臀部向前挺，将杠铃拉回起始位置</span></div>
-</div><div class=section-title>Tips</div><div class=tips><div class=tip>动作全程杠铃贴近大腿，不要让它远离身体</div>
-<div class=tip>感受腘绳肌的拉伸和收缩，不要弓背</div>
-<div class=tip>下放速度慢，上推速度稍快</div>
-<div class=tip>新手建议从较轻重量开始体会动作</div>
-</div><div class=home-alt>Home: 哑铃 RDL 或 弹力带罗马尼亚硬拉</div></div></div><div class=exercise-card><img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/leg_curl.jpg" alt="腿弯举" loading="lazy" onclick="openLightbox(this.src)" onerror="this.style.display='none'"><div class=card-header><div class=card-title-row><span class=card-emoji></span><h3 class=card-title>腿弯举</h3></div><div class=card-en>Leg Curl</div><div class=sets-label>4组 × 12-15次 | Rest 60秒s</div></div><div class=card-body><div class=parts-row><div class=part-badge>腘绳肌</div><div class="part-badge secondary">小腿（腓肠肌）</div></div><div class=weight-row><span class=weight-label>Actual Weight</span><input class="weight-input" type=text value="" placeholder="e.g. 60kg" data-exercise="腿弯举" oninput="saveWeight(this,'腿弯举')" onblur="saveWeightToGit(this,'腿弯举')"></div><div class=section-title>Steps</div><div class=steps><div class=step><span class=step-num>1</span><span>俯卧在腿弯举器械上，脚踝后方抵住滚轴</span></div>
-<div class=step><span class=step-num>2</span><span>双手抓住手柄固定身体</span></div>
-<div class=step><span class=step-num>3</span><span>腘绳肌发力，将滚轴向上弯举</span></div>
-<div class=step><span class=step-num>4</span><span>弯举至顶峰时挤压腘绳肌</span></div>
-<div class=step><span class=step-num>5</span><span>缓慢下放，控制重量不要让腿完全伸直</span></div>
-</div><div class=section-title>Tips</div><div class=tips><div class=tip>如果器械是坐姿，同样有效</div>
-<div class=tip>顶峰收缩1秒效果更佳</div>
-<div class=tip>全程控制，不要借助惯性</div>
-<div class=tip>与腿弯举配对练习，腿前侧后侧都要练</div>
-</div><div class=home-alt>Home: 俯卧弹力带腿弯举 或 跪姿腿弯举</div></div></div><div class=exercise-card><img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/calf_raise.png" alt="提踵" loading="lazy" onclick="openLightbox(this.src)" onerror="this.style.display='none'"><div class=card-header><div class=card-title-row><span class=card-emoji></span><h3 class=card-title>提踵</h3></div><div class=card-en>Calf Raise</div><div class=sets-label>4组 × 15-20次 | Rest 45秒s</div></div><div class=card-body><div class=parts-row><div class=part-badge>小腿三头肌（腓肠肌、比目鱼肌）</div><div class="part-badge secondary">无</div></div><div class=weight-row><span class=weight-label>Actual Weight</span><input class="weight-input" type=text value="" placeholder="e.g. 60kg" data-exercise="提踵" oninput="saveWeight(this,'提踵')" onblur="saveWeightToGit(this,'提踵')"></div><div class=section-title>Steps</div><div class=steps><div class=step><span class=step-num>1</span><span>站在台阶或提踵机上，前脚掌踩在边缘</span></div>
-<div class=step><span class=step-num>2</span><span>脚后跟下沉至最低点，感受小腿拉伸</span></div>
-<div class=step><span class=step-num>3</span><span>小腿三头肌发力，踮起脚跟至最高点</span></div>
-<div class=step><span class=step-num>4</span><span>顶峰时收紧小腿，停顿1秒</span></div>
-<div class=step><span class=step-num>5</span><span>缓慢下放，重复动作</span></div>
-</div><div class=section-title>Tips</div><div class=tips><div class=tip>提踵是少数适合快节奏的动作，可以稍快</div>
-<div class=tip>坐姿提踵主要刺激比目鱼肌，站姿刺激腓肠肌</div>
-<div class=tip>可以在顶峰时做顶峰收缩增强效果</div>
-<div class=tip>小腿恢复快，可以适当提高训练频率</div>
-</div><div class=home-alt>Home: 徒手台阶提踵 或 背包负重提踵</div></div></div>
-<div class=save-bar><span class=save-status id=saveStatus>OK</span>
-<button class="btn btn-primary" onclick=saveAllToGit()>Save Weights</button>
-<button class="btn btn-secondary" onclick=clearAllWeights()>Clear</button>
+<div class="divider">训练动作</div>
+<div class="exercise-card"><img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/barbell_squat.jpg" alt="深蹲" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'"><div class="card-header"><div class="card-title-row"><span class="card-emoji">🦵</span><h3 class="card-title">深蹲</h3></div><div class="card-en">Barbell Back Squat</div><div class="sets-label">📊 5组 × 8-12次 | 休息120秒秒</div></div><div class="card-body"><div class="parts-row"><div class="part-badge">🦵 股四头肌、臀大肌</div><div class="part-badge secondary">腘绳肌、内收肌、竖脊肌</div></div><div class="weight-row"><span class="weight-label">⚖️ 实际负重</span><input class="weight-input" type="text" value="" placeholder="输入重量如 60kg" data-exercise="深蹲" oninput="saveWeight(this, '深蹲')" onblur="saveWeightToGit(this, '深蹲')"></div><div class="section-title">📋 动作步骤</div><div class="steps"><div class="step"><span class="step-num">1</span><span>将杠铃置于斜方肌上（高位深蹲），双脚与肩同宽或略宽</span></div>
+<div class="step"><span class="step-num">2</span><span>调整脚尖朝向（外展15-30度），挺胸收紧核心</span></div>
+<div class="step"><span class="step-num">3</span><span>臀部向后坐，屈膝屈髋下蹲</span></div>
+<div class="step"><span class="step-num">4</span><span>下蹲至大腿与地面平行或略低</span></div>
+<div class="step"><span class="step-num">5</span><span>双脚发力蹬地站起，全程保持背部挺直</span></div>
+</div><div class="section-title">⚡ 注意事项</div><div class="tips"><div class="tip">⚠️ 膝盖方向要与脚尖方向一致，不要内扣</div>
+<div class="tip">⚠️ 下蹲时重心在脚掌中后部，不要踮起脚跟</div>
+<div class="tip">⚠️ 保持呼吸：下蹲吸气，站起呼气</div>
+<div class="tip">⚠️ 新手建议从徒手或轻重量开始练习动作模式</div>
+</div><div class="home-alt">🏠 家用替代：徒手深蹲 或 背背包深蹲</div></div></div><div class="exercise-card"><img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/leg_press.jpg" alt="腿举" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'"><div class="card-header"><div class="card-title-row"><span class="card-emoji">🦵</span><h3 class="card-title">腿举</h3></div><div class="card-en">Leg Press</div><div class="sets-label">📊 4组 × 10-12次 | 休息90秒秒</div></div><div class="card-body"><div class="parts-row"><div class="part-badge">🦵 股四头肌</div><div class="part-badge secondary">臀大肌、腘绳肌</div></div><div class="weight-row"><span class="weight-label">⚖️ 实际负重</span><input class="weight-input" type="text" value="" placeholder="输入重量如 60kg" data-exercise="腿举" oninput="saveWeight(this, '腿举')" onblur="saveWeightToGit(this, '腿举')"></div><div class="section-title">📋 动作步骤</div><div class="steps"><div class="step"><span class="step-num">1</span><span>背部和头部紧贴靠垫，坐在腿举机上</span></div>
+<div class="step"><span class="step-num">2</span><span>双脚踩在踏板上，间距与肩同宽</span></div>
+<div class="step"><span class="step-num">3</span><span>解除保险锁，屈膝下放重量至约90度</span></div>
+<div class="step"><span class="step-num">4</span><span>股四头肌发力将重量向上推起</span></div>
+<div class="step"><span class="step-num">5</span><span>推至腿不完全伸直，保持微屈状态</span></div>
+</div><div class="section-title">⚡ 注意事项</div><div class="tips"><div class="tip">⚠️ 下放深度不要过低，以免腰椎离开靠垫</div>
+<div class="tip">⚠️ 双脚位置高低可以改变刺激部位</div>
+<div class="tip">⚠️ 脚尖朝前侧重股四头，脚尖外旋侧重内收肌</div>
+<div class="tip">⚠️ 切勿锁死膝关节，保护关节安全</div>
+</div><div class="home-alt">🏠 家用替代：靠墙深蹲 或 单腿蹲</div></div></div><div class="exercise-card"><img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/romanian_deadlift.png" alt="罗马尼亚硬拉" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'"><div class="card-header"><div class="card-title-row"><span class="card-emoji">🦵</span><h3 class="card-title">罗马尼亚硬拉</h3></div><div class="card-en">Romanian Deadlift (RDL)</div><div class="sets-label">📊 4组 × 10-12次 | 休息75秒秒</div></div><div class="card-body"><div class="parts-row"><div class="part-badge">🦵 腘绳肌</div><div class="part-badge secondary">臀大肌、下背部（竖脊肌）</div></div><div class="weight-row"><span class="weight-label">⚖️ 实际负重</span><input class="weight-input" type="text" value="" placeholder="输入重量如 60kg" data-exercise="罗马尼亚硬拉" oninput="saveWeight(this, '罗马尼亚硬拉')" onblur="saveWeightToGit(this, '罗马尼亚硬拉')"></div><div class="section-title">📋 动作步骤</div><div class="steps"><div class="step"><span class="step-num">1</span><span>双手正握杠铃，双脚与肩同宽站立</span></div>
+<div class="step"><span class="step-num">2</span><span>屈髋微屈膝，杠铃沿着大腿前侧下放</span></div>
+<div class="step"><span class="step-num">3</span><span>保持背部挺直，杠铃贴近身体</span></div>
+<div class="step"><span class="step-num">4</span><span>下放至腘绳肌有充分拉伸感即可</span></div>
+<div class="step"><span class="step-num">5</span><span>臀部向前挺，将杠铃拉回起始位置</span></div>
+</div><div class="section-title">⚡ 注意事项</div><div class="tips"><div class="tip">⚠️ 动作全程杠铃贴近大腿，不要让它远离身体</div>
+<div class="tip">⚠️ 感受腘绳肌的拉伸和收缩，不要弓背</div>
+<div class="tip">⚠️ 下放速度慢，上推速度稍快</div>
+<div class="tip">⚠️ 新手建议从较轻重量开始体会动作</div>
+</div><div class="home-alt">🏠 家用替代：哑铃 RDL 或 弹力带罗马尼亚硬拉</div></div></div><div class="exercise-card"><img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/leg_curl.jpg" alt="腿弯举" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'"><div class="card-header"><div class="card-title-row"><span class="card-emoji">🦵</span><h3 class="card-title">腿弯举</h3></div><div class="card-en">Leg Curl</div><div class="sets-label">📊 4组 × 12-15次 | 休息60秒秒</div></div><div class="card-body"><div class="parts-row"><div class="part-badge">🦵 腘绳肌</div><div class="part-badge secondary">小腿（腓肠肌）</div></div><div class="weight-row"><span class="weight-label">⚖️ 实际负重</span><input class="weight-input" type="text" value="" placeholder="输入重量如 60kg" data-exercise="腿弯举" oninput="saveWeight(this, '腿弯举')" onblur="saveWeightToGit(this, '腿弯举')"></div><div class="section-title">📋 动作步骤</div><div class="steps"><div class="step"><span class="step-num">1</span><span>俯卧在腿弯举器械上，脚踝后方抵住滚轴</span></div>
+<div class="step"><span class="step-num">2</span><span>双手抓住手柄固定身体</span></div>
+<div class="step"><span class="step-num">3</span><span>腘绳肌发力，将滚轴向上弯举</span></div>
+<div class="step"><span class="step-num">4</span><span>弯举至顶峰时挤压腘绳肌</span></div>
+<div class="step"><span class="step-num">5</span><span>缓慢下放，控制重量不要让腿完全伸直</span></div>
+</div><div class="section-title">⚡ 注意事项</div><div class="tips"><div class="tip">⚠️ 如果器械是坐姿，同样有效</div>
+<div class="tip">⚠️ 顶峰收缩1秒效果更佳</div>
+<div class="tip">⚠️ 全程控制，不要借助惯性</div>
+<div class="tip">⚠️ 与腿弯举配对练习，腿前侧后侧都要练</div>
+</div><div class="home-alt">🏠 家用替代：俯卧弹力带腿弯举 或 跪姿腿弯举</div></div></div><div class="exercise-card"><img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/calf_raise.png" alt="提踵" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'"><div class="card-header"><div class="card-title-row"><span class="card-emoji">🦗</span><h3 class="card-title">提踵</h3></div><div class="card-en">Calf Raise</div><div class="sets-label">📊 4组 × 15-20次 | 休息45秒秒</div></div><div class="card-body"><div class="parts-row"><div class="part-badge">🦗 小腿三头肌（腓肠肌、比目鱼肌）</div><div class="part-badge secondary">无</div></div><div class="weight-row"><span class="weight-label">⚖️ 实际负重</span><input class="weight-input" type="text" value="" placeholder="输入重量如 60kg" data-exercise="提踵" oninput="saveWeight(this, '提踵')" onblur="saveWeightToGit(this, '提踵')"></div><div class="section-title">📋 动作步骤</div><div class="steps"><div class="step"><span class="step-num">1</span><span>站在台阶或提踵机上，前脚掌踩在边缘</span></div>
+<div class="step"><span class="step-num">2</span><span>脚后跟下沉至最低点，感受小腿拉伸</span></div>
+<div class="step"><span class="step-num">3</span><span>小腿三头肌发力，踮起脚跟至最高点</span></div>
+<div class="step"><span class="step-num">4</span><span>顶峰时收紧小腿，停顿1秒</span></div>
+<div class="step"><span class="step-num">5</span><span>缓慢下放，重复动作</span></div>
+</div><div class="section-title">⚡ 注意事项</div><div class="tips"><div class="tip">⚠️ 提踵是少数适合快节奏的动作，可以稍快</div>
+<div class="tip">⚠️ 坐姿提踵主要刺激比目鱼肌，站姿刺激腓肠肌</div>
+<div class="tip">⚠️ 可以在顶峰时做顶峰收缩增强效果</div>
+<div class="tip">⚠️ 小腿恢复快，可以适当提高训练频率</div>
+</div><div class="home-alt">🏠 家用替代：徒手台阶提踵 或 背包负重提踵</div></div></div>
+<div class="save-bar">
+<span class="save-status" id="saveStatus">✅ 已同步</span>
+<button class="btn btn-primary" onclick="saveAllToGit()">📥 保存重量记录</button>
+<button class="btn btn-secondary" onclick="clearAllWeights()">?? 清空重量</button>
 </div>
-<div class=toast id=toast></div>
-<div class=lightbox id=imgLightbox onclick=closeLightbox()><img id=lightboxImg></div>
+<div class="toast" id="toast"></div>
+<div class="lightbox" id="imgLightbox" onclick="closeLightbox()">
+<img id="lightboxImg">
+</div>
 <script>
-var GITHUB_TOKEN = localStorage.getItem('gh_token') || '';
-var REPO = 'ailoli1314/yanyun_helper';
-function toggleTheme(){
-  var dark=document.documentElement.getAttribute('data-theme')==='dark';
-  document.documentElement.setAttribute('data-theme',dark?'':'dark');
-  localStorage.setItem('theme',dark?'light':'dark');
-  document.querySelector('.theme-toggle').textContent=dark?'\u263C':'\u2600';
-}
-(function(){
-  var t=localStorage.getItem('theme');
-  if(t==='dark'||(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)){
-    document.documentElement.setAttribute('data-theme','dark');
-    document.querySelector('.theme-toggle').textContent='\u2600';
-  }
-})();
-function showToast(msg){
-  var t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(function(){t.classList.remove('show');},2000);
-}
-function saveWeight(el,name){
-  var v=el.value.trim();
-  var w=JSON.parse(localStorage.getItem('workout_weights')||'{}');
-  v?(w[name]=v,el.classList.add('saved')):(delete w[name],el.classList.remove('saved'));
-  localStorage.setItem('workout_weights',JSON.stringify(w));
-  updateStatus(Object.keys(w).length+'(local)');
-}
-(function(){
-  var w=JSON.parse(localStorage.getItem('workout_weights')||'{}');
-  Object.entries(w).forEach(function(e){
-    var inp=document.querySelector('[data-exercise="'+e[0]+'"]');
-    if(inp){inp.value=e[1];inp.classList.add('saved');}
-  });
-})();
-function updateStatus(t){document.getElementById('saveStatus').textContent=t;}
-function ensureToken(){
-  if(!GITHUB_TOKEN){
-    var tok=prompt('Please input GitHub PAT (for saving weights):');
-    if(tok){localStorage.setItem('gh_token',tok);location.reload();}
-    return false;
-  }
-  return true;
-}
-async function getSha(path){
-  var r=await fetch('https://api.github.com/repos/'+REPO+'/contents/'+path,{
-    headers:{'Authorization':'token '+GITHUB_TOKEN,'Accept':'application/vnd.github.v3+json'}
-  });
-  return r.ok?(await r.json()).sha:null;
-}
-async function pushWeights(weights){
-  var sha=await getSha('training_log.json');
-  var rec={};
-  if(sha){
-    var r=await fetch('https://api.github.com/repos/'+REPO+'/contents/training_log.json',{
-      headers:{'Authorization':'token '+GITHUB_TOKEN,'Accept':'application/vnd.github.v3+json'}
-    });
-    if(r.ok)try{rec=JSON.parse(atob((await r.json()).content));}catch(e){}
-  }
-  rec.weights=weights;
-  rec.lastUpdated=new Date().toISOString();
-  var body=JSON.stringify({message:'Update weights',content:btoa(unescape(encodeURIComponent(JSON.stringify(rec,null,2)))),sha:sha});
-  var res=await fetch('https://api.github.com/repos/'+REPO+'/contents/training_log.json',{
-    method:'PUT',
-    headers:{'Authorization':'token '+GITHUB_TOKEN,'Content-Type':'application/json'},
-    body:body
-  });
-  if(res.ok){showToast('Saved to GitHub');updateStatus('Synced');}
-  else{var err=await res.json();showToast('Error: '+(err.message||res.status));}
-}
-async function saveWeightToGit(el,name){
-  if(!ensureToken())return;
-  var w=JSON.parse(localStorage.getItem('workout_weights')||'{}');
-  el.value.trim()?w[name]=el.value.trim():delete w[name];
-  localStorage.setItem('workout_weights',JSON.stringify(w));
-  await pushWeights(w);
-}
-async function saveAllToGit(){
-  if(!ensureToken())return;
-  await pushWeights(JSON.parse(localStorage.getItem('workout_weights')||'{}'));
-}
-function clearAllWeights(){
-  if(!confirm('Clear all weight records?'))return;
-  localStorage.removeItem('workout_weights');
-  document.querySelectorAll('.weight-input').forEach(function(el){el.value='';el.classList.remove('saved');});
-  showToast('Cleared');updateStatus('OK');
-}
-function openLightbox(src){
-  document.getElementById('lightboxImg').src=src;
-  document.getElementById('imgLightbox').style.display='flex';
-}
-function closeLightbox(){document.getElementById('imgLightbox').style.display='none';}
+
+    var GITHUB_TOKEN = localStorage.getItem('gh_token') || '';
+    var REPO = 'ailoli1314/yanyun_helper';
+    function toggleTheme() {
+        var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
+        localStorage.setItem('theme', dark ? 'light' : 'dark');
+        document.querySelector('.theme-toggle').textContent = dark ? '☀️' : '🌙';
+    }
+    (function() {
+        var t = localStorage.getItem('theme');
+        if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.querySelector('.theme-toggle').textContent = '☀️';
+        }
+    })();
+    function showToast(msg) {
+        var e = document.getElementById('toast');
+        e.textContent = msg; e.classList.add('show');
+        setTimeout(function() { e.classList.remove('show'); }, 2000);
+    }
+    function saveWeight(el, name) {
+        var v = el.value.trim();
+        var w = JSON.parse(localStorage.getItem('workout_weights') || '{}');
+        v ? (w[name] = v, el.classList.add('saved')) : (delete w[name], el.classList.remove('saved'));
+        localStorage.setItem('workout_weights', JSON.stringify(w));
+        updateSaveStatus(Object.keys(w).length + '条重量已记录（本地）');
+    }
+    (function() {
+        var w = JSON.parse(localStorage.getItem('workout_weights') || '{}');
+        Object.entries(w).forEach(function(e) {
+            var inp = document.querySelector('[data-exercise="' + e[0] + '"]');
+            if (inp) { inp.value = e[1]; inp.classList.add('saved'); }
+        });
+    })();
+    function updateSaveStatus(t) { document.getElementById('saveStatus').textContent = t; }
+    function ensureToken() {
+        if (!GITHUB_TOKEN) {
+            var tok = prompt('请输入 GitHub PAT（仅需 repos 读写权限）：');
+            if (tok) { localStorage.setItem('gh_token', tok); location.reload(); }
+            return false;
+        }
+        return true;
+    }
+    async function getSha(path) {
+        var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + path, {
+            headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        return r.ok ? (await r.json()).sha : null;
+    }
+    async function pushWeights(weights) {
+        var sha = await getSha('training_log.json');
+        var rec = {};
+        if (sha) {
+            var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/training_log.json', {
+                headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' }
+            });
+            if (r.ok) { try { rec = JSON.parse(atob((await r.json()).content)); } catch(e) {} }
+        }
+        rec.weights = weights;
+        rec.lastUpdated = new Date().toISOString();
+        var body = JSON.stringify({
+            message: '更新训练重量记录',
+            content: btoa(unescape(encodeURIComponent(JSON.stringify(rec, null, 2)))),
+            sha: sha
+        });
+        var res = await fetch('https://api.github.com/repos/' + REPO + '/contents/training_log.json', {
+            method: 'PUT',
+            headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Content-Type': 'application/json' },
+            body: body
+        });
+        if (res.ok) {
+            showToast('已保存到 GitHub');
+            updateSaveStatus('已同步到 GitHub');
+        } else { showToast('保存失败: ' + ((await res.json()).message || res.status)); }
+    }
+    async function saveWeightToGit(el, name) {
+        if (!ensureToken()) return;
+        var w = JSON.parse(localStorage.getItem('workout_weights') || '{}');
+        el.value.trim() ? w[name] = el.value.trim() : delete w[name];
+        localStorage.setItem('workout_weights', JSON.stringify(w));
+        await pushWeights(w);
+    }
+    async function saveAllToGit() {
+        if (!ensureToken()) return;
+        await pushWeights(JSON.parse(localStorage.getItem('workout_weights') || '{}'));
+    }
+    function clearAllWeights() {
+        if (!confirm('确定清空所有重量记录？')) return;
+        localStorage.removeItem('workout_weights');
+        document.querySelectorAll('.weight-input').forEach(function(el) { el.value = ''; el.classList.remove('saved'); });
+        showToast('已清空');
+        updateSaveStatus('已同步');
+    }
+    function openLightbox(src) {
+        document.getElementById('lightboxImg').src = src;
+        document.getElementById('imgLightbox').style.display = 'flex';
+    }
+    function closeLightbox() { document.getElementById('imgLightbox').style.display = 'none'; }
+    
 </script>
 </body>
 </html>
