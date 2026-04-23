@@ -1,7 +1,7 @@
 {
   "name": "张贵彬健身计划",
   "mode": "sequential",
-  "current_day": "day3",
+  "current_day": "day1",
   "day_sequence": [
     "day1",
     "day2",
@@ -11,10 +11,10 @@
     "0": "day1",
     "1": "day2",
     "2": "day3",
-    "3": "rest",
-    "4": "day1",
-    "5": "day2",
-    "6": "day3",
+    "3": "day1",
+    "4": "day2",
+    "5": "day3",
+    "6": "rest",
     "7": "rest"
   },
   "days": {
@@ -406,5 +406,5 @@
       "exercises": []
     }
   },
-  "_rest_today": true
+  "_rest_today": false
 }
