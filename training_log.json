@@ -120,5 +120,29 @@
         "weight": "12kg"
       }
     ]
+  },
+  "2026-04-27": {
+    "date": "2026-04-27",
+    "dayName": "🏋️ Day2 拉 (Pull)",
+    "completed": 5,
+    "total": 5,
+    "percent": 100,
+    "exercises": [
+      {
+        "name": "高位下拉"
+      },
+      {
+        "name": "坐姿划船"
+      },
+      {
+        "name": "面拉"
+      },
+      {
+        "name": "杠铃弯举"
+      },
+      {
+        "name": "悬垂举腿"
+      }
+    ]
   }
 }
