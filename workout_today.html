@@ -355,7 +355,7 @@ async function confirmAndSave() {
         if (r.ok) {
             var d = await r.json();
             sha = d.sha;
-            try { currentLog = JSON.parse(atob(d.content)); } catch(e) {}
+            try { currentLog = JSON.parse(new TextDecoder().decode(atob(d.content))); } catch(e) {}
         }
 
         currentLog[dateStr] = logEntry;
@@ -363,7 +363,7 @@ async function confirmAndSave() {
 
         var body = JSON.stringify({
             message: 'Training log ' + dateStr,
-            content: btoa(unescape(encodeURIComponent(JSON.stringify(currentLog, null, 2)))),
+            content: btoa(new TextEncoder().encode(JSON.stringify(currentLog, null, 2))),
             sha: sha
         });
 
@@ -411,11 +411,11 @@ async function advanceCurrentDay(token) {
     var data = await r.json();
     var sha = data.sha;
 
-    var cfg = JSON.parse(atob(data.content));
+    var cfg = JSON.parse(new TextDecoder().decode(atob(data.content)));
     cfg.current_day = nxt;
     var body = JSON.stringify({
         message: 'Advance to ' + nxt,
-        content: btoa(unescape(encodeURIComponent(JSON.stringify(cfg, null, 2)))),
+        content: btoa(new TextEncoder().encode(JSON.stringify(cfg, null, 2))),
         sha: sha
     });
     var res = await fetch('https://api.github.com/repos/' + REPO + '/contents/workout_config.json', {
