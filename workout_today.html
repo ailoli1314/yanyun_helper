@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>休息日 - 健身计划</title>
+<title>Day3 腿 (Legs) - 健身计划</title>
 <style>
 
 :root {
@@ -85,16 +85,166 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀</button>
 <div class="header">
 <div class="date-info">2026年04月28日 周二</div>
-<div class="day-title">😴 休息日</div>
-<div class="day-desc">充分休息，恢复肌肉</div>
+<div class="day-title">🦵 Day3 腿 (Legs)</div>
+<div class="day-desc">股四头肌 + 臀大肌 + 腘绳肌 + 小腿</div>
 </div>
 <div class="day-summary">
-<div class="summary-item"><span class="summary-num">0</span><span class="summary-label">训练动作</span></div>
-<div class="summary-item"><span class="summary-num">0</span><span class="summary-label">总组数</span></div>
-<div class="summary-item"><span class="summary-num">0</span><span class="summary-label">预计分钟</span></div>
+<div class="summary-item"><span class="summary-num">5</span><span class="summary-label">训练动作</span></div>
+<div class="summary-item"><span class="summary-num">21</span><span class="summary-label">总组数</span></div>
+<div class="summary-item"><span class="summary-num">20</span><span class="summary-label">预计分钟</span></div>
 </div>
 <div class="divider">💪 训练动作 💪</div>
 
+        <div class="exercise-card" onclick="toggleDone(this, event)">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/barbell_squat.jpg" alt="深蹲" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <div class="card-header">
+                <div class="card-title-row">
+                    <span class="card-emoji">💪</span>
+                    <h3 class="card-title">深蹲</h3>
+                </div>
+                <div class="card-en">Barbell Back Squat</div>
+                <div class="sets-label">📊 5组 × 8-12次 | 休息120秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（e.g. 60kg）" data-exercise="深蹲"></div>
+            </div>
+            <div class="card-body">
+                <div class="parts-row"><div class="part-badge">股四头肌、臀大肌</div><div class="part-badge secondary">腘绳肌、内收肌、竖脊肌</div></div>
+                <div class="section-title">📋 动作步骨</div>
+                <div class="steps"><div class="step"><span class="step-num">1</span><span>将杠铃置于斜方肌上（高位深蹲），双脚与肩同宽或略宽</span></div>
+<div class="step"><span class="step-num">2</span><span>调整脚尖朝向（外展15-30度），挺胸收紧核心</span></div>
+<div class="step"><span class="step-num">3</span><span>臀部向后坐，屈膝屈髋下蹲</span></div>
+<div class="step"><span class="step-num">4</span><span>下蹲至大腿与地面平行或略低</span></div>
+<div class="step"><span class="step-num">5</span><span>双脚发力蹬地站起，全程保持背部挺直</span></div>
+</div>
+                <div class="section-title">🔊 注意事项</div>
+                <div class="tips"><div class="tip">⚠️ 膝盖方向要与脚尖方向一致，不要内扣</div>
+<div class="tip">⚠️ 下蹲时重心在脚掌中后部，不要踮起脚跟</div>
+<div class="tip">⚠️ 保持呼吸：下蹲吸气，站起呼气</div>
+<div class="tip">⚠️ 新手建议从徒手或轻重量开始练习动作模式</div>
+</div>
+                <div class="home-alt">🏠 家用替代：徒手深蹲 或 背背包深蹲</div>
+            </div>
+        </div>
+        
+        <div class="exercise-card" onclick="toggleDone(this, event)">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/leg_press.jpg" alt="腿举" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <div class="card-header">
+                <div class="card-title-row">
+                    <span class="card-emoji">💪</span>
+                    <h3 class="card-title">腿举</h3>
+                </div>
+                <div class="card-en">Leg Press</div>
+                <div class="sets-label">📊 4组 × 10-12次 | 休息90秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（e.g. 60kg）" data-exercise="腿举"></div>
+            </div>
+            <div class="card-body">
+                <div class="parts-row"><div class="part-badge">股四头肌</div><div class="part-badge secondary">臀大肌、腘绳肌</div></div>
+                <div class="section-title">📋 动作步骨</div>
+                <div class="steps"><div class="step"><span class="step-num">1</span><span>背部和头部紧贴靠垫，坐在腿举机上</span></div>
+<div class="step"><span class="step-num">2</span><span>双脚踩在踏板上，间距与肩同宽</span></div>
+<div class="step"><span class="step-num">3</span><span>解除保险锁，屈膝下放重量至约90度</span></div>
+<div class="step"><span class="step-num">4</span><span>股四头肌发力将重量向上推起</span></div>
+<div class="step"><span class="step-num">5</span><span>推至腿不完全伸直，保持微屈状态</span></div>
+</div>
+                <div class="section-title">🔊 注意事项</div>
+                <div class="tips"><div class="tip">⚠️ 下放深度不要过低，以免腰椎离开靠垫</div>
+<div class="tip">⚠️ 双脚位置高低可以改变刺激部位</div>
+<div class="tip">⚠️ 脚尖朝前侧重股四头，脚尖外旋侧重内收肌</div>
+<div class="tip">⚠️ 切勿锁死膝关节，保护关节安全</div>
+</div>
+                <div class="home-alt">🏠 家用替代：靠墙深蹲 或 单腿蹲</div>
+            </div>
+        </div>
+        
+        <div class="exercise-card" onclick="toggleDone(this, event)">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/romanian_deadlift.png" alt="罗马尼亚硬拉" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <div class="card-header">
+                <div class="card-title-row">
+                    <span class="card-emoji">💪</span>
+                    <h3 class="card-title">罗马尼亚硬拉</h3>
+                </div>
+                <div class="card-en">Romanian Deadlift (RDL)</div>
+                <div class="sets-label">📊 4组 × 10-12次 | 休息75秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（e.g. 60kg）" data-exercise="罗马尼亚硬拉"></div>
+            </div>
+            <div class="card-body">
+                <div class="parts-row"><div class="part-badge">腘绳肌</div><div class="part-badge secondary">臀大肌、下背部（竖脊肌）</div></div>
+                <div class="section-title">📋 动作步骨</div>
+                <div class="steps"><div class="step"><span class="step-num">1</span><span>双手正握杠铃，双脚与肩同宽站立</span></div>
+<div class="step"><span class="step-num">2</span><span>屈髋微屈膝，杠铃沿着大腿前侧下放</span></div>
+<div class="step"><span class="step-num">3</span><span>保持背部挺直，杠铃贴近身体</span></div>
+<div class="step"><span class="step-num">4</span><span>下放至腘绳肌有充分拉伸感即可</span></div>
+<div class="step"><span class="step-num">5</span><span>臀部向前挺，将杠铃拉回起始位置</span></div>
+</div>
+                <div class="section-title">🔊 注意事项</div>
+                <div class="tips"><div class="tip">⚠️ 动作全程杠铃贴近大腿，不要让它远离身体</div>
+<div class="tip">⚠️ 感受腘绳肌的拉伸和收缩，不要弓背</div>
+<div class="tip">⚠️ 下放速度慢，上推速度稍快</div>
+<div class="tip">⚠️ 新手建议从较轻重量开始体会动作</div>
+</div>
+                <div class="home-alt">🏠 家用替代：哑铃 RDL 或 弹力带罗马尼亚硬拉</div>
+            </div>
+        </div>
+        
+        <div class="exercise-card" onclick="toggleDone(this, event)">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/leg_curl.jpg" alt="腿弯举" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <div class="card-header">
+                <div class="card-title-row">
+                    <span class="card-emoji">💪</span>
+                    <h3 class="card-title">腿弯举</h3>
+                </div>
+                <div class="card-en">Leg Curl</div>
+                <div class="sets-label">📊 4组 × 12-15次 | 休息60秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（e.g. 60kg）" data-exercise="腿弯举"></div>
+            </div>
+            <div class="card-body">
+                <div class="parts-row"><div class="part-badge">腘绳肌</div><div class="part-badge secondary">小腿（腓肠肌）</div></div>
+                <div class="section-title">📋 动作步骨</div>
+                <div class="steps"><div class="step"><span class="step-num">1</span><span>俯卧在腿弯举器械上，脚踝后方抵住滚轴</span></div>
+<div class="step"><span class="step-num">2</span><span>双手抓住手柄固定身体</span></div>
+<div class="step"><span class="step-num">3</span><span>腘绳肌发力，将滚轴向上弯举</span></div>
+<div class="step"><span class="step-num">4</span><span>弯举至顶峰时挤压腘绳肌</span></div>
+<div class="step"><span class="step-num">5</span><span>缓慢下放，控制重量不要让腿完全伸直</span></div>
+</div>
+                <div class="section-title">🔊 注意事项</div>
+                <div class="tips"><div class="tip">⚠️ 如果器械是坐姿，同样有效</div>
+<div class="tip">⚠️ 顶峰收缩1秒效果更佳</div>
+<div class="tip">⚠️ 全程控制，不要借助惯性</div>
+<div class="tip">⚠️ 与腿弯举配对练习，腿前侧后侧都要练</div>
+</div>
+                <div class="home-alt">🏠 家用替代：俯卧弹力带腿弯举 或 跪姿腿弯举</div>
+            </div>
+        </div>
+        
+        <div class="exercise-card" onclick="toggleDone(this, event)">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/calf_raise.png" alt="提踵" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <div class="card-header">
+                <div class="card-title-row">
+                    <span class="card-emoji">💪</span>
+                    <h3 class="card-title">提踵</h3>
+                </div>
+                <div class="card-en">Calf Raise</div>
+                <div class="sets-label">📊 4组 × 15-20次 | 休息45秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（e.g. 60kg）" data-exercise="提踵"></div>
+            </div>
+            <div class="card-body">
+                <div class="parts-row"><div class="part-badge">小腿三头肌（腓肠肌、比目鱼肌）</div><div class="part-badge secondary">无</div></div>
+                <div class="section-title">📋 动作步骨</div>
+                <div class="steps"><div class="step"><span class="step-num">1</span><span>站在台阶或提踵机上，前脚掌踩在边缘</span></div>
+<div class="step"><span class="step-num">2</span><span>脚后跟下沉至最低点，感受小腿拉伸</span></div>
+<div class="step"><span class="step-num">3</span><span>小腿三头肌发力，踮起脚跟至最高点</span></div>
+<div class="step"><span class="step-num">4</span><span>顶峰时收紧小腿，停顿1秒</span></div>
+<div class="step"><span class="step-num">5</span><span>缓慢下放，重复动作</span></div>
+</div>
+                <div class="section-title">🔊 注意事项</div>
+                <div class="tips"><div class="tip">⚠️ 提踵是少数适合快节奏的动作，可以稍快</div>
+<div class="tip">⚠️ 坐姿提踵主要刺激比目鱼肌，站姿刺激腓肠肌</div>
+<div class="tip">⚠️ 可以在顶峰时做顶峰收缩增强效果</div>
+<div class="tip">⚠️ 小腿恢复快，可以适当提高训练频率</div>
+</div>
+                <div class="home-alt">🏠 家用替代：徒手台阶提踵 或 背包负重提踵</div>
+            </div>
+        </div>
+        
 <div class="footer">
 <p>📝 编辑 <code>workout_config.json</code> 即可修改训练计划</p>
 <p style="margin-top:6px">由 OpenClaw 自动生成 · 2026年04月28日</p>
@@ -103,7 +253,7 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 <div class="progress-label">今日训练完成进度 <span id="pctText">0/0</span></div>
 <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
 <div style="text-align:center;margin-top:8px">
-<button class="btn-save" id="saveBtn" data-current-day="rest" onclick="confirmAndSave()">✔ 确认完成</button>
+<button class="btn-save" id="saveBtn" data-current-day="day3" onclick="confirmAndSave()">✔ 确认完成</button>
 </div>
 </div>
 <div class="toast" id="toast"></div>
