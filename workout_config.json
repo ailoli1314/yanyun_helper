@@ -1,7 +1,7 @@
 {
   "name": "张贵彬健身计划",
   "mode": "sequential",
-  "current_day": "day3",
+  "current_day": "day1",
   "day_sequence": [
     "day1",
     "day2",
@@ -405,5 +405,6 @@
       "description": "充分休息，恢复肌肉",
       "exercises": []
     }
-  }
+  },
+  "_rest_today": true
 }
