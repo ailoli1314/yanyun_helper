@@ -2,806 +2,451 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🏋️ Day3 腿（Legs）- 2026年5月5日（周二）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Day2 拉 (Pull) - 健身计划</title>
 <style>
-  :root {
-    --bg: #0d1117;
-    --bg2: #161b22;
-    --bg3: #21262d;
-    --border: #30363d;
-    --text: #e6edf3;
-    --text2: #8b949e;
-    --accent: #58a6ff;
-    --success: #3fb950;
-    --warning: #d29922;
-    --danger: #f85149;
-    --tag-bg: rgba(88,166,255,0.15);
-    --tag2-bg: rgba(63,185,80,0.15);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 20px;
-    line-height: 1.6;
-  }
-  .container { max-width: 720px; margin: 0 auto; }
-  .header {
-    text-align: center;
-    margin-bottom: 24px;
-    padding: 24px;
-    background: linear-gradient(135deg, var(--bg2) 0%, #1a2332 100%);
-    border-radius: 16px;
-    border: 1px solid var(--border);
-    position: relative;
-    overflow: hidden;
-  }
-  .header::before {
-    content: '🦵';
-    position: absolute;
-    font-size: 120px;
-    opacity: 0.06;
-    top: -10px;
-    right: -10px;
-  }
-  .header h1 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    letter-spacing: -0.5px;
-  }
-  .header .subtitle {
-    color: var(--text2);
-    font-size: 14px;
-  }
-  .badge-row {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    margin-top: 12px;
-    flex-wrap: wrap;
-  }
-  .badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-  .badge-date { background: var(--tag-bg); color: var(--accent); }
-  .badge-day { background: rgba(210,153,34,0.15); color: var(--warning); }
-  .badge-target { background: rgba(163,113,247,0.15); color: #a371f7; }
-  .section-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--text);
-    margin: 28px 0 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-  .exercise-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    margin-bottom: 12px;
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
-  .exercise-card:hover { border-color: var(--accent); }
-  .exercise-card.done { opacity: 0.6; border-color: var(--success); }
-  .exercise-card.done .card-header { text-decoration: line-through; }
-  .card-header {
-    display: flex;
-    align-items: center;
-    padding: 16px;
-    cursor: pointer;
-    user-select: none;
-    gap: 12px;
-  }
-  .card-header:hover { background: rgba(255,255,255,0.03); }
-  .ex-emoji { font-size: 28px; flex-shrink: 0; }
-  .ex-info { flex: 1; min-width: 0; }
-  .ex-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-  .ex-meta {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    font-size: 12px;
-    color: var(--text2);
-  }
-  .ex-meta span {
-    background: var(--bg3);
-    padding: 2px 8px;
-    border-radius: 6px;
-  }
-  .ex-meta .primary { color: var(--accent); }
-  .ex-meta .sets { color: var(--warning); }
-  .ex-meta .rest { color: var(--success); }
-  .ex-toggle {
-    font-size: 18px;
-    color: var(--text2);
-    transition: transform 0.3s;
-    flex-shrink: 0;
-  }
-  .card-header.expanded .ex-toggle { transform: rotate(180deg); }
-  .card-body {
-    display: none;
-    padding: 0 16px 16px;
-    border-top: 1px solid var(--border);
-  }
-  .card-body.open { display: block; }
-  .weight-input-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 12px;
-  }
-  .weight-input-row label {
-    font-size: 13px;
-    color: var(--text2);
-    flex-shrink: 0;
-  }
-  .weight-input-row input {
-    flex: 1;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    padding: 8px 12px;
-    font-size: 14px;
-    outline: none;
-    max-width: 160px;
-  }
-  .weight-input-row input:focus {
-    border-color: var(--accent);
-  }
-  .weight-input-row .history-badge {
-    font-size: 11px;
-    color: var(--text2);
-    background: var(--bg);
-    padding: 4px 8px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-  }
-  .steps-section, .tips-section { margin-bottom: 12px; }
-  .steps-section h4, .tips-section h4 {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text2);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-  }
-  .steps-section ol {
-    padding-left: 20px;
-  }
-  .steps-section li {
-    font-size: 13px;
-    color: var(--text);
-    margin-bottom: 6px;
-    padding-left: 4px;
-  }
-  .tips-section ul { padding-left: 16px; }
-  .tips-section li {
-    font-size: 13px;
-    color: var(--text);
-    margin-bottom: 5px;
-    padding-left: 4px;
-    list-style-type: disc;
-  }
-  .history-panel {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 24px;
-  }
-  .history-panel h4 {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text2);
-    margin-bottom: 12px;
-  }
-  .history-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .history-table th {
-    text-align: left;
-    color: var(--text2);
-    font-weight: 600;
-    padding: 6px 8px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg3);
-  }
-  .history-table td {
-    padding: 6px 8px;
-    border-bottom: 1px solid rgba(48,54,61,0.5);
-    color: var(--text);
-  }
-  .history-table tr:last-child td { border-bottom: none; }
-  .history-table .no-data {
-    text-align: center;
-    color: var(--text2);
-    padding: 20px;
-    font-size: 13px;
-  }
-  .progress-bar-wrap {
-    background: var(--bg3);
-    border-radius: 8px;
-    height: 8px;
-    margin: 16px 0;
-    overflow: hidden;
-  }
-  .progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--success));
-    border-radius: 8px;
-    transition: width 0.4s ease;
-    width: 0%;
-  }
-  .progress-text {
-    text-align: center;
-    font-size: 13px;
-    color: var(--text2);
-    margin-bottom: 20px;
-  }
-  .btn-save {
-    display: block;
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, #238636, #2ea043);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    text-align: center;
-    margin-top: 20px;
-    transition: all 0.2s;
-    font-family: inherit;
-  }
-  .btn-save:hover { background: linear-gradient(135deg, #2ea043, #3fb950); transform: translateY(-1px); }
-  .btn-save:active { transform: translateY(0); }
-  .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
-  .toast {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-100px);
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 12px 24px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    z-index: 9999;
-    transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.success { border-color: var(--success); color: var(--success); }
-  .toast.error { border-color: var(--danger); color: var(--danger); }
-  .footer {
-    text-align: center;
-    padding: 24px 0;
-    color: var(--text2);
-    font-size: 12px;
-  }
-  @media (max-width: 480px) {
-    body { padding: 12px; }
-    .header h1 { font-size: 20px; }
-    .ex-meta { gap: 4px; }
-  }
 
-  .ex-img-wrap img { transition: opacity 0.2s; }
-  .ex-img-wrap img:hover { opacity: 0.9; }
+:root {
+    --bg: #f5f6fa;
+    --card-bg: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --accent: #0984e3;
+    --accent-light: #dfe6e9;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --radius: 16px;
+}
+[data-theme="dark"] {
+    --bg: #1a1a2e;
+    --card-bg: #16213e;
+    --text: #eaeaea;
+    --text-secondary: #a0a0a0;
+    --accent: #4cc9f0;
+    --accent-light: #2a3f5f;
+    --shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); padding: 16px; padding-bottom: 100px; transition: background 0.3s, color 0.3s; min-height: 100vh; }
+.theme-toggle { position: fixed; top: 16px; right: 16px; z-index: 999; background: var(--card-bg); border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 20px; cursor: pointer; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; }
+.header { text-align: center; margin: 30px 0 20px; }
+.date-info { font-size: 14px; color: var(--text-secondary); margin-bottom: 6px; }
+.day-title { font-size: 26px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+.day-desc { font-size: 15px; color: var(--text-secondary); margin-bottom: 4px; }
+.day-summary { background: var(--card-bg); border-radius: var(--radius); padding: 14px 18px; margin: 14px 0; box-shadow: var(--shadow); display: flex; justify-content: space-around; text-align: center; }
+.summary-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.summary-num { font-size: 24px; font-weight: 700; color: var(--accent); }
+.summary-label { font-size: 12px; color: var(--text-secondary); }
+.divider { text-align: center; color: var(--text-secondary); font-size: 13px; margin: 24px 0 16px; display: flex; align-items: center; gap: 12px; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--accent-light); }
+.exercise-card { background: var(--card-bg); border-radius: var(--radius); margin-bottom: 16px; box-shadow: var(--shadow); overflow: hidden; transition: transform 0.2s, opacity 0.3s; cursor: pointer; }
+.exercise-card:active { transform: scale(0.98); }
+.exercise-card.done { opacity: 0.45; }
+.exercise-img { width: 100%; height: 180px; object-fit: cover; object-position: center; display: block; background: var(--accent-light); cursor: pointer; }
+.card-header { padding: 16px 18px 10px; border-bottom: 1px solid var(--accent-light); }
+.card-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.card-emoji { font-size: 28px; }
+.card-title { font-size: 18px; font-weight: 700; }
+.card-en { font-size: 12px; color: var(--text-secondary); margin-left: 38px; font-style: italic; }
+.sets-label { display: inline-block; background: var(--accent-light); color: var(--accent); font-size: 13px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-top: 8px; }
+/* weight input */
+.weight-row { margin: 10px 0 4px; }
+.weight-input { width: 100%; padding: 7px 12px; border: 1.5px solid var(--accent-light); border-radius: 10px; background: var(--bg); color: var(--text); font-size: 14px; font-weight: 600; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+.weight-input:focus { border-color: var(--accent); }
+.weight-input::placeholder { color: var(--text-secondary); font-weight: 400; font-size: 13px; }
+.card-body { padding: 14px 18px 16px; }
+.parts-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.part-badge { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); color: white; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 12px; }
+.part-badge.secondary { background: linear-gradient(135deg, #74b9ff, #0984e3); }
+.section-title { font-size: 13px; font-weight: 700; color: var(--accent); margin: 14px 0 8px; }
+.steps { display: flex; flex-direction: column; gap: 8px; }
+.step { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; line-height: 1.5; }
+.step-num { background: var(--accent-light); color: var(--accent); font-size: 11px; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.tips { display: flex; flex-direction: column; gap: 6px; }
+.tip { background: var(--accent-light); color: var(--text); font-size: 13px; padding: 8px 12px; border-radius: 10px; line-height: 1.5; border-left: 3px solid var(--warning); }
+.home-alt { background: #e8f5e9; color: #2e7d32; font-size: 13px; padding: 10px 14px; border-radius: 10px; margin-top: 14px; line-height: 1.5; }
+[data-theme="dark"] .home-alt { background: #1b3a2a; color: #81c784; }
+.footer { text-align: center; margin-top: 40px; padding: 20px; color: var(--text-secondary); font-size: 12px; border-top: 1px solid var(--accent-light); }
+.progress-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); padding: 12px 20px 20px; box-shadow: 0 -2px 12px rgba(0,0,0,0.1); z-index: 100; }
+.progress-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+.progress-track { background: var(--accent-light); border-radius: 6px; height: 6px; overflow: hidden; }
+.progress-fill { background: linear-gradient(90deg, var(--accent), var(--success)); height: 100%; border-radius: 6px; transition: width 0.5s; }
+.btn-save { background: var(--success); color: white; border: none; border-radius: 12px; padding: 10px 28px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+.btn-save:active { opacity: 0.85; }
+.toast { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); background: var(--success); color: white; padding: 8px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.toast.show { opacity: 1; }
+.lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; cursor: pointer; align-items: center; justify-content: center; }
+.lightbox img { max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 8px; }
+
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>🏋️ Day3 腿（Legs）</h1>
-    <div class="subtitle">股四头肌 · 臀大肌 · 腘绳肌 · 小腿</div>
-    <div class="badge-row">
-      <span class="badge badge-date">📅 2026年5月5日（周二）</span>
-      <span class="badge badge-day">⚡ 腿部训练日</span>
-      <span class="badge badge-target">💪 5个动作</span>
-    </div>
-  </div>
-
-  <div class="progress-text">完成进度 <span id="progressCount">0</span> / 5</div>
-  <div class="progress-bar-wrap">
-    <div class="progress-bar" id="progressBar"></div>
-  </div>
-
-  <div class="section-title">📋 今日动作</div>
-
-  <!-- 深蹲 -->
-  <div class="exercise-card" data-exercise="深蹲">
-    <div class="card-header" onclick="toggleCard(this)">
-      <span class="ex-emoji">🤥💪</span>
-      <div class="ex-info">
-        <div class="ex-name">深蹲</div>
-        <div class="ex-meta">
-          <span class="primary">股四头肌、臀大肌</span>
-          <span class="sets">5组 × 8-12次</span>
-          <span class="rest">⏱ 休息120秒</span>
-        </div>
-      </div>
-      <input type="checkbox" class="ex-check" onchange="updateProgress(); toggleDoneClass(this)" onclick="event.stopPropagation()" style="width:22px;height:22px;accent-color:var(--success);flex-shrink:0">
-      <span class="ex-toggle">▼</span>
-    </div>
-    <div class="card-body">
-      <div class="weight-input-row">
-        <label>今日重量</label>
-        <input type="text" id="weight-深蹲" placeholder="如: 60kg" value="">
-        <span class="history-badge" id="hist-深蹲">上次: --</span><div class="ex-img-wrap" style="margin:12px 0 8px;text-align:center;">
-        <img src="https://raw.githubusercontent.com/ailoli1314/yanyun_helper/main/images/barbell_squat.jpg"
-             alt="深蹲"
-             style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid #30363d;"
-             onerror="this.parentElement.remove()">
-      </div>
-      </div>
-      <div class="steps-section">
-        <h4>📝 动作步骤</h4>
-        <ol>
-          <li>将杠铃置于斜方肌上（高位深蹲），双脚与肩同宽或略宽</li>
-          <li>调整脚尖朝向（外展15-30度），挺胸收紧核心</li>
-          <li>臀部向后坐，屈膝屈髋下蹲</li>
-          <li>下蹲至大腿与地面平行或略低</li>
-          <li>双脚发力蹬地站起，全程保持背部挺直</li>
-        </ol>
-      </div>
-      <div class="tips-section">
-        <h4>💡 动作要点</h4>
-        <ul>
-          <li>膝盖方向要与脚尖方向一致，不要内扣</li>
-          <li>下蹲时重心在脚掌中后部，不要踮起脚跟</li>
-          <li>保持呼吸：下蹲吸气，站起呼气</li>
-          <li>新手建议从徒手或轻重量开始练习动作模式</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- 腿举 -->
-  <div class="exercise-card" data-exercise="腿举">
-    <div class="card-header" onclick="toggleCard(this)">
-      <span class="ex-emoji">🤥🏋️</span>
-      <div class="ex-info">
-        <div class="ex-name">腿举</div>
-        <div class="ex-meta">
-          <span class="primary">股四头肌</span>
-          <span class="sets">4组 × 10-12次</span>
-          <span class="rest">⏱ 休息90秒</span>
-        </div>
-      </div>
-      <input type="checkbox" class="ex-check" onchange="updateProgress(); toggleDoneClass(this)" onclick="event.stopPropagation()" style="width:22px;height:22px;accent-color:var(--success);flex-shrink:0">
-      <span class="ex-toggle">▼</span>
-    </div>
-    <div class="card-body">
-      <div class="weight-input-row">
-        <label>今日重量</label>
-        <input type="text" id="weight-腿举" placeholder="如: 100kg" value="">
-        <span class="history-badge" id="hist-腿举">上次: --</span><div class="ex-img-wrap" style="margin:12px 0 8px;text-align:center;">
-        <img src="https://raw.githubusercontent.com/ailoli1314/yanyun_helper/main/images/leg_press.jpg"
-             alt="腿举"
-             style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid #30363d;"
-             onerror="this.parentElement.remove()">
-      </div>
-      </div>
-      <div class="steps-section">
-        <h4>📝 动作步骤</h4>
-        <ol>
-          <li>背部和头部紧贴靠垫，坐在腿举机上</li>
-          <li>双脚踩在踏板上，间距与肩同宽</li>
-          <li>解除保险锁，屈膝下放重量至约90度</li>
-          <li>股四头肌发力将重量向上推起</li>
-          <li>推至腿不完全伸直，保持微屈状态</li>
-        </ol>
-      </div>
-      <div class="tips-section">
-        <h4>💡 动作要点</h4>
-        <ul>
-          <li>下放深度不要过低，以免腰椎离开靠垫</li>
-          <li>双脚位置高低可以改变刺激部位</li>
-          <li>脚尖朝前侧重股四头，脚尖外旋侧重内收肌</li>
-          <li>切勿锁死膝关节，保护关节安全</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- 罗马尼亚硬拉 -->
-  <div class="exercise-card" data-exercise="罗马尼亚硬拉">
-    <div class="card-header" onclick="toggleCard(this)">
-      <span class="ex-emoji">🤥🦴</span>
-      <div class="ex-info">
-        <div class="ex-name">罗马尼亚硬拉</div>
-        <div class="ex-meta">
-          <span class="primary">腘绳肌</span>
-          <span class="sets">4组 × 10-12次</span>
-          <span class="rest">⏱ 休息75秒</span>
-        </div>
-      </div>
-      <input type="checkbox" class="ex-check" onchange="updateProgress(); toggleDoneClass(this)" onclick="event.stopPropagation()" style="width:22px;height:22px;accent-color:var(--success);flex-shrink:0">
-      <span class="ex-toggle">▼</span>
-    </div>
-    <div class="card-body">
-      <div class="weight-input-row">
-        <label>今日重量</label>
-        <input type="text" id="weight-罗马尼亚硬拉" placeholder="如: 40kg" value="">
-        <span class="history-badge" id="hist-罗马尼亚硬拉">上次: --</span><div class="ex-img-wrap" style="margin:12px 0 8px;text-align:center;">
-        <img src="https://raw.githubusercontent.com/ailoli1314/yanyun_helper/main/images/romanian_deadlift.png"
-             alt="罗马尼亚硬拉"
-             style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid #30363d;"
-             onerror="this.parentElement.remove()">
-      </div>
-      </div>
-      <div class="steps-section">
-        <h4>📝 动作步骤</h4>
-        <ol>
-          <li>双手正握杠铃，双脚与肩同宽站立</li>
-          <li>屈髋微屈膝，杠铃沿着大腿前侧下放</li>
-          <li>保持背部挺直，杠铃贴近身体</li>
-          <li>下放至腘绳肌有充分拉伸感即可</li>
-          <li>臀部向前挺，将杠铃拉回起始位置</li>
-        </ol>
-      </div>
-      <div class="tips-section">
-        <h4>💡 动作要点</h4>
-        <ul>
-          <li>动作全程杠铃贴近大腿，不要让它远离身体</li>
-          <li>感受腘绳肌的拉伸和收缩，不要弓背</li>
-          <li>下放速度慢，上推速度稍快</li>
-          <li>新手建议从较轻重量开始体会动作</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- 腿弯举 -->
-  <div class="exercise-card" data-exercise="腿弯举">
-    <div class="card-header" onclick="toggleCard(this)">
-      <span class="ex-emoji">🤥🤸</span>
-      <div class="ex-info">
-        <div class="ex-name">腿弯举</div>
-        <div class="ex-meta">
-          <span class="primary">腘绳肌</span>
-          <span class="sets">4组 × 12-15次</span>
-          <span class="rest">⏱ 休息60秒</span>
-        </div>
-      </div>
-      <input type="checkbox" class="ex-check" onchange="updateProgress(); toggleDoneClass(this)" onclick="event.stopPropagation()" style="width:22px;height:22px;accent-color:var(--success);flex-shrink:0">
-      <span class="ex-toggle">▼</span>
-    </div>
-    <div class="card-body">
-      <div class="weight-input-row">
-        <label>今日重量</label>
-        <input type="text" id="weight-腿弯举" placeholder="如: 30kg" value="">
-        <span class="history-badge" id="hist-腿弯举">上次: --</span><div class="ex-img-wrap" style="margin:12px 0 8px;text-align:center;">
-        <img src="https://raw.githubusercontent.com/ailoli1314/yanyun_helper/main/images/leg_curl.jpg"
-             alt="腿弯举"
-             style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid #30363d;"
-             onerror="this.parentElement.remove()">
-      </div>
-      </div>
-      <div class="steps-section">
-        <h4>📝 动作步骤</h4>
-        <ol>
-          <li>俯卧在腿弯举器械上，脚踝后方抵住滚轴</li>
-          <li>双手抓住手柄固定身体</li>
-          <li>腘绳肌发力，将滚轴向上弯举</li>
-          <li>弯举至顶峰时挤压腘绳肌</li>
-          <li>缓慢下放，控制重量不要让腿完全伸直</li>
-        </ol>
-      </div>
-      <div class="tips-section">
-        <h4>💡 动作要点</h4>
-        <ul>
-          <li>如果器械是坐姿，同样有效</li>
-          <li>顶峰收缩1秒效果更佳</li>
-          <li>全程控制，不要借助惯性</li>
-          <li>与腿举配对练习，腿前侧后侧都要练</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- 提踵 -->
-  <div class="exercise-card" data-exercise="提踵">
-    <div class="card-header" onclick="toggleCard(this)">
-      <span class="ex-emoji">🦶💪</span>
-      <div class="ex-info">
-        <div class="ex-name">提踵</div>
-        <div class="ex-meta">
-          <span class="primary">小腿三头肌</span>
-          <span class="sets">4组 × 15-20次</span>
-          <span class="rest">⏱ 休息45秒</span>
-        </div>
-      </div>
-      <input type="checkbox" class="ex-check" onchange="updateProgress(); toggleDoneClass(this)" onclick="event.stopPropagation()" style="width:22px;height:22px;accent-color:var(--success);flex-shrink:0">
-      <span class="ex-toggle">▼</span>
-    </div>
-    <div class="card-body">
-      <div class="weight-input-row">
-        <label>今日重量</label>
-        <input type="text" id="weight-提踵" placeholder="如: 60kg" value="">
-        <span class="history-badge" id="hist-提踵">上次: --</span><div class="ex-img-wrap" style="margin:12px 0 8px;text-align:center;">
-        <img src="https://raw.githubusercontent.com/ailoli1314/yanyun_helper/main/images/calf_raise.png"
-             alt="提踵"
-             style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid #30363d;"
-             onerror="this.parentElement.remove()">
-      </div>
-      </div>
-      <div class="steps-section">
-        <h4>📝 动作步骤</h4>
-        <ol>
-          <li>站在台阶或提踵机上，前脚掌踩在边缘</li>
-          <li>脚后跟下沉至最低点，感受小腿拉伸</li>
-          <li>小腿三头肌发力，踮起脚跟至最高点</li>
-          <li>顶峰时收紧小腿，停顿1秒</li>
-          <li>缓慢下放，重复动作</li>
-        </ol>
-      </div>
-      <div class="tips-section">
-        <h4>💡 动作要点</h4>
-        <ul>
-          <li>提踵是少数适合快节奏的动作，可以稍快</li>
-          <li>坐姿提踵主要刺激比目鱼肌，站姿刺激腓肠肌</li>
-          <li>可以在顶峰时做顶峰收缩增强效果</li>
-          <li>小腿恢复快，可以适当提高训练频率</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-title">📊 历史记录（腿部）</div>
-  <div class="history-panel">
-    <h4>近7天腿部训练数据</h4>
-    <div id="historyContent">
-      <table class="history-table" id="historyTable">
-        <thead>
-          <tr>
-            <th>日期</th>
-            <th>完成度</th>
-            <th>深蹲</th>
-            <th>腿举</th>
-            <th>RDL</th>
-            <th>腿弯举</th>
-            <th>提踵</th>
-          </tr>
-        </thead>
-        <tbody id="historyBody">
-          <tr><td colspan="7" class="no-data">加载历史记录中...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <button class="btn-save" id="saveBtn" onclick="saveWorkout()">💾 保存今日训练</button>
-
-  <div class="footer">🏋️ 坚持训练，遇见更好的自己</div>
+<button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀</button>
+<div class="header">
+<div class="date-info">2026年05月06日 周三</div>
+<div class="day-title">🏋️ Day2 拉 (Pull)</div>
+<div class="day-desc">背部 + 肩后 + 肱二头肌 + 腹肌</div>
 </div>
+<div class="day-summary">
+<div class="summary-item"><span class="summary-num">5</span><span class="summary-label">训练动作</span></div>
+<div class="summary-item"><span class="summary-num">22</span><span class="summary-label">总组数</span></div>
+<div class="summary-item"><span class="summary-num">20</span><span class="summary-label">预计分钟</span></div>
+</div>
+<div class="divider">💪 训练动作 💪</div>
 
+        <div class="exercise-card" onclick="toggleDone(this, event)">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/lat_pulldown.jpg" alt="高位下拉" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <div class="card-header">
+                <div class="card-title-row">
+                    <span class="card-emoji">💪</span>
+                    <h3 class="card-title">高位下拉</h3>
+                </div>
+                <div class="card-en">Lat Pulldown</div>
+                <div class="sets-label">📊 5组 × 8-12次 | 休息90秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="34kg" placeholder="实际重量（e.g. 60kg）" data-exercise="高位下拉"></div>
+            </div>
+            <div class="card-body">
+                <div class="parts-row"><div class="part-badge">背阔肌</div><div class="part-badge secondary">大圆肌、肱二头肌、三角肌后束</div></div>
+                <div class="section-title">📋 动作步骨</div>
+                <div class="steps"><div class="step"><span class="step-num">1</span><span>坐在高位下拉器前，双腿固定在滚轮下方</span></div>
+<div class="step"><span class="step-num">2</span><span>双手握住横杆，握距略宽于肩</span></div>
+<div class="step"><span class="step-num">3</span><span>挺胸沉肩，核心收紧，背部微微后仰</span></div>
+<div class="step"><span class="step-num">4</span><span>背阔肌发力，将横杆向下拉至锁骨位置</span></div>
+<div class="step"><span class="step-num">5</span><span>控制速度缓慢回到起始位置，手臂伸直</span></div>
+</div>
+                <div class="section-title">🔊 注意事项</div>
+                <div class="tips"><div class="tip">⚠️ 不要过度后仰（不超过15度）</div>
+<div class="tip">⚠️ 拉下来时想象把手肘往裤兜里塞</div>
+<div class="tip">⚠️ 感受背阔肌收缩，而不是单纯用手臂拉</div>
+<div class="tip">⚠️ 顶峰收缩1-2秒，充分挤压背部</div>
+</div>
+                <div class="home-alt">🏠 家用替代：毛巾引体向上（门框）或 弹力带高位下拉</div>
+            </div>
+        </div>
+        
+        <div class="exercise-card" onclick="toggleDone(this, event)">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/seated_cable_row.jpg" alt="坐姿划船" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <div class="card-header">
+                <div class="card-title-row">
+                    <span class="card-emoji">💪</span>
+                    <h3 class="card-title">坐姿划船</h3>
+                </div>
+                <div class="card-en">Seated Cable Row</div>
+                <div class="sets-label">📊 5组 × 10-12次 | 休息75秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="34kg" placeholder="实际重量（e.g. 60kg）" data-exercise="坐姿划船"></div>
+            </div>
+            <div class="card-body">
+                <div class="parts-row"><div class="part-badge">斜方肌中下束、菱形肌</div><div class="part-badge secondary">背阔肌、肱二头肌</div></div>
+                <div class="section-title">📋 动作步骨</div>
+                <div class="steps"><div class="step"><span class="step-num">1</span><span>坐在划船机坐垫上，双脚踩实踏板</span></div>
+<div class="step"><span class="step-num">2</span><span>握住手柄，背部挺直，核心收紧</span></div>
+<div class="step"><span class="step-num">3</span><span>肩胛骨后收，向后拉动手柄</span></div>
+<div class="step"><span class="step-num">4</span><span>拉动时手肘贴近身体两侧，不要外展过大</span></div>
+<div class="step"><span class="step-num">5</span><span>顶峰时挤压肩胛骨，然后控制回放</span></div>
+</div>
+                <div class="section-title">🔊 注意事项</div>
+                <div class="tips"><div class="tip">⚠️ 全程保持背部挺直，不要弓背圆肩</div>
+<div class="tip">⚠️ 用背部肌肉发力，手臂只是传递工具</div>
+<div class="tip">⚠️ 拉动阶段呼气，还原阶段吸气</div>
+<div class="tip">⚠️ 顶峰收缩时停留1秒效果更好</div>
+</div>
+                <div class="home-alt">🏠 家用替代：弹力带坐姿划船 或 哑铃单臂划船</div>
+            </div>
+        </div>
+        
+        <div class="exercise-card" onclick="toggleDone(this, event)">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/face_pull.png" alt="面拉" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <div class="card-header">
+                <div class="card-title-row">
+                    <span class="card-emoji">💪</span>
+                    <h3 class="card-title">面拉</h3>
+                </div>
+                <div class="card-en">Face Pull</div>
+                <div class="sets-label">📊 4组 × 15次 | 休息60秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="13kg" placeholder="实际重量（e.g. 60kg）" data-exercise="面拉"></div>
+            </div>
+            <div class="card-body">
+                <div class="parts-row"><div class="part-badge">三角肌后束</div><div class="part-badge secondary">斜方肌中下束、小圆肌、冈下肌</div></div>
+                <div class="section-title">📋 动作步骨</div>
+                <div class="steps"><div class="step"><span class="step-num">1</span><span>将绳索调整至面部高度</span></div>
+<div class="step"><span class="step-num">2</span><span>双手握住绳索两端，掌心朝下</span></div>
+<div class="step"><span class="step-num">3</span><span>手臂向前伸直，身体微微后仰</span></div>
+<div class="step"><span class="step-num">4</span><span>三角肌后束发力，将绳索拉向面部</span></div>
+<div class="step"><span class="step-num">5</span><span>拉至耳朵两侧时外旋手臂，然后缓慢回放</span></div>
+</div>
+                <div class="section-title">🔊 注意事项</div>
+                <div class="tips"><div class="tip">⚠️ 全程大臂与地面保持平行</div>
+<div class="tip">⚠️ 外旋动作可以加强后束刺激</div>
+<div class="tip">⚠️ 控制重量，重点在于肌肉收缩而非重量</div>
+<div class="tip">⚠️ 每天练可以改善圆肩问题</div>
+</div>
+                <div class="home-alt">🏠 家用替代：弹力带面拉 或 TRX反向飞鸟</div>
+            </div>
+        </div>
+        
+        <div class="exercise-card" onclick="toggleDone(this, event)">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/barbell_curl.png" alt="杠铃弯举" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <div class="card-header">
+                <div class="card-title-row">
+                    <span class="card-emoji">💪</span>
+                    <h3 class="card-title">杠铃弯举</h3>
+                </div>
+                <div class="card-en">Barbell Curl</div>
+                <div class="sets-label">📊 4组 × 10-12次 | 休息60秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="22kg" placeholder="实际重量（e.g. 60kg）" data-exercise="杠铃弯举"></div>
+            </div>
+            <div class="card-body">
+                <div class="parts-row"><div class="part-badge">肱二头肌</div><div class="part-badge secondary">肱肌、 前臂肌群</div></div>
+                <div class="section-title">📋 动作步骨</div>
+                <div class="steps"><div class="step"><span class="step-num">1</span><span>双手握杠铃，握距与肩同宽，掌心朝上</span></div>
+<div class="step"><span class="step-num">2</span><span>手臂自然下垂，大臂贴近身体两侧</span></div>
+<div class="step"><span class="step-num">3</span><span>肱二头肌发力，将杠铃弯举至肩部高度</span></div>
+<div class="step"><span class="step-num">4</span><span>顶峰时挤压肱二头肌，然后缓慢下放</span></div>
+<div class="step"><span class="step-num">5</span><span>下放时手臂不要完全伸直，保持张力</span></div>
+</div>
+                <div class="section-title">🔊 注意事项</div>
+                <div class="tips"><div class="tip">⚠️ 全程大臂固定，不要前后摆动借力</div>
+<div class="tip">⚠️ 手腕保持中立，不要弯折</div>
+<div class="tip">⚠️ 上举时呼气，下放时吸气</div>
+<div class="tip">⚠️ 可以交替用EZ杆减轻手腕压力</div>
+</div>
+                <div class="home-alt">🏠 家用替代：哑铃弯举 或 弹力带弯举</div>
+            </div>
+        </div>
+        
+        <div class="exercise-card" onclick="toggleDone(this, event)">
+            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/hanging_leg_raise.png" alt="悬垂举腿" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+            <div class="card-header">
+                <div class="card-title-row">
+                    <span class="card-emoji">💪</span>
+                    <h3 class="card-title">悬垂举腿</h3>
+                </div>
+                <div class="card-en">Hanging Leg Raise</div>
+                <div class="sets-label">📊 4组 × 12-15次 | 休息60秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="34kg" placeholder="实际重量（e.g. 60kg）" data-exercise="悬垂举腿"></div>
+            </div>
+            <div class="card-body">
+                <div class="parts-row"><div class="part-badge">腹肌（下腹部为主）</div><div class="part-badge secondary">髂腰肌、腹斜肌</div></div>
+                <div class="section-title">📋 动作步骨</div>
+                <div class="steps"><div class="step"><span class="step-num">1</span><span>双手握住单杠或吊环，身体悬挂</span></div>
+<div class="step"><span class="step-num">2</span><span>双腿并拢伸直，核心收紧</span></div>
+<div class="step"><span class="step-num">3</span><span>腹肌发力，将双腿抬起至与地面平行</span></div>
+<div class="step"><span class="step-num">4</span><span>可以在顶峰时稍微卷骨盆加强刺激</span></div>
+<div class="step"><span class="step-num">5</span><span>缓慢下放双腿，控制速度不要自由落体</span></div>
+</div>
+                <div class="section-title">🔊 注意事项</div>
+                <div class="tips"><div class="tip">⚠️ 如果直腿太难，可以屈膝做</div>
+<div class="tip">⚠️ 不要借助惯性摆动，纯粹用腹肌力量</div>
+<div class="tip">⚠️ 下放时越慢越好，离心收缩很重要</div>
+<div class="tip">⚠️ 可以在双腿下放至45度时暂停增加难度</div>
+</div>
+                <div class="home-alt">🏠 家用替代：仰卧卷腹 或 平板支撑</div>
+            </div>
+        </div>
+        
+<div class="footer">
+<p>📝 编辑 <code>workout_config.json</code> 即可修改训练计划</p>
+<p style="margin-top:6px">由 OpenClaw 自动生成 · 2026年05月06日</p>
+</div>
+<div class="progress-bar">
+<div class="progress-label">今日训练完成进度 <span id="pctText">0/0</span></div>
+<div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+<div style="text-align:center;margin-top:8px">
+<button class="btn-save" id="saveBtn" data-current-day="day2" onclick="confirmAndSave()">✔ 确认完成</button>
+</div>
+</div>
 <div class="toast" id="toast"></div>
-
+<div class="lightbox" id="lightbox" onclick="closeLightbox()"><img id="lightboxImg"></div>
 <script>
-const OWNER = 'ailoli1314';
-const REPO = 'yanyun_helper';
-const TRAINING_LOG_PATH = 'training_log.json';
-const WORKOUT_CONFIG_PATH = 'workout_config.json';
-const TODAY = '2026-05-05';
 
-const EXERCISES = [
-  '深蹲', '腿举', '罗马尼亚硬拉', '腿弯举', '提踵'
-];
-const SETS_REPS = {
-  '深蹲': '5组 × 8-12次 | 休息120秒',
-  '腿举': '4组 × 10-12次 | 休息90秒',
-  '罗马尼亚硬拉': '4组 × 10-12次 | 休息75秒',
-  '腿弯举': '4组 × 12-15次 | 休息60秒',
-  '提踵': '4组 × 15-20次 | 休息45秒'
-};
+var REPO = 'ailoli1314/yanyun_helper';
+var TOKEN_KEY = 'gh_token_workout';
+var pageTitle = document.querySelector('.day-title').textContent.trim();
+var today = new Date();
+var dateStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
 
-function showToast(msg, type='success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast ' + type;
-  setTimeout(() => t.classList.add('show'), 10);
-  setTimeout(() => t.classList.remove('show'), 2800);
+function toggleTheme() {
+    var dark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', dark ? '' : 'dark');
+    document.getElementById('themeBtn').textContent = dark ? '\u2600' : '\U0001f319';
+    localStorage.setItem('theme', dark ? 'light' : 'dark');
+}
+if (localStorage.getItem('theme') === 'dark') {
+    document.body.setAttribute('data-theme', 'dark');
+    document.getElementById('themeBtn').textContent = '\U0001f319';
 }
 
-function toggleCard(header) {
-  header.classList.toggle('expanded');
-  const body = header.nextElementSibling;
-  body.classList.toggle('open');
-}
-
-function toggleDoneClass(cb) {
-  cb.closest('.exercise-card').classList.toggle('done', cb.checked);
-}
+var completed = 0;
+var total = document.querySelectorAll('.exercise-card').length;
 
 function updateProgress() {
-  const checked = document.querySelectorAll('.ex-check:checked').length;
-  document.getElementById('progressCount').textContent = checked;
-  document.getElementById('progressBar').style.width = (checked / 5 * 100) + '%';
+    var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('pctText').textContent = completed + '/' + total;
 }
 
-async function ghApi(path, method='GET', body=null) {
-  const token = localStorage.getItem('gh_token');
-  if (!token) {
-    showToast('⚠️ 请先在设置中配置 GitHub Token', 'error');
-    throw new Error('no token');
-  }
-  const opts = {
-    method,
-    headers: {
-      'Authorization': 'Bearer ' + token,
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'Content-Type': 'application/json'
+function toggleDone(card, e) {
+    if (e.target.closest('.home-alt') || e.target.closest('input') || e.target.tagName === 'INPUT') return;
+    card.classList.toggle('done');
+    completed = document.querySelectorAll('.exercise-card.done').length;
+    updateProgress();
+}
+
+function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2000);
+}
+
+function openLightbox(src) {
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('lightbox').style.display = 'flex';
+}
+function closeLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+}
+
+function getToken() {
+    var tok = localStorage.getItem(TOKEN_KEY);
+    if (!tok) {
+        tok = prompt('请输入 GitHub PAT（仅需 repos 权限）：');
+        if (tok) { localStorage.setItem(TOKEN_KEY, tok); }
     }
-  };
-  if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(`https://api.github.com${path}`, opts);
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `HTTP ${res.status}`);
-  }
-  return res.status === 204 ? null : res.json();
+    return tok;
 }
 
-async function getFileSha(path) {
-  try {
-    const data = await ghApi(`/repos/${OWNER}/${REPO}/contents/${path}`);
-    return data.sha;
-  } catch {
-    return null;
-  }
-}
+async function confirmAndSave() {
+    var token = getToken();
+    if (!token) return;
 
-async function loadWorkoutConfig() {
-  try {
-    const data = await ghApi(`/repos/${OWNER}/${REPO}/contents/${WORKOUT_CONFIG_PATH}`);
-    return JSON.parse(atob(data.content));
-  } catch {
-    return null;
-  }
-}
-
-async function loadTrainingLog() {
-  try {
-    const data = await ghApi(`/repos/${OWNER}/${REPO}/contents/${TRAINING_LOG_PATH}`);
-    return JSON.parse(atob(data.content));
-  } catch {
-    return {};
-  }
-}
-
-async function loadHistory() {
-  const log = await loadTrainingLog();
-  const rows = [];
-  for (const [date, entry] of Object.entries(log)) {
-    if (date === 'lastUpdated' || !entry.exercises) continue;
-    const isLegs = entry.dayName && entry.dayName.includes('腿');
-    if (!isLegs) continue;
-    const exData = {};
-    (entry.exercises || []).forEach(ex => {
-      const name = ex.name;
-      if (EXERCISES.includes(name)) exData[name] = ex.weight || '-';
-    });
-    rows.push({ date, completed: entry.completed, total: entry.total, exData });
-  }
-  // sort by date desc, show last 7
-  rows.sort((a, b) => b.date.localeCompare(a.date));
-  const recent = rows.slice(0, 7);
-
-  if (recent.length === 0) {
-    document.getElementById('historyBody').innerHTML = '<tr><td colspan="7" class="no-data">暂无腿部历史记录</td></tr>';
-    // show last known weights from any source
-    const lastLegs = rows[0];
-    if (lastLegs) {
-      EXERCISES.forEach(name => {
-        const el = document.getElementById('hist-' + name);
-        if (el && lastLegs.exData[name] && lastLegs.exData[name] !== '-') {
-          el.textContent = '上次: ' + lastLegs.exData[name];
-        }
-      });
+    var doneCards = Array.from(document.querySelectorAll('.exercise-card.done'));
+    if (doneCards.length === 0) {
+        showToast('请先点击动作卡片标记完成');
+        return;
     }
-    return;
-  }
 
-  document.getElementById('historyBody').innerHTML = recent.map(r => {
-    const pct = r.total > 0 ? Math.round(r.completed / r.total * 100) : 0;
-    return `<tr>
-      <td>${r.date}</td>
-      <td>${r.completed}/${r.total} (${pct}%)</td>
-      <td>${r.exData['深蹲'] || '-'}</td>
-      <td>${r.exData['腿举'] || '-'}</td>
-      <td>${r.exData['罗马尼亚硬拉'] || '-'}</td>
-      <td>${r.exData['腿弯举'] || '-'}</td>
-      <td>${r.exData['提踵'] || '-'}</td>
-    </tr>`;
-  }).join('');
+    document.getElementById('saveBtn').textContent = '保存中...';
+    document.getElementById('saveBtn').disabled = true;
 
-  // populate history badges with most recent weights
-  const latest = recent[0];
-  if (latest) {
-    EXERCISES.forEach(name => {
-      const el = document.getElementById('hist-' + name);
-      if (el && latest.exData[name] && latest.exData[name] !== '-') {
-        el.textContent = '上次: ' + latest.exData[name];
-      }
-    });
-  }
-}
-
-async function saveWorkout() {
-  const btn = document.getElementById('saveBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ 保存中...';
-
-  try {
-    const log = await loadTrainingLog();
-    const checked = document.querySelectorAll('.ex-check:checked');
-    const completed = checked.length;
-
-    const exercisesData = EXERCISES.map(name => {
-      const cb = document.querySelector(`.exercise-card[data-exercise="${name}"] .ex-check`);
-      return {
-        name,
-        sets: SETS_REPS[name],
-        weight: (document.getElementById('weight-' + name) || {value: ''}).value
-      };
+    var exercises = doneCards.map(function(card) {
+        var name = card.querySelector('.card-title').textContent.trim();
+        var sets = card.querySelector('.sets-label') ? card.querySelector('.sets-label').textContent.trim() : '';
+        var weightEl = card.querySelector('.weight-input');
+        var weight = weightEl && weightEl.value.trim() ? weightEl.value.trim() : '';
+        return { name: name, sets: sets, weight: weight };
     });
 
-    log[TODAY] = {
-      date: TODAY,
-      dayName: '🏋️ Day3 腿（Legs）',
-      completed,
-      total: 5,
-      percent: Math.round(completed / 5 * 100),
-      timestamp: new Date().toISOString(),
-      exercises: exercisesData
+    var logEntry = {
+        date: dateStr,
+        dayName: pageTitle,
+        completed: exercises.length,
+        total: total,
+        percent: Math.round((exercises.length / total) * 100),
+        timestamp: new Date().toISOString(),
+        exercises: exercises
     };
-    log.lastUpdated = new Date().toISOString();
 
-    const sha = await getFileSha(TRAINING_LOG_PATH);
-    const content = JSON.stringify(log, null, 2);
+    try {
+        var sha = null;
+        var currentLog = {};
+        var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/training_log.json', {
+            headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (r.ok) {
+            var d = await r.json();
+            sha = d.sha;
+            try { currentLog = JSON.parse(atob(d.content)); } catch(e) {}
+        }
 
-    await ghApi(`/repos/${OWNER}/${REPO}/contents/${TRAINING_LOG_PATH}`, 'PUT', {
-      message: `训练记录: Day3 腿 ${TODAY} (${completed}/5)`,
-      content,
-      sha: sha || undefined
-    });
+        currentLog[dateStr] = logEntry;
+        currentLog.lastUpdated = new Date().toISOString();
 
-    showToast(`✅ 已保存 ${completed}/5 动作！`);
-    btn.textContent = '✅ 已保存';
-    setTimeout(() => {
-      btn.textContent = '💾 保存今日训练';
-      btn.disabled = false;
-    }, 3000);
-  } catch (e) {
-    showToast('❌ 保存失败: ' + e.message, 'error');
-    btn.textContent = '💾 保存今日训练';
-    btn.disabled = false;
-  }
+        var body = JSON.stringify({
+            message: 'Training log ' + dateStr,
+            content: btoa(unescape(encodeURIComponent(JSON.stringify(currentLog, null, 2)))),
+            sha: sha
+        });
+
+        var res = await fetch('https://api.github.com/repos/' + REPO + '/contents/training_log.json', {
+            method: 'PUT',
+            headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+            body: body
+        });
+
+        if (res.ok) {
+            showToast('✅ 已保存！正在推进...');
+            document.getElementById('saveBtn').textContent = '进度中...';
+            // 推进 current_day
+            advanceCurrentDay(token).then(function(nxt) {
+                showToast('✅ 已完成！即将显示下一天...');
+                setTimeout(function(){location.reload();}, 1500);
+            }).catch(function(err) {
+                showToast('⚠ 推进失败: ' + (err.message || err));
+                document.getElementById('saveBtn').textContent = '✔ 确认完成';
+                document.getElementById('saveBtn').disabled = false;
+            });
+        } else {
+            var err = await res.json();
+            showToast('⚠ ' + (err.message || res.status));
+            document.getElementById('saveBtn').textContent = '✔ 确认完成';
+            document.getElementById('saveBtn').disabled = false;
+        }
+    } catch(e) {
+        showToast('⚠ 网络错误');
+        document.getElementById('saveBtn').textContent = '✔ 确认完成';
+        document.getElementById('saveBtn').disabled = false;
+    }
 }
 
-// init
-loadHistory();
+async function advanceCurrentDay(token) {
+    // 读取本地 config
+    var currentDay = document.getElementById('saveBtn').getAttribute('data-current-day');
+    var seq = ['day1','day2','day3'];
+    var curIdx = seq.indexOf(currentDay);
+    if (curIdx < 0) curIdx = 0;
+    var nxt = seq[(curIdx + 1) % seq.length];
+
+    // 读取 GitHub 上的 config 获取 SHA
+    var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/workout_config.json', {
+        headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!r.ok) throw new Error('read config failed');
+    var data = await r.json();
+    var sha = data.sha;
+
+    // 修改 current_day
+    var cfg = JSON.parse(atob(data.content));
+    cfg.current_day = nxt;
+    var body = JSON.stringify({
+        message: 'Advance to ' + nxt,
+        content: btoa(unescape(encodeURIComponent(JSON.stringify(cfg, null, 2)))),
+        sha: sha
+    });
+    var res = await fetch('https://api.github.com/repos/' + REPO + '/contents/workout_config.json', {
+        method: 'PUT',
+        headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+        body: body
+    });
+    if (!res.ok) {
+        var err = await res.json();
+        throw new Error(err.message || res.status);
+    }
+    return nxt;
+}
+
+// Restore progress from localStorage
+var savedCount = parseInt(localStorage.getItem('workout_done_' + dateStr) || '0');
+if (savedCount > 0) {
+    var cards = document.querySelectorAll('.exercise-card');
+    var toMark = Math.min(savedCount, cards.length);
+    for (var i = 0; i < toMark; i++) {
+        cards[i].classList.add('done');
+    }
+    completed = toMark;
+    updateProgress();
+}
+
 </script>
 </body>
 </html>
