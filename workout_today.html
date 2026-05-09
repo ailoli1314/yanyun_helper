@@ -24,7 +24,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 .exercise-card{background:var(--card-bg);border-radius:var(--radius);margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden;transition:transform .2s}
 .exercise-card:active{transform:scale(.98)}
 .exercise-card.done{opacity:.45}
-[data-theme=dark] .exercise-card.done{opacity:.45}
+.exercise-img{width:100%;height:180px;object-fit:cover;object-position:center;display:block;background:var(--accent-light);cursor:pointer}
 .card-header{padding:16px 18px 12px;border-bottom:1px solid var(--accent-light)}
 .card-title-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
 .card-emoji{font-size:28px}
@@ -53,221 +53,318 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 .progress-track{background:var(--accent-light);border-radius:6px;height:6px;overflow:hidden}
 .progress-fill{background:linear-gradient(90deg,var(--accent),var(--success));height:100%;border-radius:6px;transition:width .5s}
 .btn-save{background:var(--success);color:#fff;border:none;border-radius:10px;padding:9px 24px;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px}
-.btn-save:disabled{background:#aaa;cursor:not-allowed}
 .toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:var(--success);color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
 .lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:9999;cursor:pointer;align-items:center;justify-content:center}
 .lightbox img{max-width:95%;max-height:95%;object-fit:contain;border-radius:8px}
-[data-theme=dark] .exercise-card.done{opacity:.45}
 
 </style>
 </head>
 <body>
 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀️</button>
-
-<div id="token-banner" style="background:#fff3cd;border-bottom:1px solid #ffeeba;padding:8px 16px;font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-<span style="color:#856404;font-weight:600;">🔑 GitHub Token:</span>
-<input type="password" id="banner-token-input" placeholder="粘贴 GitHub PAT（仅需 repos 权限）" style="flex:1;min-width:200px;padding:5px 10px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;background:#fff;">
-<button onclick="saveBannerToken()" style="padding:5px 14px;background:#0984e3;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">保存</button>
-<span id="banner-token-status" style="color:#856404;font-size:12px;"></span>
-</div>
-
 <div class="header">
 <div class="date-info">2026年05月09日 Saturday</div>
 <div class="day-title">🏋️ Day2 拉 (Pull)</div>
 <div class="day-desc">背部 + 肩后 + 肱二头肌 + 腹肌</div>
 </div>
-
 <div class="day-summary">
 <div class="summary-item"><span class="summary-num">5</span><span class="summary-label">训练动作</span></div>
 <div class="summary-item"><span class="summary-num">22</span><span class="summary-label">总组数</span></div>
 <div class="summary-item"><span class="summary-num">36</span><span class="summary-label">预计分钟</span></div>
 </div>
-
 <div class="divider">💪 训练动作 💪</div>
-
-        <div class="exercise-card" onclick="toggleDone(this, event)">
+<div class="exercise-card" onclick="toggleDone(this, event)">
+<img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/lat_pulldown.jpg" alt="高位下拉" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
-                <div class="card-title-row">
-                    <span class="card-emoji">⬇️💪</span>
-                    <h3 class="card-title">高位下拉</h3>
-                </div>
-                <div class="card-en">Lat Pulldown</div>
-                <div class="sets-label">📊 5组 × 8-12次 | 休息90秒</div>
-                <div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（如 60kg）" data-exercise="高位下拉"></div>
-            </div>
-            <div class="card-body">
-                <div class="parts-row"><div class="part-badge">💪 背阔肌</div><div class="part-badge secondary">大圆肌、肱二头肌、三角肌后束</div></div>
-                <div class="section-title">📋 动作步骤</div>
-                <div class="steps"><div class="step"><span class="step-num">1</span><span>坐在高位下拉器前，双腿固定在滚轮下方</span></div>
+<div class="card-title-row">
+<span class="card-emoji">⬇️💪</span>
+<h3 class="card-title">高位下拉</h3>
+</div>
+<div class="card-en">Lat Pulldown</div>
+<div class="sets-label">📊 5组 × 8-12次 | 休息90秒</div>
+<div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（如 60kg）" data-exercise="高位下拉"></div>
+</div>
+<div class="card-body">
+<div class="parts-row"><div class="part-badge">💪 背阔肌</div><div class="part-badge secondary">大圆肌、肱二头肌、三角肌后束</div></div>
+<div class="section-title">📋 动作步骤</div>
+<div class="steps"><div class="step"><span class="step-num">1</span><span>坐在高位下拉器前，双腿固定在滚轮下方</span></div>
 <div class="step"><span class="step-num">2</span><span>双手握住横杆，握距略宽于肩</span></div>
 <div class="step"><span class="step-num">3</span><span>挺胸沉肩，核心收紧，背部微微后仰</span></div>
 <div class="step"><span class="step-num">4</span><span>背阔肌发力，将横杆向下拉至锁骨位置</span></div>
 <div class="step"><span class="step-num">5</span><span>控制速度缓慢回到起始位置，手臂伸直</span></div>
 </div>
-                <div class="section-title">⚡ 注意事项</div>
-                <div class="tips"><div class="tip">⚠️ 不要过度后仰（不超过15度）</div>
+<div class="section-title">⚡ 注意事项</div>
+<div class="tips"><div class="tip">⚠️ 不要过度后仰（不超过15度）</div>
 <div class="tip">⚠️ 拉下来时想象把手肘往裤兜里塞</div>
 <div class="tip">⚠️ 感受背阔肌收缩，而不是单纯用手臂拉</div>
 <div class="tip">⚠️ 顶峰收缩1-2秒，充分挤压背部</div>
 </div>
-                <div class="home-alt">🏠 家用替代：毛巾引体向上（门框）或 弹力带高位下拉</div>
-            </div>
-        </div>
-    
-        <div class="exercise-card" onclick="toggleDone(this, event)">
+<div class="home-alt">🏠 家用替代：毛巾引体向上（门框）或 弹力带高位下拉</div>
+</div>
+</div>
+<div class="exercise-card" onclick="toggleDone(this, event)">
+<img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/seated_cable_row.jpg" alt="坐姿划船" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
-                <div class="card-title-row">
-                    <span class="card-emoji">🚣💪</span>
-                    <h3 class="card-title">坐姿划船</h3>
-                </div>
-                <div class="card-en">Seated Cable Row</div>
-                <div class="sets-label">📊 5组 × 10-12次 | 休息75秒</div>
-                <div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（如 60kg）" data-exercise="坐姿划船"></div>
-            </div>
-            <div class="card-body">
-                <div class="parts-row"><div class="part-badge">💪 斜方肌中下束、菱形肌</div><div class="part-badge secondary">背阔肌、肱二头肌</div></div>
-                <div class="section-title">📋 动作步骤</div>
-                <div class="steps"><div class="step"><span class="step-num">1</span><span>坐在划船机坐垫上，双脚踩实踏板</span></div>
+<div class="card-title-row">
+<span class="card-emoji">🚣💪</span>
+<h3 class="card-title">坐姿划船</h3>
+</div>
+<div class="card-en">Seated Cable Row</div>
+<div class="sets-label">📊 5组 × 10-12次 | 休息75秒</div>
+<div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（如 60kg）" data-exercise="坐姿划船"></div>
+</div>
+<div class="card-body">
+<div class="parts-row"><div class="part-badge">💪 斜方肌中下束、菱形肌</div><div class="part-badge secondary">背阔肌、肱二头肌</div></div>
+<div class="section-title">📋 动作步骤</div>
+<div class="steps"><div class="step"><span class="step-num">1</span><span>坐在划船机坐垫上，双脚踩实踏板</span></div>
 <div class="step"><span class="step-num">2</span><span>握住手柄，背部挺直，核心收紧</span></div>
 <div class="step"><span class="step-num">3</span><span>肩胛骨后收，向后拉动手柄</span></div>
 <div class="step"><span class="step-num">4</span><span>拉动时手肘贴近身体两侧，不要外展过大</span></div>
 <div class="step"><span class="step-num">5</span><span>顶峰时挤压肩胛骨，然后控制回放</span></div>
 </div>
-                <div class="section-title">⚡ 注意事项</div>
-                <div class="tips"><div class="tip">⚠️ 全程保持背部挺直，不要弓背圆肩</div>
+<div class="section-title">⚡ 注意事项</div>
+<div class="tips"><div class="tip">⚠️ 全程保持背部挺直，不要弓背圆肩</div>
 <div class="tip">⚠️ 用背部肌肉发力，手臂只是传递工具</div>
 <div class="tip">⚠️ 拉动阶段呼气，还原阶段吸气</div>
 <div class="tip">⚠️ 顶峰收缩时停留1秒效果更好</div>
 </div>
-                <div class="home-alt">🏠 家用替代：弹力带坐姿划船 或 哑铃单臂划船</div>
-            </div>
-        </div>
-    
-        <div class="exercise-card" onclick="toggleDone(this, event)">
+<div class="home-alt">🏠 家用替代：弹力带坐姿划船 或 哑铃单臂划船</div>
+</div>
+</div>
+<div class="exercise-card" onclick="toggleDone(this, event)">
+<img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/face_pull.png" alt="面拉" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
-                <div class="card-title-row">
-                    <span class="card-emoji">🤦💪</span>
-                    <h3 class="card-title">面拉</h3>
-                </div>
-                <div class="card-en">Face Pull</div>
-                <div class="sets-label">📊 4组 × 15次 | 休息60秒</div>
-                <div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（如 60kg）" data-exercise="面拉"></div>
-            </div>
-            <div class="card-body">
-                <div class="parts-row"><div class="part-badge">💪 三角肌后束</div><div class="part-badge secondary">斜方肌中下束、小圆肌、冈下肌</div></div>
-                <div class="section-title">📋 动作步骤</div>
-                <div class="steps"><div class="step"><span class="step-num">1</span><span>将绳索调整至面部高度</span></div>
+<div class="card-title-row">
+<span class="card-emoji">🤦💪</span>
+<h3 class="card-title">面拉</h3>
+</div>
+<div class="card-en">Face Pull</div>
+<div class="sets-label">📊 4组 × 15次 | 休息60秒</div>
+<div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（如 60kg）" data-exercise="面拉"></div>
+</div>
+<div class="card-body">
+<div class="parts-row"><div class="part-badge">💪 三角肌后束</div><div class="part-badge secondary">斜方肌中下束、小圆肌、冈下肌</div></div>
+<div class="section-title">📋 动作步骤</div>
+<div class="steps"><div class="step"><span class="step-num">1</span><span>将绳索调整至面部高度</span></div>
 <div class="step"><span class="step-num">2</span><span>双手握住绳索两端，掌心朝下</span></div>
 <div class="step"><span class="step-num">3</span><span>手臂向前伸直，身体微微后仰</span></div>
 <div class="step"><span class="step-num">4</span><span>三角肌后束发力，将绳索拉向面部</span></div>
 <div class="step"><span class="step-num">5</span><span>拉至耳朵两侧时外旋手臂，然后缓慢回放</span></div>
 </div>
-                <div class="section-title">⚡ 注意事项</div>
-                <div class="tips"><div class="tip">⚠️ 全程大臂与地面保持平行</div>
+<div class="section-title">⚡ 注意事项</div>
+<div class="tips"><div class="tip">⚠️ 全程大臂与地面保持平行</div>
 <div class="tip">⚠️ 外旋动作可以加强后束刺激</div>
 <div class="tip">⚠️ 控制重量，重点在于肌肉收缩而非重量</div>
 <div class="tip">⚠️ 每天练可以改善圆肩问题</div>
 </div>
-                <div class="home-alt">🏠 家用替代：弹力带面拉 或 TRX反向飞鸟</div>
-            </div>
-        </div>
-    
-        <div class="exercise-card" onclick="toggleDone(this, event)">
+<div class="home-alt">🏠 家用替代：弹力带面拉 或 TRX反向飞鸟</div>
+</div>
+</div>
+<div class="exercise-card" onclick="toggleDone(this, event)">
+<img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/barbell_curl.png" alt="杠铃弯举" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
-                <div class="card-title-row">
-                    <span class="card-emoji">💪🦾</span>
-                    <h3 class="card-title">杠铃弯举</h3>
-                </div>
-                <div class="card-en">Barbell Curl</div>
-                <div class="sets-label">📊 4组 × 10-12次 | 休息60秒</div>
-                <div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（如 60kg）" data-exercise="杠铃弯举"></div>
-            </div>
-            <div class="card-body">
-                <div class="parts-row"><div class="part-badge">💪 肱二头肌</div><div class="part-badge secondary">肱肌、 前臂肌群</div></div>
-                <div class="section-title">📋 动作步骤</div>
-                <div class="steps"><div class="step"><span class="step-num">1</span><span>双手握杠铃，握距与肩同宽，掌心朝上</span></div>
+<div class="card-title-row">
+<span class="card-emoji">💪🦾</span>
+<h3 class="card-title">杠铃弯举</h3>
+</div>
+<div class="card-en">Barbell Curl</div>
+<div class="sets-label">📊 4组 × 10-12次 | 休息60秒</div>
+<div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（如 60kg）" data-exercise="杠铃弯举"></div>
+</div>
+<div class="card-body">
+<div class="parts-row"><div class="part-badge">💪 肱二头肌</div><div class="part-badge secondary">肱肌、 前臂肌群</div></div>
+<div class="section-title">📋 动作步骤</div>
+<div class="steps"><div class="step"><span class="step-num">1</span><span>双手握杠铃，握距与肩同宽，掌心朝上</span></div>
 <div class="step"><span class="step-num">2</span><span>手臂自然下垂，大臂贴近身体两侧</span></div>
 <div class="step"><span class="step-num">3</span><span>肱二头肌发力，将杠铃弯举至肩部高度</span></div>
 <div class="step"><span class="step-num">4</span><span>顶峰时挤压肱二头肌，然后缓慢下放</span></div>
 <div class="step"><span class="step-num">5</span><span>下放时手臂不要完全伸直，保持张力</span></div>
 </div>
-                <div class="section-title">⚡ 注意事项</div>
-                <div class="tips"><div class="tip">⚠️ 全程大臂固定，不要前后摆动借力</div>
+<div class="section-title">⚡ 注意事项</div>
+<div class="tips"><div class="tip">⚠️ 全程大臂固定，不要前后摆动借力</div>
 <div class="tip">⚠️ 手腕保持中立，不要弯折</div>
 <div class="tip">⚠️ 上举时呼气，下放时吸气</div>
 <div class="tip">⚠️ 可以交替用EZ杆减轻手腕压力</div>
 </div>
-                <div class="home-alt">🏠 家用替代：哑铃弯举 或 弹力带弯举</div>
-            </div>
-        </div>
-    
-        <div class="exercise-card" onclick="toggleDone(this, event)">
+<div class="home-alt">🏠 家用替代：哑铃弯举 或 弹力带弯举</div>
+</div>
+</div>
+<div class="exercise-card" onclick="toggleDone(this, event)">
+<img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/hanging_leg_raise.png" alt="悬垂举腿" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
-                <div class="card-title-row">
-                    <span class="card-emoji">🦵💪</span>
-                    <h3 class="card-title">悬垂举腿</h3>
-                </div>
-                <div class="card-en">Hanging Leg Raise</div>
-                <div class="sets-label">📊 4组 × 12-15次 | 休息60秒</div>
-                <div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（如 60kg）" data-exercise="悬垂举腿"></div>
-            </div>
-            <div class="card-body">
-                <div class="parts-row"><div class="part-badge">💪 腹肌（下腹部为主）</div><div class="part-badge secondary">髂腰肌、腹斜肌</div></div>
-                <div class="section-title">📋 动作步骤</div>
-                <div class="steps"><div class="step"><span class="step-num">1</span><span>双手握住单杠或吊环，身体悬挂</span></div>
+<div class="card-title-row">
+<span class="card-emoji">🦵💪</span>
+<h3 class="card-title">悬垂举腿</h3>
+</div>
+<div class="card-en">Hanging Leg Raise</div>
+<div class="sets-label">📊 4组 × 12-15次 | 休息60秒</div>
+<div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（如 60kg）" data-exercise="悬垂举腿"></div>
+</div>
+<div class="card-body">
+<div class="parts-row"><div class="part-badge">💪 腹肌（下腹部为主）</div><div class="part-badge secondary">髂腰肌、腹斜肌</div></div>
+<div class="section-title">📋 动作步骤</div>
+<div class="steps"><div class="step"><span class="step-num">1</span><span>双手握住单杠或吊环，身体悬挂</span></div>
 <div class="step"><span class="step-num">2</span><span>双腿并拢伸直，核心收紧</span></div>
 <div class="step"><span class="step-num">3</span><span>腹肌发力，将双腿抬起至与地面平行</span></div>
 <div class="step"><span class="step-num">4</span><span>可以在顶峰时稍微卷骨盆加强刺激</span></div>
 <div class="step"><span class="step-num">5</span><span>缓慢下放双腿，控制速度不要自由落体</span></div>
 </div>
-                <div class="section-title">⚡ 注意事项</div>
-                <div class="tips"><div class="tip">⚠️ 如果直腿太难，可以屈膝做</div>
+<div class="section-title">⚡ 注意事项</div>
+<div class="tips"><div class="tip">⚠️ 如果直腿太难，可以屈膝做</div>
 <div class="tip">⚠️ 不要借助惯性摆动，纯粹用腹肌力量</div>
 <div class="tip">⚠️ 下放时越慢越好，离心收缩很重要</div>
 <div class="tip">⚠️ 可以在双腿下放至45度时暂停增加难度</div>
 </div>
-                <div class="home-alt">🏠 家用替代：仰卧卷腹 或 平板支撑</div>
-            </div>
-        </div>
-    
+<div class="home-alt">🏠 家用替代：仰卧卷腹 或 平板支撑</div>
+</div>
+</div>
 
 <div class="footer">
 <p>💡 编辑 <code>workout_config.json</code> 即可修改训练计划</p>
 <p style="margin-top:6px">由 OpenClaw 自动生成 · 2026年05月09日</p>
 </div>
-
 <div class="progress-bar">
 <div class="progress-label">今日训练完成进度 <span id="pctText">0/5</span></div>
 <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
 <button class="btn-save" id="saveBtn" onclick="confirmAndSave()">✅ 确认完成</button>
 </div>
-
 <div id="toast" class="toast"></div>
 <div id="lightbox" class="lightbox" onclick="closeLightbox()"><img id="lightboxImg" src="" alt=""></div>
-
 <script>
 
-var REPO='ailoli1314/yanyun_helper';var TOKEN_KEY='gh_token_workout';
+var REPO='ailoli1314/yanyun_helper';
+var TOKEN_KEY='gh_token_workout';
 var pageTitle=document.querySelector('.day-title').textContent.trim();
-var today=new Date();var dateStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+var today=new Date();
+var dateStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+
 function deb64(s){try{return decodeURIComponent(escape(atob(s)));}catch(e){return null;}}
 function enb64(s){try{return btoa(unescape(encodeURIComponent(s)));}catch(e){return null;}}
-function toggleTheme(){var d=document.body.getAttribute('data-theme')==='dark';document.body.setAttribute('data-theme',d?'':'dark');document.getElementById('themeBtn').textContent=d?'☀️':'🌙';localStorage.setItem('theme',d?'light':'dark');}
-if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('themeBtn').textContent='🌙';}
-function getToken(){return localStorage.getItem(TOKEN_KEY)||'';}
-function saveBannerToken(){var v=document.getElementById('banner-token-input').value.trim();if(v){localStorage.setItem(TOKEN_KEY,v);document.getElementById('banner-token-status').textContent=' ✅ 已保存';document.getElementById('banner-token-status').style.color='green';document.getElementById('saveBtn').disabled=false;showToast('✅ Token已保存');loadWeightHistoryFromGitHub(v);}else{showToast('⚠️ 请输入Token');}}
-function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2000);}
-function openLightbox(s){document.getElementById('lightboxImg').src=s;document.getElementById('lightbox').style.display='flex';}
-function closeLightbox(){document.getElementById('lightbox').style.display='none';}
-async function loadWeightHistoryFromGitHub(token){if(!token)return;try{var r=await fetch('https://api.github.com/repos/'+REPO+'/contents/training_log.json',{headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}});if(!r.ok)return;var d=await r.json();var log=JSON.parse(deb64(d.content)||'{}');var keys=Object.keys(log).filter(function(k){return /^\d{4}-\d{2}-\d{2}$/.test(k);}).sort().reverse();var lw={};for(var i=0;i<keys.length;i++){var e=log[keys[i]];if(!e||!e.exercises)continue;for(var j=0;j<e.exercises.length;j++){var n=(e.exercises[j].name||'').trim();var w=(e.exercises[j].weight||'').trim();if(n&&w&&!(n in lw))lw[n]=w;}}var ins=document.querySelectorAll('.weight-input');var filled=0;ins.forEach(function(inp){var en=inp.getAttribute('data-exercise');if(en&&lw[en]&&!inp.value.trim()){inp.value=lw[en];filled++;}});if(filled>0)showToast('📦 已加载'+filled+'条历史重量');}catch(e){console.warn('加载失败',e);}}
-var completed=0;var total=document.querySelectorAll('.exercise-card').length;
-function updateProgress(){var pct=total>0?Math.round((completed/total)*100):0;document.getElementById('progressFill').style.width=pct+'%';document.getElementById('pctText').textContent=completed+'/'+total;}
-function toggleDone(card,e){if(e.target.closest('.home-alt')||e.target.closest('input')||e.target.tagName==='INPUT')return;card.classList.toggle('done');completed=document.querySelectorAll('.exercise-card.done').length;updateProgress();localStorage.setItem('workout_done_'+dateStr,completed);}
-async function confirmAndSave(){var token=getToken();if(!token){var inp=document.getElementById('banner-token-input');if(inp){inp.focus();showToast('请先填写并保存GitHub Token');}return;}var doneCards=Array.from(document.querySelectorAll('.exercise-card.done'));if(doneCards.length===0){showToast('请先点击动作卡片标记完成');return;}document.getElementById('saveBtn').textContent='保存中...';document.getElementById('saveBtn').disabled=true;var exercises=doneCards.map(function(card){var n=card.querySelector('.card-title')?card.querySelector('.card-title').textContent.trim():'';var s=card.querySelector('.sets-label')?card.querySelector('.sets-label').textContent.trim():'';var w=card.querySelector('.weight-input');var wv=w&&w.value.trim()?w.value.trim():'';return{name:n,sets:s,weight:wv};});var logEntry={date:dateStr,dayName:pageTitle,completed:exercises.length,total:total,percent:Math.round((exercises.length/total)*100),timestamp:new Date().toISOString(),exercises:exercises};try{var sha=null;var currentLog={};var r=await fetch('https://api.github.com/repos/'+REPO+'/contents/training_log.json',{headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}});if(r.ok){var d=await r.json();sha=d.sha;try{currentLog=JSON.parse(deb64(d.content));}catch(e){currentLog={};}}currentLog[dateStr]=logEntry;currentLog.lastUpdated=new Date().toISOString();var bc=enb64(JSON.stringify(currentLog,null,2));if(!bc)throw new Error('encode failed');var body=JSON.stringify({message:'Training log '+dateStr,content:bc,sha:sha});var res=await fetch('https://api.github.com/repos/'+REPO+'/contents/training_log.json',{method:'PUT',headers:{'Authorization':'token '+token,'Content-Type':'application/json'},body:body});if(res.ok){showToast('✅ 已保存！正在推进...');document.getElementById('saveBtn').textContent='推进中...';advanceCurrentDay(token).then(function(){showToast('✅ 已完成！显示下一天...');setTimeout(function(){location.reload();},1500);}).catch(function(err){showToast('⚠️ 推进失败: '+(err.message||err));document.getElementById('saveBtn').textContent='✅ 确认完成';document.getElementById('saveBtn').disabled=false;});}else{var err=await res.json();showToast('⚠️ '+(err.message||res.status));document.getElementById('saveBtn').textContent='✅ 确认完成';document.getElementById('saveBtn').disabled=false;}}catch(e){showToast('⚠️ 网络错误');document.getElementById('saveBtn').textContent='✅ 确认完成';document.getElementById('saveBtn').disabled=false;}}
-async function advanceCurrentDay(token){var r=await fetch('https://api.github.com/repos/'+REPO+'/contents/workout_config.json',{headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}});if(!r.ok)throw new Error('read config failed');var data=await r.json();var sha=data.sha;var cfg=JSON.parse(deb64(data.content));var cur=cfg.current_day||'day1';var seq=cfg.day_sequence||['day1','day2','day3'];var ci=seq.indexOf(cur);if(ci<0)ci=0;var nxt=seq[(ci+1)%seq.length];cfg.current_day=nxt;var cc=enb64(JSON.stringify(cfg,null,2));if(!cc)throw new Error('encode failed');var body=JSON.stringify({message:'Advance to '+nxt,content:cc,sha:sha});var res=await fetch('https://api.github.com/repos/'+REPO+'/contents/workout_config.json',{method:'PUT',headers:{'Authorization':'token '+token,'Content-Type':'application/json'},body:body});if(!res.ok){var err=await res.json();throw new Error(err.message||res.status);}}
-var saved=parseInt(localStorage.getItem('workout_done_'+dateStr)||'0');if(saved>0){var cards=document.querySelectorAll('.exercise-card');var mark=Math.min(saved,cards.length);for(var i=0;i<mark;i++)cards[i].classList.add('done');completed=mark;updateProgress();}
-(function initPage(){var token=getToken();if(token){document.getElementById('banner-token-status').textContent=' ✅ 已配置';document.getElementById('banner-token-status').style.color='green';document.getElementById('banner-token-input').value=token;loadWeightHistoryFromGitHub(token);}else{document.getElementById('saveBtn').disabled=true;}})();
+
+function toggleTheme(){
+  var d=document.body.getAttribute('data-theme')==='dark';
+  document.body.setAttribute('data-theme',d?'':'dark');
+  document.getElementById('themeBtn').textContent=d?'\u2600':'\U0001f319';
+  localStorage.setItem('theme',d?'light':'dark');
+}
+if(localStorage.getItem('theme')==='dark'){
+  document.body.setAttribute('data-theme','dark');
+  document.getElementById('themeBtn').textContent='\U0001f319';
+}
+
+function getToken(){
+  var tok=localStorage.getItem(TOKEN_KEY);
+  if(!tok){
+    tok=prompt('\u8bf7\u8f93\u5165 GitHub PAT\uff08\u4ec5\u9700 repos \u6743\u9650\uff09\uff1a');
+    if(tok){localStorage.setItem(TOKEN_KEY,tok);}
+  }
+  return tok;
+}
+
+function showToast(m){
+  var t=document.getElementById('toast');
+  t.textContent=m;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2000);
+}
+
+function openLightbox(s){
+  document.getElementById('lightboxImg').src=s;
+  document.getElementById('lightbox').style.display='flex';
+}
+function closeLightbox(){
+  document.getElementById('lightbox').style.display='none';
+}
+
+var completed=0;
+var total=document.querySelectorAll('.exercise-card').length;
+
+function updateProgress(){
+  var pct=total>0?Math.round((completed/total)*100):0;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('pctText').textContent=completed+'/'+total;
+}
+
+function toggleDone(card,e){
+  if(e.target.closest('.home-alt')||e.target.tagName==='INPUT')return;
+  card.classList.toggle('done');
+  completed=document.querySelectorAll('.exercise-card.done').length;
+  updateProgress();
+  localStorage.setItem('workout_done_'+dateStr,completed);
+}
+
+async function confirmAndSave(){
+  var token=getToken();
+  if(!token)return;
+  var doneCards=Array.from(document.querySelectorAll('.exercise-card.done'));
+  if(doneCards.length===0){showToast('\u8bf7\u5148\u70b9\u51fb\u52a8\u4f5c\u5361\u7247\u6807\u8bb0\u5b8c\u6210');return;}
+  document.getElementById('saveBtn').textContent='\u4fdd\u5b58\u4e2d...';
+  document.getElementById('saveBtn').disabled=true;
+  var exercises=doneCards.map(function(card){
+    var n=card.querySelector('.card-title')?card.querySelector('.card-title').textContent.trim():'';
+    var s=card.querySelector('.sets-label')?card.querySelector('.sets-label').textContent.trim():'';
+    var w=card.querySelector('.weight-input');
+    var wv=w&&w.value.trim()?w.value.trim():'';
+    return{name:n,sets:s,weight:wv};
+  });
+  var logEntry={date:dateStr,dayName:pageTitle,completed:exercises.length,total:total,percent:Math.round((exercises.length/total)*100),timestamp:new Date().toISOString(),exercises:exercises};
+  try{
+    var sha=null;var currentLog={};
+    var r=await fetch('https://api.github.com/repos/'+REPO+'/contents/training_log.json',{headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}});
+    if(r.ok){var d=await r.json();sha=d.sha;try{currentLog=JSON.parse(deb64(d.content));}catch(e){currentLog={};}}
+    currentLog[dateStr]=logEntry;
+    currentLog.lastUpdated=new Date().toISOString();
+    var bc=enb64(JSON.stringify(currentLog,null,2));
+    if(!bc)throw new Error('encode');
+    var body=JSON.stringify({message:'Training log '+dateStr,content:bc,sha:sha});
+    var res=await fetch('https://api.github.com/repos/'+REPO+'/contents/training_log.json',{method:'PUT',headers:{'Authorization':'token '+token,'Content-Type':'application/json'},body:body});
+    if(res.ok){
+      showToast('\u2705 \u5df2\u4fdd\u5b58\uff01\u6b63\u5728\u63a8\u8fdb...');
+      document.getElementById('saveBtn').textContent='\u63a8\u8fdb\u4e2d...';
+      advanceCurrentDay(token).then(function(){
+        showToast('\u2705 \u5df2\u5b8c\u6210\uff01\u5373\u5c06\u663e\u793a\u4e0b\u4e00\u5929...');
+        setTimeout(function(){location.reload();},1500);
+      }).catch(function(err){
+        showToast('\u26a0 \u63a8\u8fdb\u5931\u8d25: '+(err.message||err));
+        document.getElementById('saveBtn').textContent='\u2714 \u786e\u8ba4\u5b8c\u6210';
+        document.getElementById('saveBtn').disabled=false;
+      });
+    }else{
+      var err=await res.json();
+      showToast('\u26a0 '+(err.message||res.status));
+      document.getElementById('saveBtn').textContent='\u2714 \u786e\u8ba4\u5b8c\u6210';
+      document.getElementById('saveBtn').disabled=false;
+    }
+  }catch(e){
+    showToast('\u26a0 \u7f51\u7edc\u9519\u8bef');
+    document.getElementById('saveBtn').textContent='\u2714 \u786e\u8ba4\u5b8c\u6210';
+    document.getElementById('saveBtn').disabled=false;
+  }
+}
+
+async function advanceCurrentDay(token){
+  var r=await fetch('https://api.github.com/repos/'+REPO+'/contents/workout_config.json',{headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}});
+  if(!r.ok)throw new Error('read config failed');
+  var data=await r.json();
+  var sha=data.sha;
+  var cfg=JSON.parse(deb64(data.content));
+  var cur=cfg.current_day||'day1';
+  var seq=cfg.day_sequence||['day1','day2','day3'];
+  var ci=seq.indexOf(cur);if(ci<0)ci=0;
+  var nxt=seq[(ci+1)%seq.length];
+  cfg.current_day=nxt;
+  var cc=enb64(JSON.stringify(cfg,null,2));if(!cc)throw new Error('encode');
+  var body=JSON.stringify({message:'Advance to '+nxt,content:cc,sha:sha});
+  var res=await fetch('https://api.github.com/repos/'+REPO+'/contents/workout_config.json',{method:'PUT',headers:{'Authorization':'token '+token,'Content-Type':'application/json'},body:body});
+  if(!res.ok){var err=await res.json();throw new Error(err.message||res.status);}
+}
+
+var saved=parseInt(localStorage.getItem('workout_done_'+dateStr)||'0');
+if(saved>0){
+  var cards=document.querySelectorAll('.exercise-card');
+  var mark=Math.min(saved,cards.length);
+  for(var i=0;i<mark;i++)cards[i].classList.add('done');
+  completed=mark;updateProgress();
+}
 
 </script>
 </body>
