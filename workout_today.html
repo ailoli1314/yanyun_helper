@@ -1,102 +1,399 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Day1 推 (Push) - 健身计划</title>
-<style>
-
-:root {
-    --bg: #f5f6fa;
-    --card-bg: #ffffff;
-    --text: #2d3436;
-    --text-secondary: #636e72;
-    --accent: #0984e3;
-    --accent-light: #dfe6e9;
-    --success: #00b894;
-    --warning: #fdcb6e;
-    --shadow: 0 2px 12px rgba(0,0,0,0.08);
-    --radius: 16px;
-}
-[data-theme="dark"] {
-    --bg: #1a1a2e;
-    --card-bg: #16213e;
-    --text: #eaeaea;
-    --text-secondary: #a0a0a0;
-    --accent: #4cc9f0;
-    --accent-light: #2a3f5f;
-    --shadow: 0 2px 12px rgba(0,0,0,0.4);
-}
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); padding: 16px; padding-bottom: 100px; transition: background 0.3s, color 0.3s; min-height: 100vh; }
-.theme-toggle { position: fixed; top: 16px; right: 16px; z-index: 999; background: var(--card-bg); border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 20px; cursor: pointer; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; }
-.header { text-align: center; margin: 30px 0 20px; }
-.date-info { font-size: 14px; color: var(--text-secondary); margin-bottom: 6px; }
-.day-title { font-size: 26px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
-.day-desc { font-size: 15px; color: var(--text-secondary); margin-bottom: 4px; }
-.day-summary { background: var(--card-bg); border-radius: var(--radius); padding: 14px 18px; margin: 14px 0; box-shadow: var(--shadow); display: flex; justify-content: space-around; text-align: center; }
-.summary-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.summary-num { font-size: 24px; font-weight: 700; color: var(--accent); }
-.summary-label { font-size: 12px; color: var(--text-secondary); }
-.divider { text-align: center; color: var(--text-secondary); font-size: 13px; margin: 24px 0 16px; display: flex; align-items: center; gap: 12px; }
-.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--accent-light); }
-.exercise-card { background: var(--card-bg); border-radius: var(--radius); margin-bottom: 16px; box-shadow: var(--shadow); overflow: hidden; transition: transform 0.2s, opacity 0.3s; cursor: pointer; }
-.exercise-card:active { transform: scale(0.98); }
-.exercise-card.done { opacity: 0.45; }
-.exercise-img { width: 100%; height: 180px; object-fit: cover; object-position: center; display: block; background: var(--accent-light); cursor: pointer; }
-.card-header { padding: 16px 18px 10px; border-bottom: 1px solid var(--accent-light); }
-.card-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
-.card-emoji { font-size: 28px; }
-.card-title { font-size: 18px; font-weight: 700; }
-.card-en { font-size: 12px; color: var(--text-secondary); margin-left: 38px; font-style: italic; }
-.sets-label { display: inline-block; background: var(--accent-light); color: var(--accent); font-size: 13px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-top: 8px; }
-/* weight input */
-.weight-row { margin: 10px 0 4px; }
-.weight-input { width: 100%; padding: 7px 12px; border: 1.5px solid var(--accent-light); border-radius: 10px; background: var(--bg); color: var(--text); font-size: 14px; font-weight: 600; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
-.weight-input:focus { border-color: var(--accent); }
-.weight-input::placeholder { color: var(--text-secondary); font-weight: 400; font-size: 13px; }
-.card-body { padding: 14px 18px 16px; }
-.parts-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-.part-badge { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); color: white; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 12px; }
-.part-badge.secondary { background: linear-gradient(135deg, #74b9ff, #0984e3); }
-.section-title { font-size: 13px; font-weight: 700; color: var(--accent); margin: 14px 0 8px; }
-.steps { display: flex; flex-direction: column; gap: 8px; }
-.step { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; line-height: 1.5; }
-.step-num { background: var(--accent-light); color: var(--accent); font-size: 11px; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
-.tips { display: flex; flex-direction: column; gap: 6px; }
-.tip { background: var(--accent-light); color: var(--text); font-size: 13px; padding: 8px 12px; border-radius: 10px; line-height: 1.5; border-left: 3px solid var(--warning); }
-.home-alt { background: #e8f5e9; color: #2e7d32; font-size: 13px; padding: 10px 14px; border-radius: 10px; margin-top: 14px; line-height: 1.5; }
-[data-theme="dark"] .home-alt { background: #1b3a2a; color: #81c784; }
-.footer { text-align: center; margin-top: 40px; padding: 20px; color: var(--text-secondary); font-size: 12px; border-top: 1px solid var(--accent-light); }
-.progress-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); padding: 12px 20px 20px; box-shadow: 0 -2px 12px rgba(0,0,0,0.1); z-index: 100; }
-.progress-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
-.progress-track { background: var(--accent-light); border-radius: 6px; height: 6px; overflow: hidden; }
-.progress-fill { background: linear-gradient(90deg, var(--accent), var(--success)); height: 100%; border-radius: 6px; transition: width 0.5s; }
-.btn-save { background: var(--success); color: white; border: none; border-radius: 12px; padding: 10px 28px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; }
-.btn-save:active { opacity: 0.85; }
-.toast { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); background: var(--success); color: white; padding: 8px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-.toast.show { opacity: 1; }
-.lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; cursor: pointer; align-items: center; justify-content: center; }
-.lightbox img { max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 8px; }
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Day1 推 (Push) - 健身计划</title>
+    <style>
+        :root {
+            --bg: #f5f6fa;
+            --card-bg: #ffffff;
+            --text: #2d3436;
+            --text-secondary: #636e72;
+            --accent: #0984e3;
+            --accent-light: #dfe6e9;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+            --radius: 16px;
+        }
+        
+        [data-theme="dark"] {
+            --bg: #1a1a2e;
+            --card-bg: #16213e;
+            --text: #eaeaea;
+            --text-secondary: #a0a0a0;
+            --accent: #4cc9f0;
+            --accent-light: #2a3f5f;
+            --shadow: 0 2px 12px rgba(0,0,0,0.4);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 16px;
+            padding-bottom: 80px;
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 999;
+            background: var(--card-bg);
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header {
+            text-align: center;
+            margin: 30px 0 20px;
+        }
+        
+        .date-info {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        
+        .day-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 6px;
+        }
+        
+        .day-desc {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .day-summary {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            margin: 14px 0;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .summary-num {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .summary-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .divider {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin: 24px 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--accent-light);
+        }
+        
+        .exercise-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+        
+        .exercise-card:active {
+            transform: scale(0.98);
+        }
+        
+        .card-header {
+            padding: 16px 18px 12px;
+            border-bottom: 1px solid var(--accent-light);
+        }
+        
+        .card-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+        
+        .card-emoji {
+            font-size: 28px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .card-en {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-left: 38px;
+            font-style: italic;
+        }
+        
+        .sets-label {
+            display: inline-block;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-top: 8px;
+        }
+        
+        .card-body {
+            padding: 14px 18px 16px;
+        }
+        
+        .parts-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        
+        .part-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+        
+        .part-badge.secondary {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+        }
+        
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+            margin-top: 12px;
+        }
+        
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .step-num {
+            background: var(--accent-light);
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 700;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .tips {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .tip {
+            background: var(--accent-light);
+            color: var(--text);
+            font-size: 13px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            line-height: 1.5;
+            border-left: 3px solid var(--warning);
+        }
+        
+        .home-alt {
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-size: 13px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-top: 14px;
+            line-height: 1.5;
+        }
+        
+        [data-theme="dark"] .home-alt {
+            background: #1b3a2a;
+            color: #81c784;
+        }
+        
+        .rest-day {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .rest-emoji {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .rest-day h2 {
+            font-size: 28px;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+        
+        .rest-day p {
+            font-size: 16px;
+            line-height: 1.8;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            border-top: 1px solid var(--accent-light);
+        }
+        
+        /* 进度条 */
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            padding: 12px 20px 16px;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        
+        .progress-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        
+        .progress-track {
+            background: var(--accent-light);
+            border-radius: 6px;
+            height: 6px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.5s;
+        }
+        
+        /* 深色主题适配 */
+        [data-theme="dark"] .sets-label {
+            background: var(--accent-light);
+        }
+        
+        [data-theme="dark"] .step-num {
+            background: var(--accent-light);
+        }
+        
+        [data-theme="dark"] .tip {
+            background: #2a2a3a;
+            border-left-color: #f39c12;
+        }
+        
+        [data-theme="dark"] .progress-track {
+            background: #2a2a3a;
+        }
+    </style>
 </head>
 <body>
-<button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀</button>
-<div class="header">
-<div class="date-info">2026年05月09日 周六</div>
-<div class="day-title">💪 Day1 推 (Push)</div>
-<div class="day-desc">胸部 + 肩部 + 肱三头肌</div>
-</div>
-<div class="day-summary">
-<div class="summary-item"><span class="summary-num">5</span><span class="summary-label">训练动作</span></div>
-<div class="summary-item"><span class="summary-num">21</span><span class="summary-label">总组数</span></div>
-<div class="summary-item"><span class="summary-num">20</span><span class="summary-label">预计分钟</span></div>
-</div>
-<div class="divider">💪 训练动作 💪</div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀️</button>
 
-        <div class="exercise-card" onclick="toggleDone(this, event)">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/bench_press.jpg" alt="平板卧推" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+    <div id="token-banner" style="background:#fff3cd;border-bottom:1px solid #ffeeba;padding:8px 16px;font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span style="color:#856404;font-weight:600;">🔑 GitHub Token:</span>
+        <input type="password" id="banner-token-input" placeholder="粘贴 GitHub PAT（仅需 repos 权限）" style="flex:1;min-width:200px;padding:5px 10px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;background:#fff;">
+        <button onclick="saveBannerToken()" style="padding:5px 14px;background:#0984e3;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">保存</button>
+        <span id="banner-token-status" style="color:#856404;font-size:12px;"></span>
+    </div>
+
+    <div class="header">
+        <div class="date-info">2026年05月09日 周六</div>
+        <div class="day-title">💪 Day1 推 (Push)</div>
+        <div class="day-desc">胸部 + 肩部 + 肱三头肌</div>
+    </div>
+    
+    <div class="day-summary">
+        <div class="summary-item">
+            <span class="summary-num">5</span>
+            <span class="summary-label">训练动作</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-num">21</span>
+            <span class="summary-label">总组数</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-num">20</span>
+            <span class="summary-label">预计分钟</span>
+        </div>
+    </div>
+    
+    <div class="divider">💪 训练动作 💪</div>
+    
+    
+        <div class="exercise-card">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">💪</span>
@@ -104,18 +401,19 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
                 </div>
                 <div class="card-en">Barbell Bench Press</div>
                 <div class="sets-label">📊 5组 × 8-10次 | 休息90秒秒</div>
-                <div class="weight-row"><input class="weight-input" type="text" value="38kg" placeholder="实际重量（e.g. 60kg）" data-exercise="平板卧推"></div>
             </div>
             <div class="card-body">
-                <div class="parts-row"><div class="part-badge">胸大肌（中部）</div><div class="part-badge secondary">肱三头肌、三角肌前束</div></div>
-                <div class="section-title">📋 动作步骨</div>
+                <div class="parts-row">
+                    <div class="part-badge">💪 胸大肌（中部）</div><div class="part-badge secondary">肱三头肌、三角肌前束</div>
+                </div>
+                <div class="section-title">📋 动作步骤</div>
                 <div class="steps"><div class="step"><span class="step-num">1</span><span>平躺在卧推凳上，双脚踩实地面，核心收紧</span></div>
 <div class="step"><span class="step-num">2</span><span>双手握杠，握距略宽于肩，下背部轻微弓起</span></div>
 <div class="step"><span class="step-num">3</span><span>将杠铃从架上取出，移至胸部正上方</span></div>
 <div class="step"><span class="step-num">4</span><span>控制速度将杠铃下放至乳头附近，触胸后推起</span></div>
 <div class="step"><span class="step-num">5</span><span>推起时手臂不要完全伸直，保持微屈</span></div>
 </div>
-                <div class="section-title">🔊 注意事项</div>
+                <div class="section-title">⚡ 注意事项</div>
                 <div class="tips"><div class="tip">⚠️ 下放时吸气，推起时呼气</div>
 <div class="tip">⚠️ 避免杠铃弹胸，全程控制重量</div>
 <div class="tip">⚠️ 手腕保持中立，不要后翻</div>
@@ -125,8 +423,7 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
             </div>
         </div>
         
-        <div class="exercise-card" onclick="toggleDone(this, event)">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/incline_dumbbell_press.png" alt="上斜哑铃卧推" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+        <div class="exercise-card">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">💪</span>
@@ -134,18 +431,19 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
                 </div>
                 <div class="card-en">Incline Dumbbell Press</div>
                 <div class="sets-label">📊 4组 × 10-12次 | 休息75秒秒</div>
-                <div class="weight-row"><input class="weight-input" type="text" value="10kg" placeholder="实际重量（e.g. 60kg）" data-exercise="上斜哑铃卧推"></div>
             </div>
             <div class="card-body">
-                <div class="parts-row"><div class="part-badge">胸肌上部</div><div class="part-badge secondary">三角肌前束、肱三头肌</div></div>
-                <div class="section-title">📋 动作步骨</div>
+                <div class="parts-row">
+                    <div class="part-badge">💪 胸肌上部</div><div class="part-badge secondary">三角肌前束、肱三头肌</div>
+                </div>
+                <div class="section-title">📋 动作步骤</div>
                 <div class="steps"><div class="step"><span class="step-num">1</span><span>将卧推凳调至30-45度上斜位</span></div>
 <div class="step"><span class="step-num">2</span><span>双手各握一只哑铃，掌心朝前</span></div>
 <div class="step"><span class="step-num">3</span><span>起始位置：哑铃在肩部两侧，手肘约45度</span></div>
 <div class="step"><span class="step-num">4</span><span>发力将哑铃向上推起，在头顶上方靠拢</span></div>
 <div class="step"><span class="step-num">5</span><span>缓慢下放回到起始位置</span></div>
 </div>
-                <div class="section-title">🔊 注意事项</div>
+                <div class="section-title">⚡ 注意事项</div>
                 <div class="tips"><div class="tip">⚠️ 凳子角度不要超过45度，否则肩部代偿过多</div>
 <div class="tip">⚠️ 感受上胸的拉伸和收缩</div>
 <div class="tip">⚠️ 不要让哑铃间距过大，保持控制</div>
@@ -155,27 +453,27 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
             </div>
         </div>
         
-        <div class="exercise-card" onclick="toggleDone(this, event)">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/dumbbell_shoulder_press.jpg" alt="哑铃肩推" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+        <div class="exercise-card">
             <div class="card-header">
                 <div class="card-title-row">
-                    <span class="card-emoji">💪</span>
+                    <span class="card-emoji">🦴</span>
                     <h3 class="card-title">哑铃肩推</h3>
                 </div>
                 <div class="card-en">Dumbbell Shoulder Press</div>
                 <div class="sets-label">📊 4组 × 8-12次 | 休息75秒秒</div>
-                <div class="weight-row"><input class="weight-input" type="text" value="10kg" placeholder="实际重量（e.g. 60kg）" data-exercise="哑铃肩推"></div>
             </div>
             <div class="card-body">
-                <div class="parts-row"><div class="part-badge">三角肌（前束为主）</div><div class="part-badge secondary">三角肌中后束、斜方肌、肱三头肌</div></div>
-                <div class="section-title">📋 动作步骨</div>
+                <div class="parts-row">
+                    <div class="part-badge">🦴 三角肌（前束为主）</div><div class="part-badge secondary">三角肌中后束、斜方肌、肱三头肌</div>
+                </div>
+                <div class="section-title">📋 动作步骤</div>
                 <div class="steps"><div class="step"><span class="step-num">1</span><span>坐在有靠背的凳子上，双手各持一只哑铃</span></div>
 <div class="step"><span class="step-num">2</span><span>将哑铃举至肩部两侧，掌心朝前</span></div>
 <div class="step"><span class="step-num">3</span><span>吸气同时将哑铃向上推起</span></div>
 <div class="step"><span class="step-num">4</span><span>在头顶上方哑铃轻微靠拢后暂停</span></div>
 <div class="step"><span class="step-num">5</span><span>呼气慢慢下放回肩部两侧</span></div>
 </div>
-                <div class="section-title">🔊 注意事项</div>
+                <div class="section-title">⚡ 注意事项</div>
                 <div class="tips"><div class="tip">⚠️ 核心全程收紧，避免腰部过度反弓</div>
 <div class="tip">⚠️ 头部保持中立，不要前探</div>
 <div class="tip">⚠️ 不要借助身体晃动发力</div>
@@ -185,27 +483,27 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
             </div>
         </div>
         
-        <div class="exercise-card" onclick="toggleDone(this, event)">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/lateral_raise.png" alt="侧平举" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+        <div class="exercise-card">
             <div class="card-header">
                 <div class="card-title-row">
-                    <span class="card-emoji">💪</span>
+                    <span class="card-emoji">🦴</span>
                     <h3 class="card-title">侧平举</h3>
                 </div>
                 <div class="card-en">Lateral Raise</div>
                 <div class="sets-label">📊 4组 × 12-15次 | 休息60秒秒</div>
-                <div class="weight-row"><input class="weight-input" type="text" value="3kg" placeholder="实际重量（e.g. 60kg）" data-exercise="侧平举"></div>
             </div>
             <div class="card-body">
-                <div class="parts-row"><div class="part-badge">三角肌中束</div><div class="part-badge secondary">三角肌前束、斜方肌上束</div></div>
-                <div class="section-title">📋 动作步骨</div>
+                <div class="parts-row">
+                    <div class="part-badge">🦴 三角肌中束</div><div class="part-badge secondary">三角肌前束、斜方肌上束</div>
+                </div>
+                <div class="section-title">📋 动作步骤</div>
                 <div class="steps"><div class="step"><span class="step-num">1</span><span>双手各持一只哑铃，自然垂于身体两侧</span></div>
 <div class="step"><span class="step-num">2</span><span>微微屈膝，核心收紧，身体略微前倾</span></div>
 <div class="step"><span class="step-num">3</span><span>三角肌发力，将哑铃向两侧平举</span></div>
 <div class="step"><span class="step-num">4</span><span>举至手臂与地面平行或略高即可</span></div>
 <div class="step"><span class="step-num">5</span><span>缓慢下放，控制重量回到起始位置</span></div>
 </div>
-                <div class="section-title">🔊 注意事项</div>
+                <div class="section-title">⚡ 注意事项</div>
                 <div class="tips"><div class="tip">⚠️ 不要使用过重的重量，否则斜方肌会代偿</div>
 <div class="tip">⚠️ 小拇指略高于大拇指有助于更好地刺激中束</div>
 <div class="tip">⚠️ 全程手臂微屈，不要完全伸直</div>
@@ -215,27 +513,27 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
             </div>
         </div>
         
-        <div class="exercise-card" onclick="toggleDone(this, event)">
-            <img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/tricep_pushdown.gif" alt="绳索/器械肱三头肌下压" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
+        <div class="exercise-card">
             <div class="card-header">
                 <div class="card-title-row">
-                    <span class="card-emoji">💪</span>
+                    <span class="card-emoji">🦾</span>
                     <h3 class="card-title">绳索/器械肱三头肌下压</h3>
                 </div>
                 <div class="card-en">Tricep Pushdown</div>
                 <div class="sets-label">📊 4组 × 10-12次 | 休息60秒秒</div>
-                <div class="weight-row"><input class="weight-input" type="text" value="12kg" placeholder="实际重量（e.g. 60kg）" data-exercise="绳索/器械肱三头肌下压"></div>
             </div>
             <div class="card-body">
-                <div class="parts-row"><div class="part-badge">肱三头肌</div><div class="part-badge secondary">无</div></div>
-                <div class="section-title">📋 动作步骨</div>
+                <div class="parts-row">
+                    <div class="part-badge">🦾 肱三头肌</div><div class="part-badge secondary">无</div>
+                </div>
+                <div class="section-title">📋 动作步骤</div>
                 <div class="steps"><div class="step"><span class="step-num">1</span><span>面向龙门架，双手握住绳索手柄</span></div>
 <div class="step"><span class="step-num">2</span><span>大臂贴近身体两侧，固定不动</span></div>
 <div class="step"><span class="step-num">3</span><span>肱三头肌发力，将手柄向下压</span></div>
 <div class="step"><span class="step-num">4</span><span>压到底部时将手柄向外分开（旋腕）</span></div>
 <div class="step"><span class="step-num">5</span><span>控制力量缓慢回到起始位置</span></div>
 </div>
-                <div class="section-title">🔊 注意事项</div>
+                <div class="section-title">⚡ 注意事项</div>
                 <div class="tips"><div class="tip">⚠️ 大臂全程保持固定，不要前后摆动</div>
 <div class="tip">⚠️ 下压时呼气，还原时吸气</div>
 <div class="tip">⚠️ 底部旋腕动作可以加强肱三头肌收缩</div>
@@ -245,228 +543,259 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
             </div>
         </div>
         
-<div class="footer">
-<p>📝 编辑 <code>workout_config.json</code> 即可修改训练计划</p>
-<p style="margin-top:6px">由 OpenClaw 自动生成 · 2026年05月09日</p>
-</div>
-<div class="progress-bar">
-<div class="progress-label">今日训练完成进度 <span id="pctText">0/0</span></div>
-<div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-<div style="text-align:center;margin-top:8px">
-<button class="btn-save" id="saveBtn" data-current-day="day1" onclick="confirmAndSave()">✔ 确认完成</button>
-</div>
-</div>
-<div class="toast" id="toast"></div>
-<div class="lightbox" id="lightbox" onclick="closeLightbox()"><img id="lightboxImg"></div>
-<script>
+    
+    <div class="footer">
+        <p>💡 编辑 <code>workout_config.json</code> 即可修改训练计划</p>
+        <p style="margin-top:6px">由 OpenClaw 自动生成 · 2026年05月09日</p>
+    </div>
+    
+    <div class="progress-bar">
+        <div class="progress-label">今日训练完成进度 <span id="pctText">0/5</span></div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <button class="btn-save" id="saveBtn" onclick="confirmAndSave()">✅ 确认完成</button>
+    </div>
 
-var REPO = 'ailoli1314/yanyun_helper';
-var TOKEN_KEY = 'gh_token_workout';
-var pageTitle = document.querySelector('.day-title').textContent.trim();
-var today = new Date();
-var dateStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+    <div id="toast" class="toast"></div>
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <img id="lightboxImg" src="" alt="">
+    </div>
 
-// Safe UTF-8 aware base64 decode (handles Chinese/Unicode chars in JSON)
-function decodeUTF8Atob(b64str) {
-    try { return decodeURIComponent(escape(atob(b64str))); }
-    catch(e) { return null; }
-}
+    <script>
+        var REPO = 'ailoli1314/yanyun_helper';
+        var TOKEN_KEY = 'gh_token_workout';
+        var pageTitle = document.querySelector('.day-title').textContent.trim();
+        var today = new Date();
+        var dateStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
 
-// Safe base64 encode (handles Chinese/Unicode chars)
-function utf8Btoa(str) {
-    try { return btoa(unescape(encodeURIComponent(str))); }
-    catch(e) { return null; }
-}
-
-function toggleTheme() {
-    var dark = document.body.getAttribute('data-theme') === 'dark';
-    document.body.setAttribute('data-theme', dark ? '' : 'dark');
-    document.getElementById('themeBtn').textContent = dark ? '\u2600' : '\U0001f319';
-    localStorage.setItem('theme', dark ? 'light' : 'dark');
-}
-if (localStorage.getItem('theme') === 'dark') {
-    document.body.setAttribute('data-theme', 'dark');
-    document.getElementById('themeBtn').textContent = '\U0001f319';
-}
-
-var completed = 0;
-var total = document.querySelectorAll('.exercise-card').length;
-
-function updateProgress() {
-    var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('pctText').textContent = completed + '/' + total;
-}
-
-function toggleDone(card, e) {
-    if (e.target.closest('.home-alt') || e.target.closest('input') || e.target.tagName === 'INPUT') return;
-    card.classList.toggle('done');
-    completed = document.querySelectorAll('.exercise-card.done').length;
-    updateProgress();
-}
-
-function showToast(msg) {
-    var t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
-    setTimeout(function() { t.classList.remove('show'); }, 2000);
-}
-
-function openLightbox(src) {
-    document.getElementById('lightboxImg').src = src;
-    document.getElementById('lightbox').style.display = 'flex';
-}
-function closeLightbox() {
-    document.getElementById('lightbox').style.display = 'none';
-}
-
-function getToken() {
-    var tok = localStorage.getItem(TOKEN_KEY);
-    if (!tok) {
-        tok = prompt('请输入 GitHub PAT（仅需 repos 权限）：');
-        if (tok) { localStorage.setItem(TOKEN_KEY, tok); }
-    }
-    return tok;
-}
-
-async function confirmAndSave() {
-    var token = getToken();
-    if (!token) return;
-
-    var doneCards = Array.from(document.querySelectorAll('.exercise-card.done'));
-    if (doneCards.length === 0) {
-        showToast('请先点击动作卡片标记完成');
-        return;
-    }
-
-    document.getElementById('saveBtn').textContent = '保存中...';
-    document.getElementById('saveBtn').disabled = true;
-
-    var exercises = doneCards.map(function(card) {
-        var name = card.querySelector('.card-title').textContent.trim();
-        var sets = card.querySelector('.sets-label') ? card.querySelector('.sets-label').textContent.trim() : '';
-        var weightEl = card.querySelector('.weight-input');
-        var weight = weightEl && weightEl.value.trim() ? weightEl.value.trim() : '';
-        return { name: name, sets: sets, weight: weight };
-    });
-
-    var logEntry = {
-        date: dateStr,
-        dayName: pageTitle,
-        completed: exercises.length,
-        total: total,
-        percent: Math.round((exercises.length / total) * 100),
-        timestamp: new Date().toISOString(),
-        exercises: exercises
-    };
-
-    try {
-        var sha = null;
-        var currentLog = {};
-        var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/training_log.json', {
-            headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
-        });
-        if (r.ok) {
-            var d = await r.json();
-            sha = d.sha;
-            try { currentLog = JSON.parse(decodeUTF8Atob(d.content)); } catch(e) { currentLog = {}; }
+        function decodeUTF8Atob(b64str) {
+            try { return decodeURIComponent(escape(atob(b64str))); } catch(e) { return null; }
+        }
+        function utf8Btoa(str) {
+            try { return btoa(unescape(encodeURIComponent(str))); } catch(e) { return null; }
         }
 
-        currentLog[dateStr] = logEntry;
-        currentLog.lastUpdated = new Date().toISOString();
-
-        var bodyContent = utf8Btoa(JSON.stringify(currentLog, null, 2));
-        if (!bodyContent) {
-            showToast('⚠ 内容编码失败');
-            document.getElementById('saveBtn').textContent = '✔ 确认完成';
-            document.getElementById('saveBtn').disabled = false;
-            return;
+        function toggleTheme() {
+            var dark = document.body.getAttribute('data-theme') === 'dark';
+            document.body.setAttribute('data-theme', dark ? '' : 'dark');
+            document.getElementById('themeBtn').textContent = dark ? '☀️' : '🌙';
+            localStorage.setItem('theme', dark ? 'light' : 'dark');
         }
-        var body = JSON.stringify({
-            message: 'Training log ' + dateStr,
-            content: bodyContent,
-            sha: sha
-        });
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('themeBtn').textContent = '🌙';
+        }
 
-        var res = await fetch('https://api.github.com/repos/' + REPO + '/contents/training_log.json', {
-            method: 'PUT',
-            headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
-            body: body
-        });
+        function getToken() {
+            return localStorage.getItem(TOKEN_KEY) || '';
+        }
 
-        if (res.ok) {
-            showToast('✅ 已保存！正在推进...');
-            document.getElementById('saveBtn').textContent = '进度中...';
-            // 推进 current_day
-            advanceCurrentDay(token).then(function(nxt) {
-                showToast('✅ 已完成！即将显示下一天...');
-                setTimeout(function(){location.reload();}, 1500);
-            }).catch(function(err) {
-                showToast('⚠ 推进失败: ' + (err.message || err));
-                document.getElementById('saveBtn').textContent = '✔ 确认完成';
+        function saveBannerToken() {
+            var val = document.getElementById('banner-token-input').value.trim();
+            if (val) {
+                localStorage.setItem(TOKEN_KEY, val);
+                document.getElementById('banner-token-status').textContent = ' ✅ 已保存';
+                document.getElementById('banner-token-status').style.color = 'green';
                 document.getElementById('saveBtn').disabled = false;
-            });
-        } else {
-            var err = await res.json();
-            showToast('⚠ ' + (err.message || res.status));
-            document.getElementById('saveBtn').textContent = '✔ 确认完成';
-            document.getElementById('saveBtn').disabled = false;
+                showToast('✅ Token 已保存');
+                loadWeightHistoryFromGitHub(val);
+            } else {
+                showToast('⚠️ 请输入 Token');
+            }
         }
-    } catch(e) {
-        showToast('⚠ 网络错误');
-        document.getElementById('saveBtn').textContent = '✔ 确认完成';
-        document.getElementById('saveBtn').disabled = false;
-    }
-}
 
-async function advanceCurrentDay(token) {
-    // 读取 GitHub 上的 config 获取 SHA 和 day_sequence
-    var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/workout_config.json', {
-        headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
-    });
-    if (!r.ok) throw new Error('read config failed');
-    var data = await r.json();
-    var sha = data.sha;
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(function() { t.classList.remove('show'); }, 2000);
+        }
 
-    // 从 config 读取 day_sequence，不要硬编码
-    var cfg = JSON.parse(decodeUTF8Atob(data.content));
-    var currentDay = cfg.current_day || 'day1';
-    var seq = cfg.day_sequence || ['day1', 'day2', 'day3'];
-    var curIdx = seq.indexOf(currentDay);
-    if (curIdx < 0) curIdx = 0;
-    var nxt = seq[(curIdx + 1) % seq.length];
-    cfg.current_day = nxt;
+        function openLightbox(src) {
+            document.getElementById('lightboxImg').src = src;
+            document.getElementById('lightbox').style.display = 'flex';
+        }
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
 
-    var cfgContent = utf8Btoa(JSON.stringify(cfg, null, 2));
-    if (!cfgContent) throw new Error('config encode failed');
-    var body = JSON.stringify({
-        message: 'Advance to ' + nxt,
-        content: cfgContent,
-        sha: sha
-    });
-    var res = await fetch('https://api.github.com/repos/' + REPO + '/contents/workout_config.json', {
-        method: 'PUT',
-        headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
-        body: body
-    });
-    if (!res.ok) {
-        var err = await res.json();
-        throw new Error(err.message || res.status);
-    }
-    return nxt;
-}
+        async function loadWeightHistoryFromGitHub(token) {
+            if (!token) return;
+            try {
+                var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/training_log.json', {
+                    headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
+                });
+                if (!r.ok) return;
+                var d = await r.json();
+                var log = JSON.parse(decodeUTF8Atob(d.content) || '{}');
+                var dateKeys = Object.keys(log).filter(function(k) { return /^\d{4}-\d{2}-\d{2}$/.test(k); }).sort().reverse();
+                var latestWeights = {};
+                for (var di = 0; di < dateKeys.length; di++) {
+                    var entry = log[dateKeys[di]];
+                    if (!entry || !entry.exercises) continue;
+                    for (var ei = 0; ei < entry.exercises.length; ei++) {
+                        var ex = entry.exercises[ei];
+                        var name = (ex.name || '').trim();
+                        var weight = (ex.weight || '').trim();
+                        if (name && weight && !(name in latestWeights)) {
+                            latestWeights[name] = weight;
+                        }
+                    }
+                }
+                var inputs = document.querySelectorAll('.weight-input');
+                var filled = 0;
+                inputs.forEach(function(inp) {
+                    var exName = inp.getAttribute('data-exercise');
+                    if (exName && latestWeights[exName] && !inp.value.trim()) {
+                        inp.value = latestWeights[exName];
+                        filled++;
+                    }
+                });
+                if (filled > 0) showToast('📦 已加载 ' + filled + ' 条历史重量');
+            } catch(e) { console.warn('加载重量历史失败:', e); }
+        }
 
-// Restore progress from localStorage
-var savedCount = parseInt(localStorage.getItem('workout_done_' + dateStr) || '0');
-if (savedCount > 0) {
-    var cards = document.querySelectorAll('.exercise-card');
-    var toMark = Math.min(savedCount, cards.length);
-    for (var i = 0; i < toMark; i++) {
-        cards[i].classList.add('done');
-    }
-    completed = toMark;
-    updateProgress();
-}
+        var completed = 0;
+        var total = 5;
 
-</script>
+        function updateProgress() {
+            var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('pctText').textContent = completed + '/' + total;
+        }
+
+        function toggleDone(card, e) {
+            if (e.target.closest('.home-alt') || e.target.closest('input') || e.target.tagName === 'INPUT') return;
+            card.classList.toggle('done');
+            completed = document.querySelectorAll('.exercise-card.done').length;
+            updateProgress();
+        }
+
+        async function confirmAndSave() {
+            var token = getToken();
+            if (!token) {
+                var inp = document.getElementById('banner-token-input');
+                if (inp) { inp.focus(); showToast('请先填写并保存 GitHub Token'); }
+                return;
+            }
+            var doneCards = Array.from(document.querySelectorAll('.exercise-card.done'));
+            if (doneCards.length === 0) {
+                showToast('请先点击动作卡片标记完成');
+                return;
+            }
+            document.getElementById('saveBtn').textContent = '保存中...';
+            document.getElementById('saveBtn').disabled = true;
+            var exercises = doneCards.map(function(card) {
+                var name = card.querySelector('.card-title') ? card.querySelector('.card-title').textContent.trim() : '';
+                var sets = card.querySelector('.sets-label') ? card.querySelector('.sets-label').textContent.trim() : '';
+                var weightEl = card.querySelector('.weight-input');
+                var weight = weightEl && weightEl.value.trim() ? weightEl.value.trim() : '';
+                return { name: name, sets: sets, weight: weight };
+            });
+            var logEntry = {
+                date: dateStr,
+                dayName: pageTitle,
+                completed: exercises.length,
+                total: total,
+                percent: Math.round((exercises.length / total) * 100),
+                timestamp: new Date().toISOString(),
+                exercises: exercises
+            };
+            try {
+                var sha = null;
+                var currentLog = {};
+                var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/training_log.json', {
+                    headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
+                });
+                if (r.ok) {
+                    var d = await r.json();
+                    sha = d.sha;
+                    try { currentLog = JSON.parse(decodeUTF8Atob(d.content)); } catch(e) { currentLog = {}; }
+                }
+                currentLog[dateStr] = logEntry;
+                currentLog.lastUpdated = new Date().toISOString();
+                var bodyContent = utf8Btoa(JSON.stringify(currentLog, null, 2));
+                if (!bodyContent) { throw new Error('encode failed'); }
+                var body = JSON.stringify({ message: 'Training log ' + dateStr, content: bodyContent, sha: sha });
+                var res = await fetch('https://api.github.com/repos/' + REPO + '/contents/training_log.json', {
+                    method: 'PUT',
+                    headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+                    body: body
+                });
+                if (res.ok) {
+                    showToast('✅ 已保存！正在推进...');
+                    document.getElementById('saveBtn').textContent = '推进中...';
+                    advanceCurrentDay(token).then(function() {
+                        showToast('✅ 已完成！显示下一天...');
+                        setTimeout(function(){ location.reload(); }, 1500);
+                    }).catch(function(err) {
+                        showToast('⚠️ 推进失败: ' + (err.message || err));
+                        document.getElementById('saveBtn').textContent = '✅ 确认完成';
+                        document.getElementById('saveBtn').disabled = false;
+                    });
+                } else {
+                    var err = await res.json();
+                    showToast('⚠️ ' + (err.message || res.status));
+                    document.getElementById('saveBtn').textContent = '✅ 确认完成';
+                    document.getElementById('saveBtn').disabled = false;
+                }
+            } catch(e) {
+                showToast('⚠️ 网络错误');
+                document.getElementById('saveBtn').textContent = '✅ 确认完成';
+                document.getElementById('saveBtn').disabled = false;
+            }
+        }
+
+        async function advanceCurrentDay(token) {
+            var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/workout_config.json', {
+                headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
+            });
+            if (!r.ok) throw new Error('read config failed');
+            var data = await r.json();
+            var sha = data.sha;
+            var cfg = JSON.parse(decodeUTF8Atob(data.content));
+            var currentDay = cfg.current_day || 'day1';
+            var seq = cfg.day_sequence || ['day1', 'day2', 'day3'];
+            var curIdx = seq.indexOf(currentDay);
+            if (curIdx < 0) curIdx = 0;
+            var nxt = seq[(curIdx + 1) % seq.length];
+            cfg.current_day = nxt;
+            var cfgContent = utf8Btoa(JSON.stringify(cfg, null, 2));
+            if (!cfgContent) throw new Error('config encode failed');
+            var body = JSON.stringify({ message: 'Advance to ' + nxt, content: cfgContent, sha: sha });
+            var res = await fetch('https://api.github.com/repos/' + REPO + '/contents/workout_config.json', {
+                method: 'PUT',
+                headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+                body: body
+            });
+            if (!res.ok) {
+                var err = await res.json();
+                throw new Error(err.message || res.status);
+            }
+        }
+
+        // Restore progress
+        var savedCount = parseInt(localStorage.getItem('workout_done_' + dateStr) || '0');
+        if (savedCount > 0) {
+            var cards = document.querySelectorAll('.exercise-card');
+            var toMark = Math.min(savedCount, cards.length);
+            for (var i = 0; i < toMark; i++) cards[i].classList.add('done');
+            completed = toMark;
+            updateProgress();
+        }
+
+        // Init
+        (function initPage() {
+            var token = getToken();
+            if (token) {
+                document.getElementById('banner-token-status').textContent = ' ✅ 已配置';
+                document.getElementById('banner-token-status').style.color = 'green';
+                document.getElementById('banner-token-input').value = token;
+                loadWeightHistoryFromGitHub(token);
+            } else {
+                document.getElementById('saveBtn').disabled = true;
+            }
+        })();
+    </script>
 </body>
 </html>
