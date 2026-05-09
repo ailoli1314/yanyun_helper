@@ -184,7 +184,31 @@
             border-radius: 20px;
             margin-top: 8px;
         }
-        
+
+        .weight-row {
+            margin: 8px 0 2px;
+        }
+
+        .weight-input {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1.5px solid var(--accent-light);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .weight-input:focus {
+            border-color: var(--accent);
+        }
+        .weight-input::placeholder {
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
         .card-body {
             padding: 14px 18px 16px;
         }
@@ -339,7 +363,59 @@
             border-radius: 6px;
             transition: width 0.5s;
         }
-        
+
+        .btn-save {
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 9px 24px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-save:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+        .lightbox img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
         /* 深色主题适配 */
         [data-theme="dark"] .sets-label {
             background: var(--accent-light);
@@ -356,6 +432,18 @@
         
         [data-theme="dark"] .progress-track {
             background: #2a2a3a;
+        }
+
+        [data-theme="dark"] .weight-input {
+            background: #1a1a2e;
+            border-color: #2a3f5f;
+            color: #eaeaea;
+        }
+        [data-theme="dark"] .weight-input:focus {
+            border-color: #4cc9f0;
+        }
+        [data-theme="dark"] .exercise-card.done {
+            opacity: 0.45;
         }
     </style>
 </head>
@@ -393,7 +481,7 @@
     <div class="divider">💪 训练动作 💪</div>
     
     
-        <div class="exercise-card">
+        <div class="exercise-card" onclick="toggleDone(this, event)">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">💪</span>
@@ -401,6 +489,7 @@
                 </div>
                 <div class="card-en">Barbell Bench Press</div>
                 <div class="sets-label">📊 5组 × 8-10次 | 休息90秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="38kg" placeholder="实际重量（如 60kg）" data-exercise="平板卧推"></div>
             </div>
             <div class="card-body">
                 <div class="parts-row">
@@ -423,7 +512,7 @@
             </div>
         </div>
         
-        <div class="exercise-card">
+        <div class="exercise-card" onclick="toggleDone(this, event)">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">💪</span>
@@ -431,6 +520,7 @@
                 </div>
                 <div class="card-en">Incline Dumbbell Press</div>
                 <div class="sets-label">📊 4组 × 10-12次 | 休息75秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="10kg" placeholder="实际重量（如 60kg）" data-exercise="上斜哑铃卧推"></div>
             </div>
             <div class="card-body">
                 <div class="parts-row">
@@ -453,7 +543,7 @@
             </div>
         </div>
         
-        <div class="exercise-card">
+        <div class="exercise-card" onclick="toggleDone(this, event)">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">🦴</span>
@@ -461,6 +551,7 @@
                 </div>
                 <div class="card-en">Dumbbell Shoulder Press</div>
                 <div class="sets-label">📊 4组 × 8-12次 | 休息75秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="10kg" placeholder="实际重量（如 60kg）" data-exercise="哑铃肩推"></div>
             </div>
             <div class="card-body">
                 <div class="parts-row">
@@ -483,7 +574,7 @@
             </div>
         </div>
         
-        <div class="exercise-card">
+        <div class="exercise-card" onclick="toggleDone(this, event)">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">🦴</span>
@@ -491,6 +582,7 @@
                 </div>
                 <div class="card-en">Lateral Raise</div>
                 <div class="sets-label">📊 4组 × 12-15次 | 休息60秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="3kg" placeholder="实际重量（如 60kg）" data-exercise="侧平举"></div>
             </div>
             <div class="card-body">
                 <div class="parts-row">
@@ -513,7 +605,7 @@
             </div>
         </div>
         
-        <div class="exercise-card">
+        <div class="exercise-card" onclick="toggleDone(this, event)">
             <div class="card-header">
                 <div class="card-title-row">
                     <span class="card-emoji">🦾</span>
@@ -521,6 +613,7 @@
                 </div>
                 <div class="card-en">Tricep Pushdown</div>
                 <div class="sets-label">📊 4组 × 10-12次 | 休息60秒秒</div>
+                <div class="weight-row"><input class="weight-input" type="text" value="12kg" placeholder="实际重量（如 60kg）" data-exercise="绳索/器械肱三头肌下压"></div>
             </div>
             <div class="card-body">
                 <div class="parts-row">
