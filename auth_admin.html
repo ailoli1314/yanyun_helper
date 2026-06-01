@@ -323,11 +323,15 @@
                     updateStatus(true);
                     showToast('验证通过', 'success');
                 } else {
+                    apiKey = '';
+                    localStorage.removeItem('yanyun_api_key');
                     document.getElementById('gateStatusDot').className = 'status-dot no';
                     document.getElementById('gateStatusText').textContent = '验证失败';
                     showToast('API Key 无效', 'error');
                 }
             } catch (e) {
+                apiKey = '';
+                localStorage.removeItem('yanyun_api_key');
                 showToast('验证失败: ' + e.message, 'error');
             }
 
@@ -370,7 +374,16 @@
         // ---- API 调用 ----
 
         async function apiGet(key) {
-            const resp = await fetch(`${SCF_URL}/kv?key=${encodeURIComponent(key)}`);
+            const headers = {};
+            if (apiKey) headers['X-API-Key'] = apiKey;
+            const resp = await fetch(`${SCF_URL}/kv?key=${encodeURIComponent(key)}`, { headers });
+            if (resp.status === 403) {
+                apiKey = '';
+                localStorage.removeItem('yanyun_api_key');
+                updateStatus(false);
+                showToast('API Key 已失效，请重新验证', 'error');
+                return null;
+            }
             if (!resp.ok) return null;
             const text = await resp.text();
             if (!text || text.trim() === 'null') return null;
@@ -396,7 +409,16 @@
         }
 
         async function apiListKeys(prefix = AUTH_PREFIX) {
-            const resp = await fetch(`${SCF_URL}/kv/list?prefix=${encodeURIComponent(prefix)}`);
+            const headers = {};
+            if (apiKey) headers['X-API-Key'] = apiKey;
+            const resp = await fetch(`${SCF_URL}/kv/list?prefix=${encodeURIComponent(prefix)}`, { headers });
+            if (resp.status === 403) {
+                apiKey = '';
+                localStorage.removeItem('yanyun_api_key');
+                updateStatus(false);
+                showToast('API Key 已失效，请重新验证', 'error');
+                return [];
+            }
             if (!resp.ok) return [];
             return resp.json();
         }
@@ -429,10 +451,14 @@
                     updateStatus(true);
                     showToast('验证通过，写入权限已开启', 'success');
                 } else {
+                    apiKey = '';
+                    localStorage.removeItem('yanyun_api_key');
                     updateStatus(false);
                     showToast('API Key 无效', 'error');
                 }
             } catch (e) {
+                apiKey = '';
+                localStorage.removeItem('yanyun_api_key');
                 showToast('验证失败: ' + e.message, 'error');
             }
 
