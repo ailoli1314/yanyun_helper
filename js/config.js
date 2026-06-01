@@ -10,7 +10,8 @@ const RESOURCE_CONFIG = {
 
     // 下载资源
     download: {
-        app: "蓝奏云链接待替换"
+        app: "蓝奏云链接待替换",
+        aliDrive: "阿里云盘链接待替换"
     },
 
     // 图片资源

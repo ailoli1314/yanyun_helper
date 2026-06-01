@@ -15,7 +15,7 @@
                 <li><a href="intro.html">脚本介绍</a></li>
                 <li><a href="notice.html" class="active">公告</a></li>
             </ul>
-            <a href="#" id="navDownload" class="nav-download" download>立即下载</a>
+            <a href="#" id="navDownload" class="nav-download">立即下载</a>
         </div>
     </nav>
 
@@ -73,23 +73,59 @@
                 <div class="footer-links">
                     <a href="index.html">首页</a>
                     <a href="intro.html">脚本介绍</a>
-                    <a href="#" id="footerDownload" download>下载</a>
+                    <a href="#" id="footerDownload">下载</a>
                 </div>
                 <p class="footer-copyright">© 2026 游戏秘籍. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
-    <script src="js/config.js"></script>
-    <script src="js/main.js"></script>
+    <!-- 下载渠道选择弹窗 -->
+    <div id="downloadModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:1000;">
+        <div style="background:#1e1e2e;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:30px;max-width:400px;width:90%;text-align:center;">
+            <h3 style="color:#a29bfe;margin-bottom:20px;font-size:1.3rem;">选择下载渠道</h3>
+            <div id="downloadChannels" style="display:flex;flex-direction:column;gap:12px;"></div>
+            <button onclick="closeDownloadModal()" style="margin-top:20px;padding:8px 24px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#b2bec3;cursor:pointer;font-size:0.9rem;">取消</button>
+        </div>
+    </div>
+
     <script src="js/scf-api.js"></script>
+    <script src="js/main.js"></script>
     <script>
-        // 从配置动态加载下载链接
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof RESOURCE_CONFIG !== 'undefined' && RESOURCE_CONFIG.download && RESOURCE_CONFIG.download.app) {
-                var downloadUrl = RESOURCE_CONFIG.download.app;
-                document.getElementById('navDownload').href = downloadUrl;
-                document.getElementById('footerDownload').href = downloadUrl;
+        var _downloadConfig = null;
+
+        function openDownloadModal(e) {
+            if (e) e.preventDefault();
+            var config = _downloadConfig;
+            if (!config || !config.download) return;
+
+            var channels = [];
+            if (config.download.baiduPan) channels.push({ name: '💾 百度网盘', url: config.download.baiduPan, desc: '需登录，非会员限速' });
+            if (config.download.aliDrive) channels.push({ name: '☁️ 阿里云盘', url: config.download.aliDrive, desc: '需登录，大文件需客户端' });
+            if (config.download.lanzou) channels.push({ name: '📦 蓝奏云', url: config.download.lanzou, desc: '单文件限100MB' });
+
+            if (channels.length === 0) { alert('暂无下载链接，请稍后再试'); return; }
+            if (channels.length === 1) { window.open(channels[0].url, '_blank'); return; }
+
+            var container = document.getElementById('downloadChannels');
+            container.innerHTML = channels.map(function(ch) {
+                return '<a href="' + ch.url + '" target="_blank" style="display:block;padding:14px 20px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#dfe6e9;text-decoration:none;text-align:left;transition:all 0.2s;" onmouseover="this.style.borderColor=\'#6c5ce7\'" onmouseout="this.style.borderColor=\'rgba(255,255,255,0.15)\'"><div style="font-weight:600;font-size:1rem;">' + ch.name + '</div><div style="color:#b2bec3;font-size:0.8rem;margin-top:4px;">' + ch.desc + '</div></a>';
+            }).join('');
+            document.getElementById('downloadModal').style.display = 'flex';
+        }
+
+        function closeDownloadModal() { document.getElementById('downloadModal').style.display = 'none'; }
+        document.getElementById('downloadModal').addEventListener('click', function(e) { if (e.target === this) closeDownloadModal(); });
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            const config = await CloudConfig.get();
+            if (config && config.download) {
+                _downloadConfig = config;
+                var hasLink = config.download.baiduPan || config.download.aliDrive || config.download.lanzou;
+                if (hasLink) {
+                    document.getElementById('navDownload').addEventListener('click', openDownloadModal);
+                    document.getElementById('footerDownload').addEventListener('click', openDownloadModal);
+                }
             }
         });
     </script>

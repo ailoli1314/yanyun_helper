@@ -68,10 +68,37 @@
 
         .back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); margin-bottom: 20px; transition: color 0.3s; }
         .back-link:hover { color: var(--primary-light); }
+
+        /* 登录遮罩 */
+        .auth-gate { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #1e1e2e 0%, #2d3436 100%); display: flex; align-items: center; justify-content: center; z-index: 999; }
+        .auth-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); padding: 40px; max-width: 400px; width: 90%; text-align: center; }
+        .auth-box h2 { background: var(--gradient-2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; font-size: 1.5rem; }
+        .auth-box p { color: var(--text-muted); margin-bottom: 25px; font-size: 0.9rem; }
+        .auth-box input { width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: var(--text); font-size: 1rem; margin-bottom: 15px; }
+        .auth-box input:focus { outline: none; border-color: var(--primary); }
+        .auth-box .btn { width: 100%; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .status-dot.ok { background: #2ecc71; box-shadow: 0 0 6px rgba(46,204,113,0.5); }
+        .status-dot.no { background: #e74c3c; box-shadow: 0 0 6px rgba(231,76,60,0.5); }
+        .status-text { font-size: 0.9rem; color: var(--text-muted); }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- 登录验证遮罩 -->
+    <div class="auth-gate" id="authGate">
+        <div class="auth-box">
+            <h2>资源管理中心</h2>
+            <p>请输入 API Key 验证身份</p>
+            <input type="password" id="apiKeyInput" placeholder="输入 API Key" />
+            <button class="btn btn-primary" onclick="verifyAndEnter()" id="verifyBtn">验证并进入</button>
+            <div style="margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span class="status-dot no" id="statusDot"></span>
+                <span class="status-text" id="statusText">未验证</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="mainContent" style="display:none;">
         <a href="index.html" class="back-link">← 返回首页</a>
         <h1>资源管理中心</h1>
         <p class="subtitle">一站式管理图片、视频、下载链接</p>
@@ -95,10 +122,23 @@
                 </div>
                 <div class="platform-card">
                     <h3>📦 蓝奏云</h3>
-                    <p>免费大文件存储，不限速，单文件100MB</p>
+                    <p>免费小文件存储，不限速，单文件限100MB</p>
                     <span class="tag tag-free">免费</span>
                     <span class="tag tag-china">国内快</span>
                     <a href="https://www.lanzou.com" target="_blank" class="btn btn-primary btn-block">打开 蓝奏云</a>
+                </div>
+                <div class="platform-card">
+                    <h3>☁️ 阿里云盘</h3>
+                    <p>免费100GB+，不限速，大文件需客户端</p>
+                    <span class="tag tag-free">免费</span>
+                    <span class="tag tag-china">国内快</span>
+                    <a href="https://www.alipan.com" target="_blank" class="btn btn-primary btn-block">打开 阿里云盘</a>
+                </div>
+                <div class="platform-card">
+                    <h3>💾 百度网盘</h3>
+                    <p>大容量存储，分享方便，非会员限速</p>
+                    <span class="tag tag-china">国内快</span>
+                    <a href="https://pan.baidu.com" target="_blank" class="btn btn-primary btn-block">打开 百度网盘</a>
                 </div>
                 <div class="platform-card">
                     <h3>🎬 B站 视频</h3>
@@ -145,8 +185,9 @@
                         <span class="url-item-title">📦 应用下载链接</span>
                         <span class="url-item-type">下载</span>
                     </div>
-                    <input type="text" id="urlDownload" placeholder="粘贴蓝奏云或其他下载链接" value="">
-                    <button class="btn btn-secondary btn-sm btn-copy" onclick="copyUrl('urlDownload')">复制链接</button>
+                    <input type="text" id="urlBaiduPan" placeholder="💾 百度网盘分享链接，如：https://pan.baidu.com/s/xxx" value="" style="margin-bottom:8px;">
+                    <input type="text" id="urlAliDrive" placeholder="☁️ 阿里云盘分享链接，如：https://www.alipan.com/s/xxx" value="" style="margin-bottom:8px;">
+                    <input type="text" id="urlLanzou" placeholder="📦 蓝奏云分享链接，如：https://xxx.lanzou*.com/xxx" value="">
                 </div>
 
                 <!-- 图片链接 -->
@@ -187,7 +228,7 @@
                 </div>
             </div>
 
-            <button class="btn btn-primary btn-block" style="margin-top: 20px;" onclick="saveToConfig()">保存到 config.js</button>
+            <button class="btn btn-primary btn-block" style="margin-top: 20px;" onclick="saveToCloud()" id="saveBtn">发布配置</button>
         </div>
 
         <!-- 使用说明 -->
@@ -199,8 +240,7 @@
                     <li>根据资源类型，点击上方相应的平台入口</li>
                     <li>上传图片/视频/文件，获取分享链接</li>
                     <li>将链接粘贴到「已获取的链接」对应区域</li>
-                    <li>点击「保存到 config.js」，复制配置内容</li>
-                    <li>覆盖 <code>js/config.js</code> 文件，所有页面自动更新</li>
+                    <li>点击「发布配置」，配置即时生效，所有页面自动更新</li>
                 </ol>
             </div>
             <div class="help-box">
@@ -216,44 +256,52 @@
 
     <div id="toast" class="toast"></div>
 
-    <script src="js/config.js"></script>
+    <script src="js/scf-api.js"></script>
     <script>
-        // 从 config.js 和 localStorage 加载保存的链接（优先 config.js）
-        function loadUrls() {
-            // 先从 localStorage 获取已保存的值
-            const savedUrls = JSON.parse(localStorage.getItem('resource_urls') || '{}');
+        // 验证 API Key 并进入页面
+        async function verifyAndEnter() {
+            const input = document.getElementById('apiKeyInput').value.trim();
+            if (!input) { showToast('请输入 API Key', 'error'); return; }
 
-            // 优先使用 config.js 中的配置，其次使用 localStorage
-            if (typeof RESOURCE_CONFIG !== 'undefined') {
-                document.getElementById('urlVideo').value = RESOURCE_CONFIG.video?.demo || savedUrls.video || '';
-                document.getElementById('urlDownload').value = RESOURCE_CONFIG.download?.app || savedUrls.download || '';
-                // 4张介绍页图片
-                document.getElementById('urlOcr').value = RESOURCE_CONFIG.images?.ocr || savedUrls.ocr || '';
-                document.getElementById('urlRecord').value = RESOURCE_CONFIG.images?.record || savedUrls.record || '';
-                document.getElementById('urlTrigger').value = RESOURCE_CONFIG.images?.trigger || savedUrls.trigger || '';
-                document.getElementById('urlAuth').value = RESOURCE_CONFIG.images?.auth || savedUrls.auth || '';
-            } else {
-                document.getElementById('urlVideo').value = savedUrls.video || '';
-                document.getElementById('urlDownload').value = savedUrls.download || '';
-                document.getElementById('urlOcr').value = savedUrls.ocr || '';
-                document.getElementById('urlRecord').value = savedUrls.record || '';
-                document.getElementById('urlTrigger').value = savedUrls.trigger || '';
-                document.getElementById('urlAuth').value = savedUrls.auth || '';
+            const btn = document.getElementById('verifyBtn');
+            btn.disabled = true;
+            btn.textContent = '验证中...';
+
+            try {
+                const valid = await SCF_API.verifyApiKey(input);
+                if (valid) {
+                    SCF_API.setApiKey(input);
+                    localStorage.setItem('yanyun_api_key', input);
+                    document.getElementById('statusDot').className = 'status-dot ok';
+                    document.getElementById('statusText').textContent = '已验证';
+                    document.getElementById('authGate').style.display = 'none';
+                    document.getElementById('mainContent').style.display = '';
+                    await loadUrls();
+                    showToast('验证通过', 'success');
+                } else {
+                    document.getElementById('statusDot').className = 'status-dot no';
+                    document.getElementById('statusText').textContent = '验证失败';
+                    showToast('API Key 无效', 'error');
+                }
+            } catch (e) {
+                showToast('验证失败: ' + e.message, 'error');
             }
+
+            btn.disabled = false;
+            btn.textContent = '验证并进入';
         }
 
-        // 保存链接到 localStorage
-        function saveUrls() {
-            const urls = {
-                video: document.getElementById('urlVideo').value.trim(),
-                download: document.getElementById('urlDownload').value.trim(),
-                ocr: document.getElementById('urlOcr').value.trim(),
-                record: document.getElementById('urlRecord').value.trim(),
-                trigger: document.getElementById('urlTrigger').value.trim(),
-                auth: document.getElementById('urlAuth').value.trim()
-            };
-            localStorage.setItem('resource_urls', JSON.stringify(urls));
-            return urls;
+        // 从云端加载配置
+        async function loadUrls() {
+            const config = await CloudConfig.get();
+            document.getElementById('urlVideo').value = config.video?.demo || '';
+            document.getElementById('urlBaiduPan').value = config.download?.baiduPan || '';
+            document.getElementById('urlAliDrive').value = config.download?.aliDrive || '';
+            document.getElementById('urlLanzou').value = config.download?.lanzou || '';
+            document.getElementById('urlOcr').value = config.images?.ocr || '';
+            document.getElementById('urlRecord').value = config.images?.record || '';
+            document.getElementById('urlTrigger').value = config.images?.trigger || '';
+            document.getElementById('urlAuth').value = config.images?.auth || '';
         }
 
         // 复制链接
@@ -271,45 +319,47 @@
             });
         }
 
-        // 保存到 config.js（生成配置内容供用户复制）
-        function saveToConfig() {
-            const urls = saveUrls();
+        // 发布配置到云端
+        async function saveToCloud() {
+            if (!SCF_API.apiKey) {
+                showToast('请先验证 API Key', 'error');
+                return;
+            }
 
-            const configContent = `/**
- * 统一资源配置
- * 所有资源URL在此集中管理，便于后续替换
- */
-const RESOURCE_CONFIG = {
-    // 视频资源
-    video: {
-        demo: "${urls.video || '//player.bilibili.com/player.html?bvid=BV号待替换'}"
-    },
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            btn.textContent = '发布中...';
 
-    // 下载资源
-    download: {
-        app: "${urls.download || '蓝奏云链接待替换'}"
-    },
+            const config = {
+                video: {
+                    demo: document.getElementById('urlVideo').value.trim()
+                },
+                download: {
+                    baiduPan: document.getElementById('urlBaiduPan').value.trim(),
+                    aliDrive: document.getElementById('urlAliDrive').value.trim(),
+                    lanzou: document.getElementById('urlLanzou').value.trim()
+                },
+                images: {
+                    ocr: document.getElementById('urlOcr').value.trim(),
+                    record: document.getElementById('urlRecord').value.trim(),
+                    trigger: document.getElementById('urlTrigger').value.trim(),
+                    auth: document.getElementById('urlAuth').value.trim()
+                }
+            };
 
-    // 图片资源
-    images: {
-        ocr: "${urls.ocr || ''}",
-        record: "${urls.record || ''}",
-        trigger: "${urls.trigger || ''}",
-        auth: "${urls.auth || ''}"
-    }
-};
+            try {
+                const success = await CloudConfig.save(config);
+                if (success) {
+                    showToast('配置已发布，所有页面即时生效', 'success');
+                } else {
+                    showToast('发布失败，请检查 API Key', 'error');
+                }
+            } catch (e) {
+                showToast('发布失败: ' + e.message, 'error');
+            }
 
-// 导出配置
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { RESOURCE_CONFIG };
-}`;
-
-            // 复制配置内容
-            navigator.clipboard.writeText(configContent).then(() => {
-                showToast('配置已复制到剪贴板！请覆盖 js/config.js 文件', 'success');
-            }).catch(() => {
-                showToast('复制失败，请手动复制', 'error');
-            });
+            btn.disabled = false;
+            btn.textContent = '发布配置';
         }
 
         // 显示提示
@@ -320,8 +370,23 @@ if (typeof module !== 'undefined' && module.exports) {
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // 初始化
-        loadUrls();
+        // 初始化：检查已保存的 API Key
+        (function init() {
+            const saved = localStorage.getItem('yanyun_api_key');
+            if (saved) {
+                document.getElementById('apiKeyInput').value = saved;
+                SCF_API.verifyApiKey(saved).then(valid => {
+                    if (valid) {
+                        SCF_API.setApiKey(saved);
+                        document.getElementById('statusDot').className = 'status-dot ok';
+                        document.getElementById('statusText').textContent = '已验证';
+                        document.getElementById('authGate').style.display = 'none';
+                        document.getElementById('mainContent').style.display = '';
+                        loadUrls();
+                    }
+                }).catch(() => {});
+            }
+        })();
     </script>
 </body>
 </html>

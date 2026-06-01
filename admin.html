@@ -100,10 +100,33 @@
         .json-preview-content pre { font-family: monospace; font-size: 0.85rem; color: var(--secondary); white-space: pre-wrap; word-break: break-all; }
         
         .copy-btn { display: inline-flex; align-items: center; gap: 5px; }
+
+        /* 登录遮罩 */
+        .auth-gate { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #1e1e2e 0%, #2d3436 100%); display: flex; align-items: center; justify-content: center; z-index: 999; }
+        .auth-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); padding: 40px; max-width: 400px; width: 90%; text-align: center; }
+        .auth-box h2 { background: var(--gradient-2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; font-size: 1.5rem; }
+        .auth-box p { color: var(--text-muted); margin-bottom: 25px; font-size: 0.9rem; }
+        .auth-box input { width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: var(--text); font-size: 1rem; margin-bottom: 15px; }
+        .auth-box input:focus { outline: none; border-color: var(--primary); }
+        .auth-box .btn { width: 100%; }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- 登录验证遮罩 -->
+    <div class="auth-gate" id="authGate">
+        <div class="auth-box">
+            <h2>公告管理中心</h2>
+            <p>请输入 API Key 验证身份</p>
+            <input type="password" id="gateApiKeyInput" placeholder="输入 API Key" />
+            <button class="btn btn-primary" onclick="gateVerify()" id="gateVerifyBtn">验证并进入</button>
+            <div style="margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span class="status-dot no" id="gateStatusDot"></span>
+                <span class="status-text" id="gateStatusText">未验证</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="mainContent" style="display:none;">
         <h1>公告管理中心</h1>
         <p class="subtitle">管理游戏秘籍的公告内容</p>
 
@@ -201,6 +224,41 @@
         let deleteTargetId = null;
         let cloudNotices = [];
         let currentJsonContent = '';
+
+        // 登录遮罩验证
+        async function gateVerify() {
+            const input = document.getElementById('gateApiKeyInput').value.trim();
+            if (!input) { showToast('请输入 API Key', 'error'); return; }
+
+            const btn = document.getElementById('gateVerifyBtn');
+            btn.disabled = true;
+            btn.textContent = '验证中...';
+
+            try {
+                const valid = await SCF_API.verifyApiKey(input);
+                if (valid) {
+                    SCF_API.setApiKey(input);
+                    localStorage.setItem('yanyun_api_key', input);
+                    document.getElementById('gateStatusDot').className = 'status-dot ok';
+                    document.getElementById('gateStatusText').textContent = '已验证';
+                    document.getElementById('authGate').style.display = 'none';
+                    document.getElementById('mainContent').style.display = '';
+                    // 同步填充页面内的 API Key 区域
+                    document.getElementById('apiKeyInput').value = input;
+                    updateStatus(true);
+                    showToast('验证通过', 'success');
+                } else {
+                    document.getElementById('gateStatusDot').className = 'status-dot no';
+                    document.getElementById('gateStatusText').textContent = '验证失败';
+                    showToast('API Key 无效', 'error');
+                }
+            } catch (e) {
+                showToast('验证失败: ' + e.message, 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = '验证并进入';
+        }
 
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
@@ -426,19 +484,22 @@
             btn.textContent = '确认删除';
         }
 
-        // 初始化
+        // 初始化：自动验证已保存的 API Key
         (function init() {
             const saved = localStorage.getItem('yanyun_api_key');
             if (saved) {
-                document.getElementById('apiKeyInput').value = saved;
+                document.getElementById('gateApiKeyInput').value = saved;
                 SCF_API.verifyApiKey(saved).then(valid => {
                     if (valid) {
                         SCF_API.setApiKey(saved);
+                        document.getElementById('gateStatusDot').className = 'status-dot ok';
+                        document.getElementById('gateStatusText').textContent = '已验证';
+                        document.getElementById('authGate').style.display = 'none';
+                        document.getElementById('mainContent').style.display = '';
+                        document.getElementById('apiKeyInput').value = saved;
                         updateStatus(true);
-                    } else {
-                        updateStatus(false);
                     }
-                }).catch(() => updateStatus(false));
+                }).catch(() => {});
             }
         })();
     </script>

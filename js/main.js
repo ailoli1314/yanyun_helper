@@ -13,9 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
         lastScroll = currentScroll;
     });
 
-    // 平滑滚动
+    // 平滑滚动（排除外部链接和下载按钮）
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
+            // 如果 href 已被更新为外部链接，不拦截
+            const href = this.getAttribute('href');
+            if (href && href !== '#' && !href.startsWith('#')) return;
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
             if (target) {
@@ -25,14 +28,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 下载按钮点击反馈
-    const downloadBtn = document.querySelector('.nav-download');
-    const heroDownloadBtn = document.querySelector('.btn-primary');
-    [downloadBtn, heroDownloadBtn].forEach(btn => {
+    const downloadBtns = document.querySelectorAll('#navDownload, #heroDownload, #footerDownload');
+    downloadBtns.forEach(btn => {
         if (btn) {
             btn.addEventListener('click', function(e) {
                 const href = this.getAttribute('href');
-                if (href && href.includes('placeholder')) {
-                    console.log('下载功能提示：请替换为真实的压缩包文件');
+                if (!href || href === '#') {
+                    e.preventDefault();
+                    console.log('下载链接尚未配置');
                 }
             });
         }
