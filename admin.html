@@ -25,11 +25,15 @@
         
         .config-section { background: rgba(255,255,255,0.05); border-radius: var(--radius); padding: 20px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); }
         .config-section h3 { margin-bottom: 15px; color: var(--primary-light); }
-        .config-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        .config-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
         .config-row input { flex: 1; min-width: 200px; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: var(--text); font-size: 1rem; }
         .config-row input::placeholder { color: var(--text-muted); }
         .config-row input:focus { outline: none; border-color: var(--primary); }
-        .btn { padding: 12px 24px; border-radius: 8px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .status-dot.ok { background: #2ecc71; box-shadow: 0 0 6px rgba(46,204,113,0.5); }
+        .status-dot.no { background: #e74c3c; box-shadow: 0 0 6px rgba(231,76,60,0.5); }
+        .status-text { font-size: 0.9rem; color: var(--text-muted); }
+        .btn { padding: 12px 24px; border-radius: 8px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
         .btn-primary { background: var(--gradient-2); color: white; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4); }
         .btn-success { background: var(--gradient-green); color: white; }
@@ -38,16 +42,6 @@
         .btn-secondary { background: rgba(255,255,255,0.1); color: var(--text); border: 1px solid rgba(255,255,255,0.2); }
         .btn-sm { padding: 8px 16px; font-size: 0.9rem; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .sync-section { background: rgba(255,255,255,0.05); border-radius: var(--radius); padding: 20px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); }
-        .sync-section h3 { margin-bottom: 15px; color: var(--primary-light); }
-        .sync-section > p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; }
-        
-        .path-box { background: rgba(0,0,0,0.3); border-radius: 8px; padding: 12px 15px; margin-bottom: 15px; font-family: monospace; font-size: 0.9rem; color: var(--secondary); }
-        .path-box code { background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; }
-
-        .sync-actions { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; }
-        .sync-actions .btn { display: flex; align-items: center; gap: 8px; }
 
         .form-section { background: rgba(255,255,255,0.05); border-radius: var(--radius); padding: 25px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); }
         .form-section h3 { margin-bottom: 20px; color: var(--primary-light); }
@@ -60,11 +54,6 @@
 
         .list-section { background: rgba(255,255,255,0.05); border-radius: var(--radius); padding: 25px; border: 1px solid rgba(255,255,255,0.1); }
         .list-section h3 { margin-bottom: 20px; color: var(--primary-light); }
-        
-        .data-source-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { padding: 10px 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-muted); cursor: pointer; transition: all 0.3s; }
-        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .tab-btn:hover { border-color: var(--primary); }
 
         .notice-item { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
         .notice-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
@@ -88,7 +77,7 @@
         .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
         .empty-icon { font-size: 3rem; margin-bottom: 15px; }
         
-        .loading { display: flex; align-items: center; gap: 10px; }
+        .loading { display: flex; align-items: center; gap: 10px; justify-content: center; padding: 40px; }
         .spinner { width: 20px; height: 20px; border: 2px solid rgba(108, 92, 231, 0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -119,61 +108,37 @@
         <p class="subtitle">管理游戏秘籍的公告内容</p>
 
         <div class="help-box">
-            <h4>📖 使用说明</h4>
+            <h4>使用说明</h4>
             <ol>
-                <li>先配置 Coze API Token</li>
-                <li><strong>发布公告</strong>：将公告上传到 Coze 云端存储</li>
-                <li><strong>删除公告</strong>：从 Coze 云端删除公告（切换到"云端数据"标签操作）</li>
-                <li><strong>更新网页</strong>：点击"同步到本地"按钮，复制内容后覆盖本地文件并提交 Git</li>
+                <li>先输入 API Key 并验证，获取写入权限</li>
+                <li><strong>发布公告</strong>：填写公告信息后点击发布</li>
+                <li><strong>删除公告</strong>：在列表中点击「删除」</li>
+                <li><strong>同步到本地</strong>：将云端数据导出为 JSON，用于覆盖本地文件并提交 Git</li>
             </ol>
         </div>
 
         <div class="config-section">
-            <h3>🔑 Coze API 配置</h3>
+            <h3>API Key 验证</h3>
             <div class="config-row">
-                <input type="password" id="apiToken" placeholder="输入 Coze API Token (pat_xxx...)" />
-                <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
+                <input type="password" id="apiKeyInput" placeholder="输入 API Key" />
+                <button class="btn btn-primary" onclick="verifyApiKey()" id="verifyBtn">验证</button>
             </div>
-            <p style="color: var(--text-muted); font-size: 0.85rem;">Token 保存在本地浏览器中</p>
-        </div>
-
-        <div class="sync-section">
-            <h3>🔄 同步到本地</h3>
-            
-            <div class="path-box">
-                📁 文件路径：<code>yanyun_helper/data/notices.json</code>
-            </div>
-            
-            <div class="sync-actions">
-                <button class="btn btn-success" onclick="syncToLocal()" id="syncBtn">
-                    <span>🔄</span> 同步到本地
-                </button>
-            </div>
-
-            <!-- JSON 预览区域 -->
-            <div class="json-preview" id="jsonPreview" style="display: none;">
-                <div class="json-preview-header">
-                    <h4>📋 JSON 内容（复制后覆盖本地文件）</h4>
-                    <button class="btn btn-sm btn-secondary copy-btn" onclick="copyJson()">
-                        📋 复制内容
-                    </button>
-                </div>
-                <div class="json-preview-content">
-                    <pre id="jsonContent"></pre>
-                </div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:5px;">
+                <span class="status-dot no" id="statusDot"></span>
+                <span class="status-text" id="statusText">未验证</span>
             </div>
         </div>
 
         <div class="form-section">
-            <h3>📝 发布新公告（上传到 Coze）</h3>
+            <h3>发布新公告</h3>
             <div class="form-group">
                 <label>公告类型</label>
                 <select id="noticeType">
-                    <option value="notice">📢 公告</option>
-                    <option value="hot">🔥 热门</option>
-                    <option value="update">🔧 更新</option>
-                    <option value="discount">💰 优惠</option>
-                    <option value="tutorial">📚 教程</option>
+                    <option value="notice">公告</option>
+                    <option value="hot">热门</option>
+                    <option value="update">更新</option>
+                    <option value="discount">优惠</option>
+                    <option value="tutorial">教程</option>
                 </select>
             </div>
             <div class="form-group">
@@ -188,19 +153,31 @@
                 <label>详情链接（可选）</label>
                 <input type="text" id="noticeLink" placeholder="https://..." />
             </div>
-            <button class="btn btn-primary" onclick="addNotice()" id="addBtn">🚀 发布到 Coze 云端</button>
+            <button class="btn btn-success" onclick="addNotice()" id="addBtn">发布公告</button>
         </div>
 
         <div class="list-section">
-            <h3>📋 公告列表</h3>
-            
-            <div class="data-source-tabs">
-                <button class="tab-btn active" onclick="switchTab('local')" id="tabLocal">本地数据</button>
-                <button class="tab-btn" onclick="switchTab('cloud')" id="tabCloud">云端数据 (Coze)</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3>公告列表</h3>
+                <button class="btn btn-primary btn-sm" onclick="loadNotices()" id="refreshBtn">刷新</button>
             </div>
-            
             <div id="noticeList">
-                <div class="loading"><div class="spinner"></div><span>加载中...</span></div>
+                <div class="empty-state"><div class="empty-icon">📋</div><p>点击「刷新」加载公告数据</p></div>
+            </div>
+        </div>
+
+        <div class="config-section" style="margin-top: 30px;">
+            <h3>同步到本地</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">将云端公告数据导出为 JSON，复制后覆盖本地 <code style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">data/notices.json</code> 并提交 Git</p>
+            <button class="btn btn-secondary btn-sm" onclick="syncToLocal()" id="syncBtn">导出 JSON</button>
+            <div class="json-preview" id="jsonPreview" style="display: none; margin-top:15px;">
+                <div class="json-preview-header">
+                    <h4>JSON 内容</h4>
+                    <button class="btn btn-sm btn-secondary copy-btn" onclick="copyJson()">复制内容</button>
+                </div>
+                <div class="json-preview-content">
+                    <pre id="jsonContent"></pre>
+                </div>
             </div>
         </div>
     </div>
@@ -208,10 +185,10 @@
     <!-- 确认删除弹窗 -->
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-box">
-            <h4>⚠️ 确认删除</h4>
+            <h4>确认删除</h4>
             <p id="deleteMsg">确定要删除这条公告吗？</p>
             <div class="modal-actions">
-                <button class="btn btn-sm" onclick="closeDeleteModal()">取消</button>
+                <button class="btn btn-sm btn-secondary" onclick="closeDeleteModal()">取消</button>
                 <button class="btn btn-danger btn-sm" onclick="confirmDelete()" id="confirmDeleteBtn">确认删除</button>
             </div>
         </div>
@@ -219,33 +196,11 @@
 
     <div id="toast" class="toast"></div>
 
-    <script src="js/coze-api.js"></script>
+    <script src="js/scf-api.js"></script>
     <script>
-        const STORAGE_KEY = "yanyun_notices";
-        let currentTab = 'local';
         let deleteTargetId = null;
         let cloudNotices = [];
         let currentJsonContent = '';
-
-        function init() {
-            const savedToken = localStorage.getItem('coze_api_token');
-            if (savedToken) {
-                document.getElementById('apiToken').value = savedToken;
-                CozeAPI.setToken(savedToken);
-            }
-            loadNotices();
-        }
-
-        function saveConfig() {
-            const token = document.getElementById('apiToken').value.trim();
-            if (!token) {
-                showToast('请输入 API Token', 'error');
-                return;
-            }
-            localStorage.setItem('coze_api_token', token);
-            CozeAPI.setToken(token);
-            showToast('配置已保存', 'success');
-        }
 
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
@@ -254,71 +209,48 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        function switchTab(tab) {
-            currentTab = tab;
-            document.getElementById('tabLocal').classList.toggle('active', tab === 'local');
-            document.getElementById('tabCloud').classList.toggle('active', tab === 'cloud');
-            loadNotices();
+        function updateStatus(ok) {
+            document.getElementById('statusDot').className = 'status-dot ' + (ok ? 'ok' : 'no');
+            document.getElementById('statusText').textContent = ok ? '已验证' : '未验证';
+        }
+
+        async function verifyApiKey() {
+            const input = document.getElementById('apiKeyInput').value.trim();
+            if (!input) { showToast('请输入 API Key', 'error'); return; }
+
+            const btn = document.getElementById('verifyBtn');
+            btn.disabled = true;
+            btn.textContent = '验证中...';
+
+            try {
+                const valid = await SCF_API.verifyApiKey(input);
+                if (valid) {
+                    SCF_API.setApiKey(input);
+                    localStorage.setItem('yanyun_api_key', input);
+                    updateStatus(true);
+                    showToast('验证通过', 'success');
+                } else {
+                    updateStatus(false);
+                    showToast('API Key 无效', 'error');
+                }
+            } catch (e) {
+                showToast('验证失败: ' + e.message, 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = '验证';
         }
 
         async function loadNotices() {
             const listEl = document.getElementById('noticeList');
             listEl.innerHTML = '<div class="loading"><div class="spinner"></div><span>加载中...</span></div>';
 
-            if (currentTab === 'local') {
-                await loadLocalNotices();
-            } else {
-                await loadCloudNotices();
-            }
-        }
-
-        async function loadLocalNotices() {
-            const listEl = document.getElementById('noticeList');
             try {
-                const response = await fetch('data/notices.json');
-                const data = await response.json();
-                const notices = data.notices || [];
-                
-                if (!notices || notices.length === 0) {
-                    listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>暂无公告</p></div>';
-                    return;
-                }
-
-                listEl.innerHTML = notices.map(notice => `
-                    <div class="notice-item">
-                        <div class="notice-item-header">
-                            <div class="notice-item-title">${getTypeEmoji(notice.type)} ${notice.title}</div>
-                            <span class="notice-item-badge badge-${notice.type}">${getTypeLabel(notice.type)}</span>
-                        </div>
-                        <div class="notice-item-meta">
-                            <span>📅 ${notice.date}</span>
-                            <span>ID: ${notice.id}</span>
-                        </div>
-                        <div class="notice-item-content">${notice.content}</div>
-                    </div>
-                `).join('');
-
-            } catch (error) {
-                listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>加载失败: ${error.message}</p></div>`;
-            }
-        }
-
-        async function loadCloudNotices() {
-            const listEl = document.getElementById('noticeList');
-            const token = document.getElementById('apiToken').value.trim();
-            
-            if (!token) {
-                listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">🔑</div><p>请先配置 Coze API Token</p></div>';
-                return;
-            }
-
-            try {
-                CozeAPI.setToken(token);
-                const data = await CozeAPI.get(STORAGE_KEY);
+                const data = await SCF_API.get(SCF_API.NOTICE_KEY);
                 
                 if (!data || !data.notices || data.notices.length === 0) {
                     cloudNotices = [];
-                    listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>云端暂无公告</p></div>';
+                    listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>暂无公告</p></div>';
                     return;
                 }
 
@@ -327,16 +259,17 @@
                 listEl.innerHTML = data.notices.map(notice => `
                     <div class="notice-item">
                         <div class="notice-item-header">
-                            <div class="notice-item-title">${getTypeEmoji(notice.type)} ${notice.title}</div>
+                            <div class="notice-item-title">${getTypeEmoji(notice.type)} ${escapeHtml(notice.title)}</div>
                             <span class="notice-item-badge badge-${notice.type}">${getTypeLabel(notice.type)}</span>
                         </div>
                         <div class="notice-item-meta">
-                            <span>📅 ${notice.date}</span>
+                            <span>${notice.date}</span>
                             <span>ID: ${notice.id}</span>
                         </div>
-                        <div class="notice-item-content">${notice.content}</div>
+                        <div class="notice-item-content">${escapeHtml(notice.content)}</div>
+                        ${notice.link ? `<div style="margin-bottom:8px;"><a href="${escapeHtml(notice.link)}" style="color:var(--primary-light);" target="_blank">查看详情</a></div>` : ''}
                         <div class="notice-item-actions">
-                            <button class="btn btn-danger btn-sm" onclick="showDeleteModal('${notice.id}', '${notice.title.replace(/'/g, "\\'")}')">🗑️ 删除</button>
+                            <button class="btn btn-danger btn-sm" onclick="showDeleteModal('${notice.id}', '${escapeHtml(notice.title)}')">删除</button>
                         </div>
                     </div>
                 `).join('');
@@ -356,6 +289,12 @@
             return emojis[type] || '📢';
         }
 
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
         async function addNotice() {
             const type = document.getElementById('noticeType').value;
             const title = document.getElementById('noticeTitle').value.trim();
@@ -367,13 +306,18 @@
                 return;
             }
 
+            if (!SCF_API.apiKey) {
+                showToast('请先验证 API Key', 'error');
+                return;
+            }
+
             const btn = document.getElementById('addBtn');
             btn.disabled = true;
             btn.textContent = '发布中...';
 
             try {
                 let notices = [];
-                const result = await CozeAPI.get(STORAGE_KEY);
+                const result = await SCF_API.get(SCF_API.NOTICE_KEY);
                 if (result && result.notices) {
                     notices = result.notices;
                 }
@@ -389,75 +333,60 @@
 
                 notices.unshift(newNotice);
 
-                const success = await CozeAPI.set(STORAGE_KEY, { notices });
+                const success = await SCF_API.set(SCF_API.NOTICE_KEY, { notices });
                 
                 if (success) {
-                    showToast('公告已发布到 Coze 云端！', 'success');
+                    showToast('公告已发布', 'success');
                     document.getElementById('noticeTitle').value = '';
                     document.getElementById('noticeContent').value = '';
                     document.getElementById('noticeLink').value = '';
+                    loadNotices();
                 } else {
-                    showToast('发布失败，请检查 API Token', 'error');
+                    showToast('发布失败，请检查 API Key', 'error');
                 }
             } catch (error) {
                 showToast('发布失败: ' + error.message, 'error');
             }
 
             btn.disabled = false;
-            btn.textContent = '🚀 发布到 Coze 云端';
+            btn.textContent = '发布公告';
         }
 
-        // 同步到本地
         async function syncToLocal() {
-            const token = document.getElementById('apiToken').value.trim();
-            if (!token) {
-                showToast('请先配置 Coze API Token', 'error');
-                return;
-            }
-
             const btn = document.getElementById('syncBtn');
             btn.disabled = true;
-            btn.innerHTML = '<span>⏳</span> 同步中...';
+            btn.textContent = '导出中...';
 
             try {
-                CozeAPI.setToken(token);
-                const data = await CozeAPI.get(STORAGE_KEY);
+                const data = await SCF_API.get(SCF_API.NOTICE_KEY);
                 
                 if (!data || !data.notices) {
-                    showToast('Coze 中暂无公告数据', 'error');
+                    showToast('暂无公告数据', 'error');
                     btn.disabled = false;
-                    btn.innerHTML = '<span>🔄</span> 同步到本地';
+                    btn.textContent = '导出 JSON';
                     return;
                 }
 
-                // 生成 JSON
                 currentJsonContent = JSON.stringify({ notices: data.notices }, null, 2);
                 
-                // 显示预览
                 document.getElementById('jsonContent').textContent = currentJsonContent;
                 document.getElementById('jsonPreview').style.display = 'block';
                 
-                // 复制到剪贴板
                 await navigator.clipboard.writeText(currentJsonContent);
-                
-                showToast('JSON 已复制到剪贴板！请覆盖本地文件后提交 Git', 'success');
+                showToast('JSON 已复制到剪贴板', 'success');
 
             } catch (error) {
-                showToast('同步失败: ' + error.message, 'error');
+                showToast('导出失败: ' + error.message, 'error');
             }
 
             btn.disabled = false;
-            btn.innerHTML = '<span>🔄</span> 同步到本地';
+            btn.textContent = '导出 JSON';
         }
 
-        // 复制 JSON
         async function copyJson() {
-            if (!currentJsonContent) {
-                showToast('请先点击"同步到本地"', 'error');
-                return;
-            }
+            if (!currentJsonContent) { showToast('请先点击「导出 JSON」', 'error'); return; }
             await navigator.clipboard.writeText(currentJsonContent);
-            showToast('已复制到剪贴板！', 'success');
+            showToast('已复制到剪贴板', 'success');
         }
 
         function showDeleteModal(id, title) {
@@ -480,14 +409,14 @@
 
             try {
                 const filtered = cloudNotices.filter(n => n.id !== deleteTargetId);
-                const success = await CozeAPI.set(STORAGE_KEY, { notices: filtered });
+                const success = await SCF_API.set(SCF_API.NOTICE_KEY, { notices: filtered });
                 
                 if (success) {
-                    showToast('公告已从云端删除！', 'success');
+                    showToast('公告已删除', 'success');
                     closeDeleteModal();
-                    loadCloudNotices();
+                    loadNotices();
                 } else {
-                    showToast('删除失败，请检查 API Token', 'error');
+                    showToast('删除失败，请检查 API Key', 'error');
                 }
             } catch (error) {
                 showToast('删除失败: ' + error.message, 'error');
@@ -497,7 +426,21 @@
             btn.textContent = '确认删除';
         }
 
-        init();
+        // 初始化
+        (function init() {
+            const saved = localStorage.getItem('yanyun_api_key');
+            if (saved) {
+                document.getElementById('apiKeyInput').value = saved;
+                SCF_API.verifyApiKey(saved).then(valid => {
+                    if (valid) {
+                        SCF_API.setApiKey(saved);
+                        updateStatus(true);
+                    } else {
+                        updateStatus(false);
+                    }
+                }).catch(() => updateStatus(false));
+            }
+        })();
     </script>
 </body>
 </html>

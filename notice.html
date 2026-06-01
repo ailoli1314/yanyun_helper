@@ -82,6 +82,7 @@
 
     <script src="js/config.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/scf-api.js"></script>
     <script>
         // 从配置动态加载下载链接
         document.addEventListener('DOMContentLoaded', function() {
@@ -111,7 +112,7 @@
             }
         };
 
-        // 加载公告
+        // 加载公告（从 SCF 云端读取，无需鉴权）
         async function loadNotices() {
             const loadingEl = document.getElementById('loading');
             const errorEl = document.getElementById('error');
@@ -124,14 +125,8 @@
             gridEl.style.display = 'none';
 
             try {
-                // 加载本地 JSON 文件
-                const response = await fetch('data/notices.json');
-                if (!response.ok) {
-                    throw new Error('无法加载公告数据');
-                }
-                
-                const data = await response.json();
-                const notices = data.notices || [];
+                const data = await SCF_API.get(SCF_API.NOTICE_KEY);
+                const notices = (data && data.notices) || [];
                 
                 loadingEl.style.display = 'none';
                 

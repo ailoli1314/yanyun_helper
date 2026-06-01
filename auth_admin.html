@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>权限管理 - 燕云脚本</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --primary-light: #a29bfe;
+            --secondary: #00cec9;
+            --accent: #fd79a8;
+            --dark-bg: #1e1e2e;
+            --text: #dfe6e9;
+            --text-muted: #b2bec3;
+            --gradient-2: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            --gradient-green: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: linear-gradient(135deg, #1e1e2e 0%, #2d3436 100%); color: var(--text); min-height: 100vh; padding: 40px 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 2rem; margin-bottom: 10px; background: var(--gradient-2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { color: var(--text-muted); margin-bottom: 30px; }
+
+        .config-section { background: rgba(255,255,255,0.05); border-radius: var(--radius); padding: 20px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); }
+        .config-section h3 { margin-bottom: 15px; color: var(--primary-light); }
+        .config-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
+        .config-row input { flex: 1; min-width: 200px; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: var(--text); font-size: 1rem; }
+        .config-row input::placeholder { color: var(--text-muted); }
+        .config-row input:focus { outline: none; border-color: var(--primary); }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .status-dot.ok { background: #2ecc71; box-shadow: 0 0 6px rgba(46,204,113,0.5); }
+        .status-dot.no { background: #e74c3c; box-shadow: 0 0 6px rgba(231,76,60,0.5); }
+        .status-text { font-size: 0.9rem; color: var(--text-muted); }
+
+        .btn { padding: 12px 24px; border-radius: 8px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
+        .btn-primary { background: var(--gradient-2); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4); }
+        .btn-success { background: var(--gradient-green); color: white; }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4); }
+        .btn-danger { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4); }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: var(--text); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+        .btn-sm { padding: 8px 16px; font-size: 0.9rem; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+        .form-section { background: rgba(255,255,255,0.05); border-radius: var(--radius); padding: 25px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); }
+        .form-section h3 { margin-bottom: 20px; color: var(--primary-light); }
+        .form-row { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .form-group { flex: 1; min-width: 180px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.9rem; }
+        .form-group input, .form-group select { width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: var(--text); font-size: 1rem; }
+        .form-group select { cursor: pointer; }
+        .form-group input::placeholder { color: var(--text-muted); }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+
+        .list-section { background: rgba(255,255,255,0.05); border-radius: var(--radius); padding: 25px; border: 1px solid rgba(255,255,255,0.1); }
+        .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .list-header h3 { color: var(--primary-light); }
+        .list-count { color: var(--text-muted); font-size: 0.9rem; }
+
+        .auth-card { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 18px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); transition: border-color 0.2s; }
+        .auth-card:hover { border-color: rgba(108, 92, 231, 0.4); }
+        .auth-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .auth-code { font-family: monospace; font-size: 1.15rem; font-weight: 700; color: var(--secondary); letter-spacing: 1px; }
+        .auth-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+        .badge-active { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+        .badge-expired { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+        .badge-run { background: rgba(108, 92, 231, 0.3); color: var(--primary-light); }
+        .badge-reader { background: rgba(253, 203, 110, 0.3); color: #fdcb6e; }
+        .badge-permanent { background: rgba(0, 206, 201, 0.2); color: var(--secondary); }
+
+        .auth-meta { display: flex; gap: 20px; flex-wrap: wrap; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px; }
+        .auth-meta span { display: flex; align-items: center; gap: 5px; }
+        .auth-progress { margin-bottom: 8px; }
+        .progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+        .progress-fill.green { background: var(--gradient-green); }
+        .progress-fill.yellow { background: linear-gradient(135deg, #f39c12 0%, #fdcb6e 100%); }
+        .progress-fill.red { background: linear-gradient(135deg, #e74c3c 0%, #fd79a8 100%); }
+        .progress-text { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+        .auth-actions { display: flex; gap: 10px; }
+
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 15px 30px; border-radius: 8px; font-weight: 500; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
+        .toast.show { opacity: 1; }
+        .toast-success { background: #27ae60; color: white; }
+        .toast-error { background: #e74c3c; color: white; }
+        .toast-info { background: #3498db; color: white; }
+
+        .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+        .empty-icon { font-size: 3rem; margin-bottom: 15px; }
+
+        .loading { display: flex; align-items: center; gap: 10px; justify-content: center; padding: 40px; }
+        .spinner { width: 20px; height: 20px; border: 2px solid rgba(108, 92, 231, 0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .help-box { background: rgba(52, 152, 219, 0.1); border: 1px solid rgba(52, 152, 219, 0.3); border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+        .help-box h4 { color: #3498db; margin-bottom: 10px; }
+        .help-box ol { padding-left: 20px; color: var(--text-muted); font-size: 0.9rem; line-height: 1.8; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+        .modal-box { background: var(--dark-bg); border-radius: var(--radius); padding: 30px; max-width: 480px; text-align: left; border: 1px solid rgba(255,255,255,0.1); }
+        .modal-box h4 { margin-bottom: 20px; font-size: 1.2rem; text-align: center; }
+        .modal-box p { color: var(--text-muted); margin-bottom: 20px; text-align: center; }
+        .modal-actions { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
+        .modal-form-row { display: flex; gap: 12px; margin-bottom: 15px; flex-wrap: wrap; }
+        .modal-form-group { flex: 1; min-width: 120px; }
+        .modal-form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.85rem; color: var(--text-muted); }
+        .modal-form-group input, .modal-form-group select { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: var(--text); font-size: 0.95rem; }
+        .modal-form-group select { cursor: pointer; }
+        .modal-form-group input::placeholder { color: var(--text-muted); }
+        .modal-form-group input:focus, .modal-form-group select:focus { outline: none; border-color: var(--primary); }
+        .modal-form-group .hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+        .detail-section { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+        .detail-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; }
+        .device-list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .device-tag { background: rgba(255,255,255,0.08); padding: 3px 10px; border-radius: 4px; font-size: 0.78rem; font-family: monospace; color: var(--text-muted); }
+
+        .search-row { display: flex; gap: 12px; margin-bottom: 20px; }
+        .search-row input { flex: 1; padding: 10px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: var(--text); font-size: 0.95rem; }
+        .search-row input::placeholder { color: var(--text-muted); }
+        .search-row input:focus { outline: none; border-color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>权限管理</h1>
+        <p class="subtitle">管理燕云脚本授权码</p>
+
+        <div class="help-box">
+            <h4>使用说明</h4>
+            <ol>
+                <li>先输入 API Key 并验证，获取写入权限</li>
+                <li><strong>添加授权</strong>：填写授权码、设备数、有效期等信息后提交</li>
+                <li><strong>查询授权</strong>：点击「刷新列表」查看所有授权码状态</li>
+                <li><strong>编辑授权</strong>：在列表中点击「编辑」修改有效期、设备上限、权限等</li>
+                <li><strong>删除授权</strong>：在列表中点击「删除」移除授权码</li>
+            </ol>
+        </div>
+
+        <!-- API Key 配置 -->
+        <div class="config-section">
+            <h3>API Key 验证</h3>
+            <div class="config-row">
+                <input type="password" id="apiKeyInput" placeholder="输入 API Key" />
+                <button class="btn btn-primary" onclick="verifyApiKey()" id="verifyBtn">验证</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:5px;">
+                <span class="status-dot no" id="statusDot"></span>
+                <span class="status-text" id="statusText">未验证</span>
+            </div>
+        </div>
+
+        <!-- 添加授权 -->
+        <div class="form-section" id="addSection">
+            <h3>添加授权码</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>授权码</label>
+                    <input type="text" id="authCode" placeholder="输入授权码，如 ABC123" />
+                </div>
+                <div class="form-group" style="max-width:140px;">
+                    <label>设备上限</label>
+                    <input type="number" id="authCount" value="10" min="1" max="999" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="max-width:160px;">
+                    <label>跑图权限</label>
+                    <select id="authRun">
+                        <option value="0">关闭</option>
+                        <option value="1">开启</option>
+                    </select>
+                </div>
+                <div class="form-group" style="max-width:160px;">
+                    <label>更多阅读权限</label>
+                    <select id="authReader">
+                        <option value="0">关闭</option>
+                        <option value="1">开启</option>
+                    </select>
+                </div>
+                <div class="form-group" style="max-width:160px;">
+                    <label>有效期(天)</label>
+                    <input type="number" id="authExpire" value="365" min="0" placeholder="0=永久" />
+                </div>
+            </div>
+            <button class="btn btn-success" onclick="addAuth()" id="addBtn">添加授权</button>
+        </div>
+
+        <!-- 授权列表 -->
+        <div class="list-section">
+            <div class="list-header">
+                <h3>授权码列表</h3>
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <span class="list-count" id="listCount"></span>
+                    <button class="btn btn-primary btn-sm" onclick="loadAuthList()" id="refreshBtn">刷新列表</button>
+                </div>
+            </div>
+
+            <div class="search-row">
+                <input type="text" id="searchInput" placeholder="搜索授权码..." oninput="filterList()" />
+            </div>
+
+            <div id="authList">
+                <div class="empty-state"><div class="empty-icon">📋</div><p>点击「刷新列表」加载授权数据</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑弹窗 -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-box">
+            <h4>编辑授权码</h4>
+            <div class="modal-form-row">
+                <div class="modal-form-group">
+                    <label>授权码</label>
+                    <input type="text" id="editCode" disabled style="opacity:0.6;" />
+                </div>
+                <div class="modal-form-group" style="max-width:130px;">
+                    <label>设备上限</label>
+                    <input type="number" id="editCount" min="1" max="999" />
+                </div>
+            </div>
+            <div class="modal-form-row">
+                <div class="modal-form-group" style="max-width:140px;">
+                    <label>跑图权限</label>
+                    <select id="editRun">
+                        <option value="0">关闭</option>
+                        <option value="1">开启</option>
+                    </select>
+                </div>
+                <div class="modal-form-group" style="max-width:140px;">
+                    <label>更多阅读权限</label>
+                    <select id="editReader">
+                        <option value="0">关闭</option>
+                        <option value="1">开启</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-form-row">
+                <div class="modal-form-group">
+                    <label>有效期(天)</label>
+                    <input type="number" id="editExpireDays" min="0" placeholder="0=永久" />
+                    <div class="hint">从现在起重新计算到期时间，0 表示永久</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-sm btn-secondary" onclick="closeEditModal()">取消</button>
+                <button class="btn btn-primary btn-sm" onclick="confirmEdit()" id="confirmEditBtn">保存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认删除弹窗 -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-box">
+            <h4>确认删除</h4>
+            <p id="deleteMsg">确定要删除此授权码吗？</p>
+            <div class="modal-actions">
+                <button class="btn btn-sm btn-secondary" onclick="closeDeleteModal()">取消</button>
+                <button class="btn btn-danger btn-sm" onclick="confirmDelete()" id="confirmDeleteBtn">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const SCF_URL = "https://1258077315-i5iw5btpg1.ap-guangzhou.tencentscf.com";
+        const AUTH_PREFIX = "auth:";
+        let apiKey = "";
+        let authRecords = [];
+        let deleteTargetKey = "";
+
+        // ---- 工具函数 ----
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast-${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function base64UrlEncode(str) {
+            return btoa(unescape(encodeURIComponent(str)))
+                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        function base64UrlDecode(encoded) {
+            let s = encoded.replace(/-/g, '+').replace(/_/g, '/');
+            while (s.length % 4) s += '=';
+            return decodeURIComponent(escape(atob(s)));
+        }
+
+        function formatTime(ts) {
+            if (!ts) return '-';
+            const d = new Date(ts * 1000);
+            return d.toLocaleDateString('zh-CN') + ' ' + d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function daysLeft(expireAt) {
+            if (!expireAt || expireAt >= 9999999999) return Infinity;
+            const diff = expireAt - Math.floor(Date.now() / 1000);
+            return Math.ceil(diff / 86400);
+        }
+
+        // ---- API 调用 ----
+
+        async function apiGet(key) {
+            const resp = await fetch(`${SCF_URL}/kv?key=${encodeURIComponent(key)}`);
+            if (!resp.ok) return null;
+            const text = await resp.text();
+            if (!text || text.trim() === 'null') return null;
+            try { return JSON.parse(text); } catch { return text; }
+        }
+
+        async function apiSet(key, value) {
+            if (!apiKey) { showToast('请先验证 API Key', 'error'); return false; }
+            const body = typeof value === 'string' ? value : JSON.stringify(value);
+            const resp = await fetch(`${SCF_URL}/kv`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
+                body: JSON.stringify({ key, value: body })
+            });
+            if (resp.status === 403) { showToast('API Key 无效，请重新验证', 'error'); return false; }
+            const result = await resp.json();
+            return result.success === true;
+        }
+
+        async function apiDelete(key) {
+            // 写入空值即删除
+            return apiSet(key, '');
+        }
+
+        async function apiListKeys(prefix = AUTH_PREFIX) {
+            const resp = await fetch(`${SCF_URL}/kv/list?prefix=${encodeURIComponent(prefix)}`);
+            if (!resp.ok) return [];
+            return resp.json();
+        }
+
+        async function apiVerify(key) {
+            const resp = await fetch(`${SCF_URL}/kv/verify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-API-Key': key },
+                body: JSON.stringify({})
+            });
+            const result = await resp.json();
+            return result.valid === true;
+        }
+
+        // ---- 业务逻辑 ----
+
+        async function verifyApiKey() {
+            const input = document.getElementById('apiKeyInput').value.trim();
+            if (!input) { showToast('请输入 API Key', 'error'); return; }
+
+            const btn = document.getElementById('verifyBtn');
+            btn.disabled = true;
+            btn.textContent = '验证中...';
+
+            try {
+                const valid = await apiVerify(input);
+                if (valid) {
+                    apiKey = input;
+                    localStorage.setItem('yanyun_api_key', input);
+                    updateStatus(true);
+                    showToast('验证通过，写入权限已开启', 'success');
+                } else {
+                    updateStatus(false);
+                    showToast('API Key 无效', 'error');
+                }
+            } catch (e) {
+                showToast('验证失败: ' + e.message, 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = '验证';
+        }
+
+        function updateStatus(ok) {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            dot.className = 'status-dot ' + (ok ? 'ok' : 'no');
+            text.textContent = ok ? '已验证' : '未验证';
+        }
+
+        async function addAuth() {
+            const code = document.getElementById('authCode').value.trim();
+            const count = parseInt(document.getElementById('authCount').value) || 10;
+            const runauth = document.getElementById('authRun').value;
+            const moreReaderAuth = document.getElementById('authReader').value;
+            const expireDays = parseInt(document.getElementById('authExpire').value) || 0;
+
+            if (!code) { showToast('请输入授权码', 'error'); return; }
+
+            const btn = document.getElementById('addBtn');
+            btn.disabled = true;
+            btn.textContent = '添加中...';
+
+            try {
+                const nowTs = Math.floor(Date.now() / 1000);
+                const expireAt = expireDays > 0 ? nowTs + expireDays * 86400 : 9999999999;
+
+                const data = {
+                    devices: [],
+                    count: count,
+                    runauth: runauth,
+                    more_reader_auth: moreReaderAuth,
+                    expire_at: expireAt,
+                    created_at: nowTs,
+                };
+
+                const encoded = base64UrlEncode(JSON.stringify(data));
+                const fullKey = AUTH_PREFIX + code;
+                const success = await apiSet(fullKey, encoded);
+
+                if (success) {
+                    showToast('授权码添加成功', 'success');
+                    document.getElementById('authCode').value = '';
+                    loadAuthList();
+                } else {
+                    showToast('添加失败', 'error');
+                }
+            } catch (e) {
+                showToast('添加失败: ' + e.message, 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = '添加授权';
+        }
+
+        async function loadAuthList() {
+            const listEl = document.getElementById('authList');
+            listEl.innerHTML = '<div class="loading"><div class="spinner"></div><span>加载中...</span></div>';
+
+            const btn = document.getElementById('refreshBtn');
+            btn.disabled = true;
+
+            try {
+                const keys = await apiListKeys(AUTH_PREFIX);
+                if (!keys || keys.length === 0) {
+                    authRecords = [];
+                    listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>暂无授权码</p></div>';
+                    document.getElementById('listCount').textContent = '';
+                    btn.disabled = false;
+                    return;
+                }
+
+                // 并行获取所有授权码详情
+                const records = [];
+                const promises = keys.map(async (item) => {
+                    const fullKey = item.name || item;
+                    const rawKey = fullKey.startsWith(AUTH_PREFIX) ? fullKey.slice(AUTH_PREFIX.length) : fullKey;
+                    try {
+                        const value = await apiGet(fullKey);
+                        if (!value) return { key: rawKey, data: null };
+                        const decoded = base64UrlDecode(value);
+                        const data = JSON.parse(decoded);
+                        return { key: rawKey, data };
+                    } catch {
+                        return { key: rawKey, data: null };
+                    }
+                });
+
+                const results = await Promise.all(promises);
+                authRecords = results.filter(r => r.data !== null);
+
+                renderList(authRecords);
+                document.getElementById('listCount').textContent = `共 ${authRecords.length} 条`;
+            } catch (e) {
+                listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>加载失败: ${e.message}</p></div>`;
+            }
+
+            btn.disabled = false;
+        }
+
+        function renderList(records) {
+            const listEl = document.getElementById('authList');
+            if (!records || records.length === 0) {
+                listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>暂无匹配的授权码</p></div>';
+                return;
+            }
+
+            listEl.innerHTML = records.map(r => renderCard(r)).join('');
+        }
+
+        function renderCard(record) {
+            const { key, data } = record;
+            const dl = daysLeft(data.expire_at);
+            const isExpired = dl < 0;
+            const isPermanent = data.expire_at >= 9999999999;
+            const usedCount = (data.devices || []).length;
+            const maxCount = data.count || 0;
+            const usagePercent = maxCount > 0 ? Math.min((usedCount / maxCount) * 100, 100) : 0;
+
+            // 进度条颜色
+            let progressClass = 'green';
+            if (usagePercent > 80) progressClass = 'red';
+            else if (usagePercent > 50) progressClass = 'yellow';
+
+            // 徽章
+            let badges = '';
+            if (isExpired) {
+                badges += '<span class="badge badge-expired">已过期</span>';
+            } else if (isPermanent) {
+                badges += '<span class="badge badge-permanent">永久</span>';
+            } else {
+                badges += '<span class="badge badge-active">' + dl + '天后到期</span>';
+            }
+            if (data.runauth == '1') badges += '<span class="badge badge-run">跑图</span>';
+            if (data.more_reader_auth == '1') badges += '<span class="badge badge-reader">更多阅读</span>';
+
+            // 有效期显示
+            const expireText = isPermanent ? '永久有效' : formatTime(data.expire_at);
+            const createdText = data.created_at ? formatTime(data.created_at) : '-';
+
+            // 设备列表
+            const devices = data.devices || [];
+            const deviceHtml = devices.length > 0
+                ? `<div class="detail-section">
+                     <div class="detail-title">已绑定设备 (${devices.length})</div>
+                     <div class="device-list">${devices.map(d => `<span class="device-tag">${escapeHtml(d.length > 12 ? d.slice(0,12)+'...' : d)}</span>`).join('')}</div>
+                   </div>`
+                : '';
+
+            return `
+                <div class="auth-card">
+                    <div class="auth-card-header">
+                        <span class="auth-code">${escapeHtml(key)}</span>
+                        <div class="auth-badges">${badges}</div>
+                    </div>
+                    <div class="auth-meta">
+                        <span>创建: ${createdText}</span>
+                        <span>到期: ${expireText}</span>
+                    </div>
+                    <div class="auth-progress">
+                        <div class="progress-bar"><div class="progress-fill ${progressClass}" style="width:${usagePercent}%"></div></div>
+                        <div class="progress-text">设备占用 ${usedCount} / ${maxCount}</div>
+                    </div>
+                    ${deviceHtml}
+                    <div class="auth-actions" style="margin-top:12px;">
+                        <button class="btn btn-primary btn-sm" onclick='showEditModal(${JSON.stringify(JSON.stringify(record))})'>编辑</button>
+                        <button class="btn btn-danger btn-sm" onclick="showDeleteModal('${escapeHtml(key)}')">删除</button>
+                    </div>
+                </div>`;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function filterList() {
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!keyword) {
+                renderList(authRecords);
+                return;
+            }
+            const filtered = authRecords.filter(r => r.key.toLowerCase().includes(keyword));
+            renderList(filtered);
+        }
+
+        let editTargetRecord = null;
+
+        function showEditModal(recordJson) {
+            const record = JSON.parse(recordJson);
+            editTargetRecord = record;
+            const { key, data } = record;
+
+            document.getElementById('editCode').value = key;
+            document.getElementById('editCount').value = data.count || 10;
+            document.getElementById('editRun').value = data.runauth || '0';
+            document.getElementById('editReader').value = data.more_reader_auth || '0';
+
+            // 计算剩余天数作为默认值
+            const dl = daysLeft(data.expire_at);
+            if (data.expire_at >= 9999999999) {
+                document.getElementById('editExpireDays').value = 0;
+            } else if (dl > 0) {
+                document.getElementById('editExpireDays').value = dl;
+            } else {
+                document.getElementById('editExpireDays').value = 30;
+            }
+
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeEditModal() {
+            editTargetRecord = null;
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        async function confirmEdit() {
+            if (!editTargetRecord) return;
+            const { key, data } = editTargetRecord;
+
+            const btn = document.getElementById('confirmEditBtn');
+            btn.disabled = true;
+            btn.textContent = '保存中...';
+
+            try {
+                const newCount = parseInt(document.getElementById('editCount').value) || data.count;
+                const newRun = document.getElementById('editRun').value;
+                const newReader = document.getElementById('editReader').value;
+                const newExpireDays = parseInt(document.getElementById('editExpireDays').value);
+
+                // 构造更新后的数据，保留 devices 和 created_at
+                const nowTs = Math.floor(Date.now() / 1000);
+                let newExpireAt;
+                if (newExpireDays === 0) {
+                    newExpireAt = 9999999999;
+                } else {
+                    newExpireAt = nowTs + newExpireDays * 86400;
+                }
+
+                const updatedData = {
+                    ...data,
+                    count: newCount,
+                    runauth: newRun,
+                    more_reader_auth: newReader,
+                    expire_at: newExpireAt,
+                };
+
+                const encoded = base64UrlEncode(JSON.stringify(updatedData));
+                const fullKey = AUTH_PREFIX + key;
+                const success = await apiSet(fullKey, encoded);
+
+                if (success) {
+                    showToast('授权码已更新', 'success');
+                    closeEditModal();
+                    loadAuthList();
+                } else {
+                    showToast('更新失败', 'error');
+                }
+            } catch (e) {
+                showToast('更新失败: ' + e.message, 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = '保存修改';
+        }
+
+        function showDeleteModal(key) {
+            deleteTargetKey = key;
+            document.getElementById('deleteMsg').textContent = `确定要删除授权码「${key}」吗？已绑定的设备将全部失效。`;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+
+        function closeDeleteModal() {
+            deleteTargetKey = '';
+            document.getElementById('deleteModal').classList.remove('show');
+        }
+
+        async function confirmDelete() {
+            if (!deleteTargetKey) return;
+            const btn = document.getElementById('confirmDeleteBtn');
+            btn.disabled = true;
+            btn.textContent = '删除中...';
+
+            try {
+                const fullKey = AUTH_PREFIX + deleteTargetKey;
+                const success = await apiSet(fullKey, '');
+                if (success) {
+                    showToast('授权码已删除', 'success');
+                    closeDeleteModal();
+                    loadAuthList();
+                } else {
+                    showToast('删除失败', 'error');
+                }
+            } catch (e) {
+                showToast('删除失败: ' + e.message, 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = '确认删除';
+        }
+
+        // ---- 初始化 ----
+
+        (function init() {
+            const saved = localStorage.getItem('yanyun_api_key');
+            if (saved) {
+                document.getElementById('apiKeyInput').value = saved;
+                // 自动验证已保存的 key
+                apiVerify(saved).then(valid => {
+                    if (valid) {
+                        apiKey = saved;
+                        updateStatus(true);
+                    } else {
+                        updateStatus(false);
+                    }
+                }).catch(() => updateStatus(false));
+            }
+        })();
+    </script>
+</body>
+</html>
