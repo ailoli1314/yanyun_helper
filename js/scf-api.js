@@ -75,6 +75,32 @@ const SCF_API = {
             console.error('SCF_API.verifyApiKey error:', e);
             return false;
         }
+    },
+
+    /**
+     * 分页批量读取指定前缀的 KV 列表及值（需要 API Key）
+     * @param {string} prefix - key 前缀
+     * @param {number} page - 页码，从 1 开始
+     * @param {number} size - 每页条数，默认 20，最大 100
+     * @param {string} keyword - 搜索关键词（按授权码或设备ID过滤）
+     * @returns {Promise<{total, page, size, items}>} items: [{key, value}]
+     */
+    async listDetail(prefix, page = 1, size = 20, keyword = '') {
+        if (!this.apiKey) {
+            console.error('SCF_API.listDetail: 未设置 API Key');
+            return { total: 0, page, size, items: [] };
+        }
+        try {
+            let url = `${this.BASE_URL}/kv/list/detail?prefix=${encodeURIComponent(prefix)}&page=${page}&size=${size}`;
+            if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
+            const resp = await fetch(url, { headers: { 'X-API-Key': this.apiKey } });
+            if (resp.status === 403) return { total: 0, page, size, items: [] };
+            if (!resp.ok) return { total: 0, page, size, items: [] };
+            return await resp.json();
+        } catch (e) {
+            console.error('SCF_API.listDetail error:', e);
+            return { total: 0, page, size, items: [] };
+        }
     }
 };
 

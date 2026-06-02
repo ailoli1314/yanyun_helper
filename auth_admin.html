@@ -135,6 +135,14 @@
         .auth-box input { width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: var(--text); font-size: 1rem; margin-bottom: 15px; }
         .auth-box input:focus { outline: none; border-color: var(--primary); }
         .auth-box .btn { width: 100%; }
+
+        /* 分页 */
+        .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+        .pagination .page-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: var(--text); cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+        .pagination .page-btn:hover:not(:disabled) { background: rgba(108,92,231,0.2); border-color: var(--primary); }
+        .pagination .page-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+        .pagination .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .pagination .page-info { color: var(--text-muted); font-size: 0.85rem; margin: 0 8px; }
     </style>
 </head>
 <body>
@@ -222,17 +230,21 @@
                 <h3>授权码列表</h3>
                 <div style="display:flex; align-items:center; gap:15px;">
                     <span class="list-count" id="listCount"></span>
-                    <button class="btn btn-primary btn-sm" onclick="loadAuthList()" id="refreshBtn">刷新列表</button>
+                    <button class="btn btn-primary btn-sm" onclick="currentPage=1;loadAuthList()" id="refreshBtn">刷新列表</button>
                 </div>
             </div>
 
             <div class="search-row">
-                <input type="text" id="searchInput" placeholder="搜索授权码..." oninput="filterList()" />
+                <input type="text" id="searchInput" placeholder="搜索授权码或设备ID..." />
+                <button class="btn btn-primary btn-sm" onclick="doSearch()">搜索</button>
+                <button class="btn btn-secondary btn-sm" onclick="clearSearch()">重置</button>
             </div>
 
             <div id="authList">
                 <div class="empty-state"><div class="empty-icon">📋</div><p>点击「刷新列表」加载授权数据</p></div>
             </div>
+
+            <div class="pagination" id="pagination" style="display:none;"></div>
         </div>
     </div>
 
@@ -297,9 +309,13 @@
     <script>
         const SCF_URL = "https://1258077315-i5iw5btpg1.ap-guangzhou.tencentscf.com";
         const AUTH_PREFIX = "auth:";
+        const PAGE_SIZE = 10;
         let apiKey = "";
         let authRecords = [];
         let deleteTargetKey = "";
+        let currentPage = 1;
+        let totalCount = 0;
+        let totalPages = 0;
 
         // 登录遮罩验证
         async function gateVerify() {
@@ -423,6 +439,23 @@
             return resp.json();
         }
 
+        async function apiListDetail(prefix = AUTH_PREFIX, page = 1, size = PAGE_SIZE, keyword = '') {
+            if (!apiKey) { showToast('请先验证 API Key', 'error'); return { total: 0, page, size, items: [] }; }
+            const headers = { 'X-API-Key': apiKey };
+            let url = `${SCF_URL}/kv/list/detail?prefix=${encodeURIComponent(prefix)}&page=${page}&size=${size}`;
+            if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
+            const resp = await fetch(url, { headers });
+            if (resp.status === 403) {
+                apiKey = '';
+                localStorage.removeItem('yanyun_api_key');
+                updateStatus(false);
+                showToast('API Key 已失效，请重新验证', 'error');
+                return { total: 0, page, size, items: [] };
+            }
+            if (!resp.ok) return { total: 0, page, size, items: [] };
+            return resp.json();
+        }
+
         async function apiVerify(key) {
             const resp = await fetch(`${SCF_URL}/kv/verify`, {
                 method: 'POST',
@@ -506,6 +539,7 @@
                 if (success) {
                     showToast('授权码添加成功', 'success');
                     document.getElementById('authCode').value = '';
+                    currentPage = 1;
                     loadAuthList();
                 } else {
                     showToast('添加失败', 'error');
@@ -518,7 +552,8 @@
             btn.textContent = '添加授权';
         }
 
-        async function loadAuthList() {
+        async function loadAuthList(page) {
+            if (typeof page !== 'undefined') currentPage = page;
             const listEl = document.getElementById('authList');
             listEl.innerHTML = '<div class="loading"><div class="spinner"></div><span>加载中...</span></div>';
 
@@ -526,41 +561,80 @@
             btn.disabled = true;
 
             try {
-                const keys = await apiListKeys(AUTH_PREFIX);
-                if (!keys || keys.length === 0) {
+                const keyword = document.getElementById('searchInput').value.trim();
+                const result = await apiListDetail(AUTH_PREFIX, currentPage, PAGE_SIZE, keyword);
+                totalCount = result.total || 0;
+                totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+
+                if (totalCount === 0) {
                     authRecords = [];
                     listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>暂无授权码</p></div>';
                     document.getElementById('listCount').textContent = '';
+                    document.getElementById('pagination').style.display = 'none';
                     btn.disabled = false;
                     return;
                 }
 
-                // 并行获取所有授权码详情
-                const records = [];
-                const promises = keys.map(async (item) => {
-                    const fullKey = item.name || item;
-                    const rawKey = fullKey.startsWith(AUTH_PREFIX) ? fullKey.slice(AUTH_PREFIX.length) : fullKey;
-                    try {
-                        const value = await apiGet(fullKey);
-                        if (!value) return { key: rawKey, data: null };
-                        const decoded = base64UrlDecode(value);
-                        const data = JSON.parse(decoded);
-                        return { key: rawKey, data };
-                    } catch {
-                        return { key: rawKey, data: null };
+                // 解码每条记录的 value
+                authRecords = [];
+                for (const item of (result.items || [])) {
+                    if (item.value) {
+                        try {
+                            const decoded = base64UrlDecode(item.value);
+                            const data = JSON.parse(decoded);
+                            authRecords.push({ key: item.key, data });
+                        } catch {
+                            authRecords.push({ key: item.key, data: null });
+                        }
+                    } else {
+                        authRecords.push({ key: item.key, data: null });
                     }
-                });
-
-                const results = await Promise.all(promises);
-                authRecords = results.filter(r => r.data !== null);
+                }
 
                 renderList(authRecords);
-                document.getElementById('listCount').textContent = `共 ${authRecords.length} 条`;
+                document.getElementById('listCount').textContent = `共 ${totalCount} 条`;
+                renderPagination();
             } catch (e) {
                 listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>加载失败: ${e.message}</p></div>`;
             }
 
             btn.disabled = false;
+        }
+
+        function renderPagination() {
+            const pagEl = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                pagEl.style.display = 'none';
+                return;
+            }
+            pagEl.style.display = 'flex';
+            let html = '';
+            // 上一页
+            html += `<button class="page-btn" onclick="loadAuthList(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>上一页</button>`;
+
+            // 页码按钮
+            const maxButtons = 7;
+            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+            if (endPage - startPage + 1 < maxButtons) {
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+
+            if (startPage > 1) {
+                html += `<button class="page-btn" onclick="loadAuthList(1)">1</button>`;
+                if (startPage > 2) html += `<span class="page-info">...</span>`;
+            }
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="loadAuthList(${i})">${i}</button>`;
+            }
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) html += `<span class="page-info">...</span>`;
+                html += `<button class="page-btn" onclick="loadAuthList(${totalPages})">${totalPages}</button>`;
+            }
+
+            // 下一页
+            html += `<button class="page-btn" onclick="loadAuthList(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>下一页</button>`;
+            pagEl.innerHTML = html;
         }
 
         function renderList(records) {
@@ -575,6 +649,22 @@
 
         function renderCard(record) {
             const { key, data } = record;
+
+            // 无效数据（value 为空或解析失败），显示简化卡片
+            if (!data) {
+                return `
+                    <div class="auth-card" style="opacity:0.7;">
+                        <div class="auth-card-header">
+                            <span class="auth-code">${escapeHtml(key)}</span>
+                            <span class="badge badge-expired">无效数据</span>
+                        </div>
+                        <div class="auth-meta"><span>数据为空或已损坏</span></div>
+                        <div class="auth-actions" style="margin-top:12px;">
+                            <button class="btn btn-danger btn-sm" onclick="showDeleteModal('${escapeHtml(key)}')">删除</button>
+                        </div>
+                    </div>`;
+            }
+
             const dl = daysLeft(data.expire_at);
             const isExpired = dl < 0;
             const isPermanent = data.expire_at >= 9999999999;
@@ -640,14 +730,15 @@
             return div.innerHTML;
         }
 
-        function filterList() {
-            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
-            if (!keyword) {
-                renderList(authRecords);
-                return;
-            }
-            const filtered = authRecords.filter(r => r.key.toLowerCase().includes(keyword));
-            renderList(filtered);
+        function doSearch() {
+            currentPage = 1;
+            loadAuthList();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            currentPage = 1;
+            loadAuthList();
         }
 
         let editTargetRecord = null;
