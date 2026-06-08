@@ -35,21 +35,10 @@ PART_EMOJI = {
 }
 
 def get_day_key():
-    """获取今天是周几，返回对应的 day key"""
-    weekday = datetime.now().isoweekday()  # 1=Monday, 7=Sunday
+    """读取 workout_config.json 的 current_day 字段，与 workout_push.py 保持一致"""
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         config = json.load(f)
-    
-    # 适配配置中的weekdays映射
-    # config里 0=rest, 1=day1... 所以直接用 weekday % 7
-    day_map = {0: "rest", 1: "day1", 2: "day2", 3: "day3", 4: "rest", 5: "day1", 6: "day2", 7: "day3"}
-    
-    # 也支持自定义weekdays配置
-    if "weekdays" in config:
-        weekday_index = datetime.now().weekday()  # 0=Monday
-        return config["weekdays"].get(str(weekday_index), "rest")
-    
-    return day_map.get(weekday, "rest")
+    return config.get("current_day", "rest")
 
 
 def get_part_emoji(primary):
