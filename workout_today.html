@@ -1,600 +1,369 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Day3 腿 (Legs) - 健身计划</title>
-    <style>
-        :root {
-            --bg: #f5f6fa;
-            --card-bg: #ffffff;
-            --text: #2d3436;
-            --text-secondary: #636e72;
-            --accent: #0984e3;
-            --accent-light: #dfe6e9;
-            --success: #00b894;
-            --warning: #fdcb6e;
-            --shadow: 0 2px 12px rgba(0,0,0,0.08);
-            --radius: 16px;
-        }
-        
-        [data-theme="dark"] {
-            --bg: #1a1a2e;
-            --card-bg: #16213e;
-            --text: #eaeaea;
-            --text-secondary: #a0a0a0;
-            --accent: #4cc9f0;
-            --accent-light: #2a3f5f;
-            --shadow: 0 2px 12px rgba(0,0,0,0.4);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        body {
-            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            padding: 16px;
-            padding-bottom: 80px;
-            transition: background 0.3s, color 0.3s;
-            min-height: 100vh;
-        }
-        
-        .theme-toggle {
-            position: fixed;
-            top: 16px;
-            right: 16px;
-            z-index: 999;
-            background: var(--card-bg);
-            border: none;
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .header {
-            text-align: center;
-            margin: 30px 0 20px;
-        }
-        
-        .date-info {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-        }
-        
-        .day-title {
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 6px;
-        }
-        
-        .day-desc {
-            font-size: 15px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        
-        .day-summary {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 14px 18px;
-            margin: 14px 0;
-            box-shadow: var(--shadow);
-            display: flex;
-            justify-content: space-around;
-            text-align: center;
-        }
-        
-        .summary-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        .summary-num {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--accent);
-        }
-        
-        .summary-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-        
-        .divider {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 13px;
-            margin: 24px 0 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--accent-light);
-        }
-        
-        .exercise-card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            transition: transform 0.2s;
-        }
-        
-        .exercise-card:active {
-            transform: scale(0.98);
-        }
-        
-        .card-header {
-            padding: 16px 18px 12px;
-            border-bottom: 1px solid var(--accent-light);
-        }
-        
-        .card-title-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 4px;
-        }
-        
-        .card-emoji {
-            font-size: 28px;
-        }
-        
-        .card-title {
-            font-size: 18px;
-            font-weight: 700;
-        }
-        
-        .card-en {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-left: 38px;
-            font-style: italic;
-        }
-        
-        .sets-label {
-            display: inline-block;
-            background: var(--accent-light);
-            color: var(--accent);
-            font-size: 13px;
-            font-weight: 600;
-            padding: 4px 12px;
-            border-radius: 20px;
-            margin-top: 8px;
-        }
-        
-        .card-body {
-            padding: 14px 18px 16px;
-        }
-        
-        .parts-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 14px;
-        }
-        
-        .part-badge {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
-            color: white;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 12px;
-        }
-        
-        .part-badge.secondary {
-            background: linear-gradient(135deg, #74b9ff, #0984e3);
-        }
-        
-        .section-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 8px;
-            margin-top: 12px;
-        }
-        
-        .steps {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .step {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        .step-num {
-            background: var(--accent-light);
-            color: var(--accent);
-            font-size: 11px;
-            font-weight: 700;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-        
-        .tips {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        
-        .tip {
-            background: var(--accent-light);
-            color: var(--text);
-            font-size: 13px;
-            padding: 8px 12px;
-            border-radius: 10px;
-            line-height: 1.5;
-            border-left: 3px solid var(--warning);
-        }
-        
-        .home-alt {
-            background: #e8f5e9;
-            color: #2e7d32;
-            font-size: 13px;
-            padding: 10px 14px;
-            border-radius: 10px;
-            margin-top: 14px;
-            line-height: 1.5;
-        }
-        
-        [data-theme="dark"] .home-alt {
-            background: #1b3a2a;
-            color: #81c784;
-        }
-        
-        .rest-day {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
-        }
-        
-        .rest-emoji {
-            font-size: 64px;
-            margin-bottom: 20px;
-        }
-        
-        .rest-day h2 {
-            font-size: 28px;
-            color: var(--text);
-            margin-bottom: 12px;
-        }
-        
-        .rest-day p {
-            font-size: 16px;
-            line-height: 1.8;
-        }
-        
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            color: var(--text-secondary);
-            font-size: 12px;
-            border-top: 1px solid var(--accent-light);
-        }
-        
-        /* 进度条 */
-        .progress-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--card-bg);
-            padding: 12px 20px 16px;
-            box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
-            z-index: 100;
-        }
-        
-        .progress-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-        }
-        
-        .progress-track {
-            background: var(--accent-light);
-            border-radius: 6px;
-            height: 6px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            background: linear-gradient(90deg, var(--accent), var(--success));
-            height: 100%;
-            border-radius: 6px;
-            transition: width 0.5s;
-        }
-        
-        /* 深色主题适配 */
-        [data-theme="dark"] .sets-label {
-            background: var(--accent-light);
-        }
-        
-        [data-theme="dark"] .step-num {
-            background: var(--accent-light);
-        }
-        
-        [data-theme="dark"] .tip {
-            background: #2a2a3a;
-            border-left-color: #f39c12;
-        }
-        
-        [data-theme="dark"] .progress-track {
-            background: #2a2a3a;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🦵 Day3 腿 (Legs) - 健身计划</title>
+<style>
+
+:root{--bg:#f5f6fa;--card-bg:#fff;--text:#2d3436;--text-sec:#636e72;--accent:#0984e3;--accent-light:#dfe6e9;--success:#00b894;--warning:#fdcb6e;--shadow:0 2px 12px rgba(0,0,0,.08);--radius:16px}
+[data-theme=dark]{--bg:#1a1a2e;--card-bg:#16213e;--text:#eaeaea;--text-sec:#a0a0a0;--accent:#4cc9f0;--accent-light:#2a3f5f;--shadow:0 2px 12px rgba(0,0,0,.4)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);padding:16px;padding-bottom:80px;transition:background .3s,color .3s;min-height:100vh}
+.theme-toggle{position:fixed;top:16px;right:16px;z-index:999;background:var(--card-bg);border:none;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center}
+.header{text-align:center;margin:30px 0 20px}
+.date-info{font-size:14px;color:var(--text-sec);margin-bottom:6px}
+.day-title{font-size:26px;font-weight:700;color:var(--accent);margin-bottom:6px}
+.day-desc{font-size:15px;color:var(--text-sec);margin-bottom:4px}
+.day-summary{background:var(--card-bg);border-radius:var(--radius);padding:14px 18px;margin:14px 0;box-shadow:var(--shadow);display:flex;justify-content:space-around;text-align:center}
+.summary-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+.summary-num{font-size:24px;font-weight:700;color:var(--accent)}
+.summary-label{font-size:12px;color:var(--text-sec)}
+.divider{text-align:center;color:var(--text-sec);font-size:13px;margin:24px 0 16px;display:flex;align-items:center;gap:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--accent-light)}
+.exercise-card{background:var(--card-bg);border-radius:var(--radius);margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden;transition:transform .2s}
+.exercise-card:active{transform:scale(.98)}
+.exercise-card.done{opacity:.45}
+.exercise-img{width:100%;height:180px;object-fit:cover;object-position:center;display:block;background:var(--accent-light);cursor:pointer}
+.card-header{padding:16px 18px 12px;border-bottom:1px solid var(--accent-light)}
+.card-title-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.card-emoji{font-size:28px}
+.card-title{font-size:18px;font-weight:700}
+.card-en{font-size:12px;color:var(--text-sec);margin-left:38px;font-style:italic}
+.sets-label{display:inline-block;background:var(--accent-light);color:var(--accent);font-size:13px;font-weight:600;padding:4px 12px;border-radius:20px;margin-top:8px}
+.weight-row{margin:8px 0 2px}
+.weight-input{width:100%;padding:6px 10px;border:1.5px solid var(--accent-light);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;font-weight:600;outline:none;box-sizing:border-box}
+.weight-input:focus{border-color:var(--accent)}
+.weight-input::placeholder{color:var(--text-sec);font-weight:400}
+.card-body{padding:14px 18px 16px}
+.parts-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.part-badge{background:linear-gradient(135deg,#ff6b6b,#ee5a5a);color:#fff;font-size:12px;font-weight:600;padding:4px 10px;border-radius:12px}
+.part-badge.secondary{background:linear-gradient(135deg,#74b9ff,#0984e3)}
+.section-title{font-size:13px;font-weight:700;color:var(--accent);margin:14px 0 8px}
+.steps{display:flex;flex-direction:column;gap:8px}
+.step{display:flex;align-items:flex-start;gap:10px;font-size:14px;line-height:1.5}
+.step-num{background:var(--accent-light);color:var(--accent);font-size:11px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.tips{display:flex;flex-direction:column;gap:6px}
+.tip{background:var(--accent-light);color:var(--text);font-size:13px;padding:8px 12px;border-radius:10px;line-height:1.5;border-left:3px solid var(--warning)}
+.home-alt{background:#e8f5e9;color:#2e7d32;font-size:13px;padding:10px 14px;border-radius:10px;margin-top:14px;line-height:1.5}
+[data-theme=dark] .home-alt{background:#1b3a2a;color:#81c784}
+.footer{text-align:center;margin-top:40px;padding:20px;color:var(--text-sec);font-size:12px;border-top:1px solid var(--accent-light)}
+.progress-bar{position:fixed;bottom:0;left:0;right:0;background:var(--card-bg);padding:12px 20px 16px;box-shadow:0 -2px 12px rgba(0,0,0,.1);z-index:100}
+.progress-label{font-size:12px;color:var(--text-sec);margin-bottom:6px}
+.progress-track{background:var(--accent-light);border-radius:6px;height:6px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,var(--accent),var(--success));height:100%;border-radius:6px;transition:width .5s}
+.btn-save{background:var(--success);color:#fff;border:none;border-radius:10px;padding:9px 24px;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px}
+.toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:var(--success);color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:9999;cursor:pointer;align-items:center;justify-content:center}
+.lightbox img{max-width:95%;max-height:95%;object-fit:contain;border-radius:8px}
+
+</style>
 </head>
 <body>
-    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀️</button>
-    
-    <div class="header">
-        <div class="date-info">2026年06月08日 周一</div>
-        <div class="day-title">🦵 Day3 腿 (Legs)</div>
-        <div class="day-desc">股四头肌 + 臀大肌 + 腘绳肌 + 小腿</div>
-    </div>
-    
-    <div class="day-summary">
-        <div class="summary-item">
-            <span class="summary-num">5</span>
-            <span class="summary-label">训练动作</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-num">21</span>
-            <span class="summary-label">总组数</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-num">20</span>
-            <span class="summary-label">预计分钟</span>
-        </div>
-    </div>
-    
-    <div class="divider">💪 训练动作 💪</div>
-    
-    
-        <div class="exercise-card">
+<button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀️</button>
+<div class="header">
+<div class="date-info">2026年06月09日 Tuesday</div>
+<div class="day-title">🦵 Day3 腿 (Legs)</div>
+<div class="day-desc">股四头肌 + 臀大肌 + 腘绳肌 + 小腿</div>
+</div>
+<div class="day-summary">
+<div class="summary-item"><span class="summary-num">5</span><span class="summary-label">训练动作</span></div>
+<div class="summary-item"><span class="summary-num">21</span><span class="summary-label">总组数</span></div>
+<div class="summary-item"><span class="summary-num">40</span><span class="summary-label">预计分钟</span></div>
+</div>
+<div class="divider">💪 训练动作 💪</div>
+<div class="exercise-card" onclick="toggleDone(this, event)">
+<img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/barbell_squat.jpg" alt="深蹲" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
-                <div class="card-title-row">
-                    <span class="card-emoji">🦵</span>
-                    <h3 class="card-title">深蹲</h3>
-                </div>
-                <div class="card-en">Barbell Back Squat</div>
-                <div class="sets-label">📊 5组 × 8-12次 | 休息120秒秒</div>
-            </div>
-            <div class="card-body">
-                <div class="parts-row">
-                    <div class="part-badge">🦵 股四头肌、臀大肌</div><div class="part-badge secondary">腘绳肌、内收肌、竖脊肌</div>
-                </div>
-                <div class="section-title">📋 动作步骤</div>
-                <div class="steps"><div class="step"><span class="step-num">1</span><span>将杠铃置于斜方肌上（高位深蹲），双脚与肩同宽或略宽</span></div>
+<div class="card-title-row">
+<span class="card-emoji">🦵💪</span>
+<h3 class="card-title">深蹲</h3>
+</div>
+<div class="card-en">Barbell Back Squat</div>
+<div class="sets-label">📊 5组 × 8-12次 | 休息120秒</div>
+<div class="weight-row"><input class="weight-input" type="text" value="56kg" placeholder="56kg" data-exercise="深蹲"></div>
+</div>
+<div class="card-body">
+<div class="parts-row"><div class="part-badge">💪 股四头肌、臀大肌</div><div class="part-badge secondary">腘绳肌、内收肌、竖脊肌</div></div>
+<div class="section-title">📋 动作步骤</div>
+<div class="steps"><div class="step"><span class="step-num">1</span><span>将杠铃置于斜方肌上（高位深蹲），双脚与肩同宽或略宽</span></div>
 <div class="step"><span class="step-num">2</span><span>调整脚尖朝向（外展15-30度），挺胸收紧核心</span></div>
 <div class="step"><span class="step-num">3</span><span>臀部向后坐，屈膝屈髋下蹲</span></div>
 <div class="step"><span class="step-num">4</span><span>下蹲至大腿与地面平行或略低</span></div>
 <div class="step"><span class="step-num">5</span><span>双脚发力蹬地站起，全程保持背部挺直</span></div>
 </div>
-                <div class="section-title">⚡ 注意事项</div>
-                <div class="tips"><div class="tip">⚠️ 膝盖方向要与脚尖方向一致，不要内扣</div>
+<div class="section-title">⚡ 注意事项</div>
+<div class="tips"><div class="tip">⚠️ 膝盖方向要与脚尖方向一致，不要内扣</div>
 <div class="tip">⚠️ 下蹲时重心在脚掌中后部，不要踮起脚跟</div>
 <div class="tip">⚠️ 保持呼吸：下蹲吸气，站起呼气</div>
 <div class="tip">⚠️ 新手建议从徒手或轻重量开始练习动作模式</div>
 </div>
-                <div class="home-alt">🏠 家用替代：徒手深蹲 或 背背包深蹲</div>
-            </div>
-        </div>
-        
-        <div class="exercise-card">
-            <div class="card-header">
-                <div class="card-title-row">
-                    <span class="card-emoji">🦵</span>
-                    <h3 class="card-title">单腿蹲</h3>
-                </div>
-                <div class="card-en">Bulgarian Split Squat</div>
-                <div class="sets-label">📊 4组 × 8-10次（每侧） | 休息90秒秒</div>
-            </div>
-            <div class="card-body">
-                <div class="parts-row">
-                    <div class="part-badge">🦵 股四头肌</div><div class="part-badge secondary">臀大肌、腘绳肌、内收肌</div>
-                </div>
-                <div class="section-title">📋 动作步骤</div>
-                <div class="steps"><div class="step"><span class="step-num">1</span><span>站在凳子前两脚距离，单脚站立，另一只脚脚背搭在凳面上</span></div>
+<div class="home-alt">🏠 家用替代：徒手深蹲 或 背背包深蹲</div>
+</div>
+</div>
+<div class="exercise-card" onclick="toggleDone(this, event)">
+<div class="card-header">
+<div class="card-title-row">
+<span class="card-emoji">🦵💪</span>
+<h3 class="card-title">单腿蹲</h3>
+</div>
+<div class="card-en">Bulgarian Split Squat</div>
+<div class="sets-label">📊 4组 × 8-10次（每侧） | 休息90秒</div>
+<div class="weight-row"><input class="weight-input" type="text" value="" placeholder="实际重量（如 60kg）" data-exercise="单腿蹲"></div>
+</div>
+<div class="card-body">
+<div class="parts-row"><div class="part-badge">💪 股四头肌</div><div class="part-badge secondary">臀大肌、腘绳肌、内收肌</div></div>
+<div class="section-title">📋 动作步骤</div>
+<div class="steps"><div class="step"><span class="step-num">1</span><span>站在凳子前两脚距离，单脚站立，另一只脚脚背搭在凳面上</span></div>
 <div class="step"><span class="step-num">2</span><span>挺胸收紧核心，目视前方</span></div>
 <div class="step"><span class="step-num">3</span><span>屈膝下蹲，前侧大腿下蹲至与地面平行</span></div>
 <div class="step"><span class="step-num">4</span><span>膝盖方向与脚尖一致，不要内扣</span></div>
 <div class="step"><span class="step-num">5</span><span>前脚发力蹬地站起，重复</span></div>
 </div>
-                <div class="section-title">⚡ 注意事项</div>
-                <div class="tips"><div class="tip">⚠️ 后侧脚主要起平衡作用，不要用来借力</div>
+<div class="section-title">⚡ 注意事项</div>
+<div class="tips"><div class="tip">⚠️ 后侧脚主要起平衡作用，不要用来借力</div>
 <div class="tip">⚠️ 下蹲深度要够，感受前腿臀部肌群的拉伸</div>
 <div class="tip">⚠️ 如果平衡困难，可以先徒手或轻重量练习</div>
 <div class="tip">⚠️ 双脚距离约两步长即可，太近会重心不稳</div>
 </div>
-                <div class="home-alt">🏠 家用替代：保加利亚分腿蹲（徒手）或 单腿浅蹲</div>
-            </div>
-        </div>
-        
-        <div class="exercise-card">
-            <div class="card-header">
-                <div class="card-title-row">
-                    <span class="card-emoji">🍑</span>
-                    <h3 class="card-title">臀推</h3>
-                </div>
-                <div class="card-en">Hip Thrust</div>
-                <div class="sets-label">📊 4组 × 10-12次 | 休息75秒秒</div>
-            </div>
-            <div class="card-body">
-                <div class="parts-row">
-                    <div class="part-badge">🍑 臀大肌</div><div class="part-badge secondary">腘绳肌</div>
-                </div>
-                <div class="section-title">📋 动作步骤</div>
-                <div class="steps"><div class="step"><span class="step-num">1</span><span>上背部靠在卧推凳边缘，杠铃置于髋部正上方，膝屈约90度</span></div>
+<div class="home-alt">🏠 家用替代：保加利亚分腿蹲（徒手）或 单腿浅蹲</div>
+</div>
+</div>
+<div class="exercise-card" onclick="toggleDone(this, event)">
+<div class="card-header">
+<div class="card-title-row">
+<span class="card-emoji">🦵🍑</span>
+<h3 class="card-title">臀推</h3>
+</div>
+<div class="card-en">Hip Thrust</div>
+<div class="sets-label">📊 4组 × 10-12次 | 休息75秒</div>
+<div class="weight-row"><input class="weight-input" type="text" value="56kg" placeholder="56kg" data-exercise="臀推"></div>
+</div>
+<div class="card-body">
+<div class="parts-row"><div class="part-badge">💪 臀大肌</div><div class="part-badge secondary">腘绳肌</div></div>
+<div class="section-title">📋 动作步骤</div>
+<div class="steps"><div class="step"><span class="step-num">1</span><span>上背部靠在卧推凳边缘，杠铃置于髋部正上方，膝屈约90度</span></div>
 <div class="step"><span class="step-num">2</span><span>双脚踩实地面，与肩同宽</span></div>
 <div class="step"><span class="step-num">3</span><span>臀部发力向上顶起，直到身体成一条直线</span></div>
 <div class="step"><span class="step-num">4</span><span>顶峰时臀部用力收紧，保持1秒</span></div>
 <div class="step"><span class="step-num">5</span><span>缓慢下放，臀部接近地面但不完全落地，重复</span></div>
 </div>
-                <div class="section-title">⚡ 注意事项</div>
-                <div class="tips"><div class="tip">⚠️ 全程保持核心收紧，避免腰部过度反弓</div>
+<div class="section-title">⚡ 注意事项</div>
+<div class="tips"><div class="tip">⚠️ 全程保持核心收紧，避免腰部过度反弓</div>
 <div class="tip">⚠️ 杠铃上可以垫一个软垫保护髋骨</div>
 <div class="tip">⚠️ 顶峰时想象臀部在夹紧一本书</div>
 <div class="tip">⚠️ 比罗马尼亚硬拉对腰更友好，臀大肌刺激更强</div>
 </div>
-                <div class="home-alt">🏠 家用替代：徒手臀桥 或 弹力带臀推</div>
-            </div>
-        </div>
-        
-        <div class="exercise-card">
+<div class="home-alt">🏠 家用替代：徒手臀桥 或 弹力带臀推</div>
+</div>
+</div>
+<div class="exercise-card" onclick="toggleDone(this, event)">
+<img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/leg_curl.jpg" alt="腿弯举" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
-                <div class="card-title-row">
-                    <span class="card-emoji">🦵</span>
-                    <h3 class="card-title">腿弯举</h3>
-                </div>
-                <div class="card-en">Leg Curl</div>
-                <div class="sets-label">📊 4组 × 12-15次 | 休息60秒秒</div>
-            </div>
-            <div class="card-body">
-                <div class="parts-row">
-                    <div class="part-badge">🦵 腘绳肌</div><div class="part-badge secondary">小腿（腓肠肌）</div>
-                </div>
-                <div class="section-title">📋 动作步骤</div>
-                <div class="steps"><div class="step"><span class="step-num">1</span><span>俯卧在腿弯举器械上，脚踝后方抵住滚轴</span></div>
+<div class="card-title-row">
+<span class="card-emoji">🦵🤸</span>
+<h3 class="card-title">腿弯举</h3>
+</div>
+<div class="card-en">Leg Curl</div>
+<div class="sets-label">📊 4组 × 12-15次 | 休息60秒</div>
+<div class="weight-row"><input class="weight-input" type="text" value="15kg" placeholder="15kg" data-exercise="腿弯举"></div>
+</div>
+<div class="card-body">
+<div class="parts-row"><div class="part-badge">💪 腘绳肌</div><div class="part-badge secondary">小腿（腓肠肌）</div></div>
+<div class="section-title">📋 动作步骤</div>
+<div class="steps"><div class="step"><span class="step-num">1</span><span>俯卧在腿弯举器械上，脚踝后方抵住滚轴</span></div>
 <div class="step"><span class="step-num">2</span><span>双手抓住手柄固定身体</span></div>
 <div class="step"><span class="step-num">3</span><span>腘绳肌发力，将滚轴向上弯举</span></div>
 <div class="step"><span class="step-num">4</span><span>弯举至顶峰时挤压腘绳肌</span></div>
 <div class="step"><span class="step-num">5</span><span>缓慢下放，控制重量不要让腿完全伸直</span></div>
 </div>
-                <div class="section-title">⚡ 注意事项</div>
-                <div class="tips"><div class="tip">⚠️ 如果器械是坐姿，同样有效</div>
+<div class="section-title">⚡ 注意事项</div>
+<div class="tips"><div class="tip">⚠️ 如果器械是坐姿，同样有效</div>
 <div class="tip">⚠️ 顶峰收缩1秒效果更佳</div>
 <div class="tip">⚠️ 全程控制，不要借助惯性</div>
 <div class="tip">⚠️ 与腿弯举配对练习，腿前侧后侧都要练</div>
 </div>
-                <div class="home-alt">🏠 家用替代：俯卧弹力带腿弯举 或 跪姿腿弯举</div>
-            </div>
-        </div>
-        
-        <div class="exercise-card">
+<div class="home-alt">🏠 家用替代：俯卧弹力带腿弯举 或 跪姿腿弯举</div>
+</div>
+</div>
+<div class="exercise-card" onclick="toggleDone(this, event)">
+<img class="exercise-img" src="https://ailoli1314.github.io/yanyun_helper/images/calf_raise.png" alt="提踵" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display='none'">
             <div class="card-header">
-                <div class="card-title-row">
-                    <span class="card-emoji">🦶</span>
-                    <h3 class="card-title">提踵</h3>
-                </div>
-                <div class="card-en">Calf Raise</div>
-                <div class="sets-label">📊 4组 × 15-20次 | 休息45秒秒</div>
-            </div>
-            <div class="card-body">
-                <div class="parts-row">
-                    <div class="part-badge">🦶 小腿三头肌（腓肠肌、比目鱼肌）</div><div class="part-badge secondary">无</div>
-                </div>
-                <div class="section-title">📋 动作步骤</div>
-                <div class="steps"><div class="step"><span class="step-num">1</span><span>站在台阶或提踵机上，前脚掌踩在边缘</span></div>
+<div class="card-title-row">
+<span class="card-emoji">🦶💪</span>
+<h3 class="card-title">提踵</h3>
+</div>
+<div class="card-en">Calf Raise</div>
+<div class="sets-label">📊 4组 × 15-20次 | 休息45秒</div>
+<div class="weight-row"><input class="weight-input" type="text" value="0" placeholder="0" data-exercise="提踵"></div>
+</div>
+<div class="card-body">
+<div class="parts-row"><div class="part-badge">💪 小腿三头肌（腓肠肌、比目鱼肌）</div></div>
+<div class="section-title">📋 动作步骤</div>
+<div class="steps"><div class="step"><span class="step-num">1</span><span>站在台阶或提踵机上，前脚掌踩在边缘</span></div>
 <div class="step"><span class="step-num">2</span><span>脚后跟下沉至最低点，感受小腿拉伸</span></div>
 <div class="step"><span class="step-num">3</span><span>小腿三头肌发力，踮起脚跟至最高点</span></div>
 <div class="step"><span class="step-num">4</span><span>顶峰时收紧小腿，停顿1秒</span></div>
 <div class="step"><span class="step-num">5</span><span>缓慢下放，重复动作</span></div>
 </div>
-                <div class="section-title">⚡ 注意事项</div>
-                <div class="tips"><div class="tip">⚠️ 提踵是少数适合快节奏的动作，可以稍快</div>
+<div class="section-title">⚡ 注意事项</div>
+<div class="tips"><div class="tip">⚠️ 提踵是少数适合快节奏的动作，可以稍快</div>
 <div class="tip">⚠️ 坐姿提踵主要刺激比目鱼肌，站姿刺激腓肠肌</div>
 <div class="tip">⚠️ 可以在顶峰时做顶峰收缩增强效果</div>
 <div class="tip">⚠️ 小腿恢复快，可以适当提高训练频率</div>
 </div>
-                <div class="home-alt">🏠 家用替代：徒手台阶提踵 或 背包负重提踵</div>
-            </div>
-        </div>
-        
-    
-    <div class="footer">
-        <p>💡 编辑 <code>workout_config.json</code> 即可修改训练计划</p>
-        <p style="margin-top:6px">由 OpenClaw 自动生成 · 2026年06月08日</p>
-    </div>
-    
-    <div class="progress-bar">
-        <div class="progress-label">今日训练完成进度</div>
-        <div class="progress-track">
-            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-        </div>
-    </div>
-    
-    <script>
-        // 深色/浅色主题切换
-        function toggleTheme() {
-            const body = document.body;
-            const btn = document.getElementById('themeBtn');
-            if (body.getAttribute('data-theme') === 'dark') {
-                body.removeAttribute('data-theme');
-                btn.textContent = '☀️';
-                localStorage.setItem('theme', 'light');
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                btn.textContent = '🌙';
-                localStorage.setItem('theme', 'dark');
-            }
-        }
-        
-        // 读取保存的主题
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.setAttribute('data-theme', 'dark');
-            document.getElementById('themeBtn').textContent = '🌙';
-        }
-        
-        // 进度跟踪
-        let completed = 0;
-        const total = 5;
-        
-        function markDone() {
-            if (completed < total) {
-                completed++;
-                updateProgress();
-            }
-        }
-        
-        function updateProgress() {
-            const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-            document.getElementById('progressFill').style.width = pct + '%';
-        }
-        
-        // 点击卡片标记完成
-        document.querySelectorAll('.exercise-card').forEach(card => {
-            card.addEventListener('click', function(e) {
-                if (e.target.closest('.home-alt') || e.target.closest('button')) return;
-                this.style.opacity = this.style.opacity === '0.5' ? '1' : '0.5';
-                markDone();
-            });
-        });
-    </script>
+<div class="home-alt">🏠 家用替代：徒手台阶提踵 或 背包负重提踵</div>
+</div>
+</div>
+
+<div class="footer">
+<p>💡 编辑 <code>workout_config.json</code> 即可修改训练计划</p>
+<p style="margin-top:6px">由 OpenClaw 自动生成 · 2026年06月09日</p>
+</div>
+<div class="progress-bar">
+<div class="progress-label">今日训练完成进度 <span id="pctText">0/5</span></div>
+<div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+<button class="btn-save" id="saveBtn" onclick="confirmAndSave()">✅ 确认完成</button>
+</div>
+<div id="toast" class="toast"></div>
+<div id="lightbox" class="lightbox" onclick="closeLightbox()"><img id="lightboxImg" src="" alt=""></div>
+<script>
+
+var REPO='ailoli1314/yanyun_helper';
+var TOKEN_KEY='gh_token_workout';
+var pageTitle=document.querySelector('.day-title').textContent.trim();
+var today=new Date();
+var dateStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+
+function deb64(s){try{return decodeURIComponent(escape(atob(s)));}catch(e){return null;}}
+function enb64(s){try{return btoa(unescape(encodeURIComponent(s)));}catch(e){return null;}}
+
+function toggleTheme(){
+  var d=document.body.getAttribute('data-theme')==='dark';
+  document.body.setAttribute('data-theme',d?'':'dark');
+  document.getElementById('themeBtn').textContent=d?'\u2600':'\U0001f319';
+  localStorage.setItem('theme',d?'light':'dark');
+}
+if(localStorage.getItem('theme')==='dark'){
+  document.body.setAttribute('data-theme','dark');
+  document.getElementById('themeBtn').textContent='\U0001f319';
+}
+
+function getToken(){
+  var tok=localStorage.getItem(TOKEN_KEY);
+  if(!tok){
+    tok=prompt('\u8bf7\u8f93\u5165 GitHub PAT\uff08\u4ec5\u9700 repos \u6743\u9650\uff09\uff1a');
+    if(tok){localStorage.setItem(TOKEN_KEY,tok);}
+  }
+  return tok;
+}
+
+function showToast(m){
+  var t=document.getElementById('toast');
+  t.textContent=m;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2000);
+}
+
+function openLightbox(s){
+  document.getElementById('lightboxImg').src=s;
+  document.getElementById('lightbox').style.display='flex';
+}
+function closeLightbox(){
+  document.getElementById('lightbox').style.display='none';
+}
+
+var completed=0;
+var total=document.querySelectorAll('.exercise-card').length;
+
+function updateProgress(){
+  var pct=total>0?Math.round((completed/total)*100):0;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('pctText').textContent=completed+'/'+total;
+}
+
+function toggleDone(card,e){
+  if(e.target.closest('.home-alt')||e.target.tagName==='INPUT')return;
+  card.classList.toggle('done');
+  completed=document.querySelectorAll('.exercise-card.done').length;
+  updateProgress();
+  localStorage.setItem('workout_done_'+dateStr,completed);
+}
+
+async function confirmAndSave(){
+  var token=getToken();
+  if(!token)return;
+  var doneCards=Array.from(document.querySelectorAll('.exercise-card.done'));
+  if(doneCards.length===0){showToast('\u8bf7\u5148\u70b9\u51fb\u52a8\u4f5c\u5361\u7247\u6807\u8bb0\u5b8c\u6210');return;}
+  document.getElementById('saveBtn').textContent='\u4fdd\u5b58\u4e2d...';
+  document.getElementById('saveBtn').disabled=true;
+  var exercises=doneCards.map(function(card){
+    var n=card.querySelector('.card-title')?card.querySelector('.card-title').textContent.trim():'';
+    var s=card.querySelector('.sets-label')?card.querySelector('.sets-label').textContent.trim():'';
+    var w=card.querySelector('.weight-input');
+    var wv=w&&w.value.trim()?w.value.trim():'';
+    return{name:n,sets:s,weight:wv};
+  });
+  var logEntry={date:dateStr,dayName:pageTitle,completed:exercises.length,total:total,percent:Math.round((exercises.length/total)*100),timestamp:new Date().toISOString(),exercises:exercises};
+  try{
+    var sha=null;var currentLog={};
+    var r=await fetch('https://api.github.com/repos/'+REPO+'/contents/training_log.json',{headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}});
+    if(r.ok){var d=await r.json();sha=d.sha;try{currentLog=JSON.parse(deb64(d.content));}catch(e){currentLog={};}}
+    currentLog[dateStr]=logEntry;
+    currentLog.lastUpdated=new Date().toISOString();
+    var bc=enb64(JSON.stringify(currentLog,null,2));
+    if(!bc)throw new Error('encode');
+    var body=JSON.stringify({message:'Training log '+dateStr,content:bc,sha:sha});
+    var res=await fetch('https://api.github.com/repos/'+REPO+'/contents/training_log.json',{method:'PUT',headers:{'Authorization':'token '+token,'Content-Type':'application/json'},body:body});
+    if(res.ok){
+      showToast('\u2705 \u5df2\u4fdd\u5b58\uff01\u6b63\u5728\u63a8\u8fdb...');
+      document.getElementById('saveBtn').textContent='\u63a8\u8fdb\u4e2d...';
+      advanceCurrentDay(token).then(function(){
+        showToast('\u2705 \u5df2\u5b8c\u6210\uff01\u5373\u5c06\u663e\u793a\u4e0b\u4e00\u5929...');
+        setTimeout(function(){location.reload();},1500);
+      }).catch(function(err){
+        showToast('\u26a0 \u63a8\u8fdb\u5931\u8d25: '+(err.message||err));
+        document.getElementById('saveBtn').textContent='\u2714 \u786e\u8ba4\u5b8c\u6210';
+        document.getElementById('saveBtn').disabled=false;
+      });
+    }else{
+      var err=await res.json();
+      showToast('\u26a0 '+(err.message||res.status));
+      document.getElementById('saveBtn').textContent='\u2714 \u786e\u8ba4\u5b8c\u6210';
+      document.getElementById('saveBtn').disabled=false;
+    }
+  }catch(e){
+    showToast('\u26a0 \u7f51\u7edc\u9519\u8bef');
+    document.getElementById('saveBtn').textContent='\u2714 \u786e\u8ba4\u5b8c\u6210';
+    document.getElementById('saveBtn').disabled=false;
+  }
+}
+
+async function advanceCurrentDay(token){
+  var r=await fetch('https://api.github.com/repos/'+REPO+'/contents/workout_config.json',{headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}});
+  if(!r.ok)throw new Error('read config failed');
+  var data=await r.json();
+  var sha=data.sha;
+  var cfg=JSON.parse(deb64(data.content));
+  var cur=cfg.current_day||'day1';
+  var seq=cfg.day_sequence||['day1','day2','day3'];
+  var ci=seq.indexOf(cur);if(ci<0)ci=0;
+  var nxt=seq[(ci+1)%seq.length];
+  cfg.current_day=nxt;
+  var cc=enb64(JSON.stringify(cfg,null,2));if(!cc)throw new Error('encode');
+  var body=JSON.stringify({message:'Advance to '+nxt,content:cc,sha:sha});
+  var res=await fetch('https://api.github.com/repos/'+REPO+'/contents/workout_config.json',{method:'PUT',headers:{'Authorization':'token '+token,'Content-Type':'application/json'},body:body});
+  if(!res.ok){var err=await res.json();throw new Error(err.message||res.status);}
+}
+
+var saved=parseInt(localStorage.getItem('workout_done_'+dateStr)||'0');
+if(saved>0){
+  var cards=document.querySelectorAll('.exercise-card');
+  var mark=Math.min(saved,cards.length);
+  for(var i=0;i<mark;i++)cards[i].classList.add('done');
+  completed=mark;updateProgress();
+}
+
+</script>
 </body>
 </html>
