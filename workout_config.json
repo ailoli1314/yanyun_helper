@@ -7,16 +7,6 @@
     "day2",
     "day3"
   ],
-  "weekdays": {
-    "0": "day1",
-    "1": "day2",
-    "2": "day3",
-    "3": "day1",
-    "4": "day2",
-    "5": "day3",
-    "6": "day1",
-    "7": "day2"
-  },
   "days": {
     "day1": {
       "name": "Day1 推 (Push)",
