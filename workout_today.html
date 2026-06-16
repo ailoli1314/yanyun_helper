@@ -147,7 +147,8 @@ function updateProgress(){
   document.getElementById('progressText').textContent=completed+'/'+total+' ('+pct+'%)';
 }
 
-function buildPage(dayCfg,dayId){
+function buildPage(dayCfg, dayId, weightsMap){
+  weightsMap=weightsMap||{};
   var d=dayCfg;
   var emoji=d.emoji||'🏋️';
   pageTitle=emoji+' '+d.name;
@@ -177,7 +178,7 @@ function buildPage(dayCfg,dayId){
       '<div class="card-title-row"><span class="card-emoji">'+(ex.emoji||'💪')+'</span><span class="card-title">'+ex.name+'</span></div>'+
       (ex.name_en?'<div class="card-en">'+ex.name_en+'</div>':'')+
       (setsStr?'<div class="sets-label">'+setsStr+'</div>':'')+
-      '<div class="weight-row"><input class="weight-input" type="text" placeholder="今日重量（如 50kg）" onclick="event.stopPropagation()"></div>'+
+      '<div class="weight-row"><input class="weight-input" type="text" placeholder="今日重量（如 50kg）" value="'+(weightsMap[ex.name]||'')+'" onclick="event.stopPropagation()"></div>'+
       '</div>'+
       '<div class="card-body">'+
       '<div class="parts-row">'+
@@ -249,7 +250,37 @@ async function loadConfig(){
     var dayObj=days[cur];
     if(!dayObj){document.getElementById('loading').textContent='❌ 找不到 day: '+cur;return;}
     dayObj.name=dayObj.name||(cur.charAt(0).toUpperCase()+cur.slice(1));
-    buildPage(dayObj,cur);
+    var dayName=dayObj.emoji+' '+dayObj.name;
+
+    // 同时获取训练日志，找到最近一次同类型训练的重量
+    var weightsMap={};
+    try{
+      var logR=await fetch('https://api.github.com/repos/'+REPO+'/contents/training_log.json',{
+        headers:{'Accept':'application/vnd.github.v3+json'}
+      });
+      if(logR.ok){
+        var logData=await logR.json();
+        var log=JSON.parse(deb64(logData.content));
+        // 找日期最大且 dayName 匹配的那次
+        var lastMatch=null;
+        var dates=Object.keys(log).filter(function(k){return /^\d{4}-\d{2}-\d{2}$/.test(k);});
+        dates.sort().reverse();
+        for(var di=0;di<dates.length;di++){
+          var entry=log[dates[di]];
+          if(entry.dayName===dayName){
+            lastMatch=entry;
+            break;
+          }
+        }
+        if(lastMatch&&lastMatch.exercises){
+          lastMatch.exercises.forEach(function(ex){
+            if(ex.name&&ex.weight)weightsMap[ex.name]=ex.weight;
+          });
+        }
+      }
+    }catch(e){/* 训练日志加载失败不影响主流程 */}
+
+    buildPage(dayObj,cur,weightsMap);
   }catch(e){
     document.getElementById('loading').textContent='❌ 加载失败: '+(e.message||e);
   }
