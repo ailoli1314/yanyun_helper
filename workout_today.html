@@ -94,7 +94,7 @@ var IMAGE_MAP={
 
 function getImgURL(name){
   var f=IMAGE_MAP[name];
-  return f?'https://'+REPO.split('/')[0]+'.github.io/'+REPO.split('/')[1]+'/images/'+f:'';
+  return f?'https://raw.githubusercontent.com/'+REPO+'/main/images/'+f:'';
 }
 
 function hexToBytes(h){
