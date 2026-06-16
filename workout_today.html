@@ -238,11 +238,17 @@ function buildPage(dayCfg, dayId, weightsMap){
 
 async function loadConfig(){
   try{
+    // 10秒超时保护
+    var ac=new AbortController();
+    var tid=setTimeout(function(){ac.abort();},10000);
+
     // 公开仓库读数据不需要 token
     var r=await fetch('https://api.github.com/repos/'+REPO+'/contents/workout_config.json',{
+      signal:ac.signal,
+      cache:'no-cache',
       headers:{'Accept':'application/vnd.github.v3+json'}
     });
-    if(!r.ok){document.getElementById('loading').textContent='❌ 加载失败: '+r.status;return;}
+    if(!r.ok){clearTimeout(tid);document.getElementById('loading').textContent='❌ 加载失败: '+r.status;return;}
     var data=await r.json();
     var cfg=JSON.parse(deb64(data.content));
     var cur=cfg.current_day||'day1';
@@ -250,6 +256,7 @@ async function loadConfig(){
     var dayObj=days[cur];
     if(!dayObj){document.getElementById('loading').textContent='❌ 找不到 day: '+cur;return;}
     dayObj.name=dayObj.name||(cur.charAt(0).toUpperCase()+cur.slice(1));
+    clearTimeout(tid);
     var dayName=dayObj.emoji+' '+dayObj.name;
 
     // 同时获取训练日志，找到最近一次同类型训练的重量
@@ -282,6 +289,7 @@ async function loadConfig(){
 
     buildPage(dayObj,cur,weightsMap);
   }catch(e){
+    clearTimeout(tid);
     document.getElementById('loading').textContent='❌ 加载失败: '+(e.message||e);
   }
 }
