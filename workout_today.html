@@ -242,11 +242,11 @@ async function loadConfig(){
     var ac=new AbortController();
     var tid=setTimeout(function(){ac.abort();},10000);
 
-    // 公开仓库读数据不需要 token
+    var tok=getToken();
     var r=await fetch('https://api.github.com/repos/'+REPO+'/contents/workout_config.json',{
       signal:ac.signal,
       cache:'no-cache',
-      headers:{'Accept':'application/vnd.github.v3+json'}
+      headers:tok?{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}:{'Accept':'application/vnd.github.v3+json'}
     });
     if(!r.ok){clearTimeout(tid);document.getElementById('loading').textContent='❌ 加载失败: '+r.status;return;}
     var data=await r.json();
@@ -263,7 +263,7 @@ async function loadConfig(){
     var weightsMap={};
     try{
       var logR=await fetch('https://api.github.com/repos/'+REPO+'/contents/training_log.json',{
-        headers:{'Accept':'application/vnd.github.v3+json'}
+        headers:tok?{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}:{'Accept':'application/vnd.github.v3+json'}
       });
       if(logR.ok){
         var logData=await logR.json();
