@@ -71,6 +71,8 @@
         .badge-expired { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
         .badge-run { background: rgba(108, 92, 231, 0.3); color: var(--primary-light); }
         .badge-reader { background: rgba(253, 203, 110, 0.3); color: #fdcb6e; }
+        .badge-schedule { background: rgba(52, 152, 219, 0.3); color: #3498db; }
+        .badge-3dview { background: rgba(253, 121, 168, 0.3); color: var(--accent); }
         .badge-permanent { background: rgba(0, 206, 201, 0.2); color: var(--secondary); }
 
         .auth-meta { display: flex; gap: 20px; flex-wrap: wrap; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px; }
@@ -217,6 +219,22 @@
                     </select>
                 </div>
                 <div class="form-group" style="max-width:160px;">
+                    <label>定时任务权限</label>
+                    <select id="authSchedule">
+                        <option value="0">关闭</option>
+                        <option value="1">开启</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="max-width:160px;">
+                    <label>3D 视角权限</label>
+                    <select id="auth3dview">
+                        <option value="0">关闭</option>
+                        <option value="1">开启</option>
+                    </select>
+                </div>
+                <div class="form-group" style="max-width:160px;">
                     <label>有效期(天)</label>
                     <input type="number" id="authExpire" value="365" min="0" placeholder="0=永久" />
                 </div>
@@ -273,6 +291,20 @@
                 <div class="modal-form-group" style="max-width:140px;">
                     <label>更多阅读权限</label>
                     <select id="editReader">
+                        <option value="0">关闭</option>
+                        <option value="1">开启</option>
+                    </select>
+                </div>
+                <div class="modal-form-group" style="max-width:140px;">
+                    <label>定时任务权限</label>
+                    <select id="editSchedule">
+                        <option value="0">关闭</option>
+                        <option value="1">开启</option>
+                    </select>
+                </div>
+                <div class="modal-form-group" style="max-width:140px;">
+                    <label>3D 视角权限</label>
+                    <select id="edit3dview">
                         <option value="0">关闭</option>
                         <option value="1">开启</option>
                     </select>
@@ -511,6 +543,8 @@
             const count = parseInt(document.getElementById('authCount').value) || 10;
             const runauth = document.getElementById('authRun').value;
             const moreReaderAuth = document.getElementById('authReader').value;
+            const scheduleAuth = document.getElementById('authSchedule').value;
+            const threedViewAuth = document.getElementById('auth3dview').value;
             const expireDays = parseInt(document.getElementById('authExpire').value) || 0;
 
             if (!code) { showToast('请输入授权码', 'error'); return; }
@@ -528,6 +562,8 @@
                     count: count,
                     runauth: runauth,
                     more_reader_auth: moreReaderAuth,
+                    scheduled_task_auth: scheduleAuth,
+                    threed_view_auth: threedViewAuth,
                     expire_at: expireAt,
                     created_at: nowTs,
                 };
@@ -688,6 +724,8 @@
             }
             if (data.runauth == '1') badges += '<span class="badge badge-run">跑图</span>';
             if (data.more_reader_auth == '1') badges += '<span class="badge badge-reader">更多阅读</span>';
+            if (data.scheduled_task_auth == '1') badges += '<span class="badge badge-schedule">定时任务</span>';
+            if (data.threed_view_auth == '1') badges += '<span class="badge badge-3dview">3D 视角</span>';
 
             // 有效期显示
             const expireText = isPermanent ? '永久有效' : formatTime(data.expire_at);
@@ -752,6 +790,8 @@
             document.getElementById('editCount').value = data.count || 10;
             document.getElementById('editRun').value = data.runauth || '0';
             document.getElementById('editReader').value = data.more_reader_auth || '0';
+            document.getElementById('editSchedule').value = data.scheduled_task_auth || '0';
+            document.getElementById('edit3dview').value = data.threed_view_auth || '0';
 
             // 计算剩余天数作为默认值
             const dl = daysLeft(data.expire_at);
@@ -783,6 +823,8 @@
                 const newCount = parseInt(document.getElementById('editCount').value) || data.count;
                 const newRun = document.getElementById('editRun').value;
                 const newReader = document.getElementById('editReader').value;
+                const newSchedule = document.getElementById('editSchedule').value;
+                const new3dview = document.getElementById('edit3dview').value;
                 const newExpireDays = parseInt(document.getElementById('editExpireDays').value);
 
                 // 构造更新后的数据，保留 devices 和 created_at
@@ -799,6 +841,8 @@
                     count: newCount,
                     runauth: newRun,
                     more_reader_auth: newReader,
+                    scheduled_task_auth: newSchedule,
+                    threed_view_auth: new3dview,
                     expire_at: newExpireAt,
                 };
 
