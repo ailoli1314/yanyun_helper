@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🃏 德扑惩罚换算器</title>
+<style>
+  :root {
+    --bg-1: #1e1e2e;
+    --bg-2: #2d3436;
+    --bg-3: #15151f;
+    --card: rgba(255, 255, 255, 0.04);
+    --card-hover: rgba(255, 255, 255, 0.08);
+    --card-active: rgba(108, 92, 231, 0.25);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-active: rgba(108, 92, 231, 0.6);
+    --text: #dfe6e9;
+    --text-muted: #b2bec3;
+    --text-dim: #636e72;
+    --primary: #6c5ce7;
+    --primary-light: #a29bfe;
+    --accent: #00cec9;
+    --accent-light: #81ecec;
+    --gold: #fdcb6e;
+    --danger: #fd79a8;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; }
+
+  /* 头部 */
+  .header { text-align: center; margin-bottom: 28px; }
+  .header h1 {
+    font-size: 1.8rem; font-weight: 700; margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--primary-light) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; letter-spacing: 0.02em;
+  }
+  .header h1::after { content: ' ♠♥♦♣'; opacity: 0.5; font-size: 0.85em; -webkit-text-fill-color: var(--accent); letter-spacing: 0.15em; }
+  .header .subtitle { color: var(--text-muted); font-size: 0.92rem; }
+
+  /* 卡片 */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 18px;
+    backdrop-filter: blur(10px);
+  }
+  .card-title {
+    font-size: 0.78rem; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title::before {
+    content: ''; display: block; width: 4px; height: 14px;
+    background: var(--accent); border-radius: 2px;
+  }
+
+  /* 输入 */
+  .input-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  }
+  .input-group { display: flex; flex-direction: column; gap: 6px; }
+  .input-group label {
+    font-size: 0.82rem; color: var(--text-muted); font-weight: 500;
+  }
+  .input-group input {
+    padding: 12px 14px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: rgba(0, 0, 0, 0.25);
+    color: var(--text); font-size: 1.05rem; font-weight: 600;
+    font-variant-numeric: tabular-nums; transition: all 0.15s;
+    width: 100%;
+  }
+  .input-group input:focus {
+    outline: none; border-color: var(--primary);
+    background: rgba(0, 0, 0, 0.4);
+  }
+  .input-group .hint { font-size: 0.74rem; color: var(--text-dim); }
+
+  /* 滑块 */
+  .slider-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+  .slider-row input[type=range] {
+    flex: 1; -webkit-appearance: none; height: 4px;
+    background: rgba(255,255,255,0.1); border-radius: 2px; outline: none;
+  }
+  .slider-row input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px;
+    background: var(--accent); border-radius: 50%; cursor: pointer;
+    box-shadow: 0 0 0 4px rgba(0, 206, 201, 0.2);
+  }
+  .slider-row .val {
+    min-width: 56px; text-align: right; font-weight: 700;
+    color: var(--accent-light); font-variant-numeric: tabular-nums;
+  }
+
+  /* 动作网格 */
+  .category-section { margin-bottom: 16px; }
+  .category-toggle {
+    font-size: 0.76rem; color: var(--text-muted); font-weight: 600;
+    margin-bottom: 8px; padding: 6px 8px; border-radius: 6px;
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    user-select: none; transition: background 0.15s;
+  }
+  .category-toggle:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+  .category-toggle .chevron {
+    display: inline-block; font-size: 0.62rem; color: var(--text-muted);
+    transition: transform 0.2s; width: 10px; text-align: center;
+  }
+  .category-toggle .cat-text { flex: 1; }
+  .category-section.collapsed .chevron { transform: rotate(-90deg); }
+  .category-section.collapsed .ex-grid { display: none; }
+  .category-toggle .badge {
+    font-size: 0.66rem; padding: 1px 6px; border-radius: 8px;
+    background: rgba(108, 92, 231, 0.18); color: var(--primary-light);
+  }
+  .ex-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+  }
+  @media (min-width: 520px) { .ex-grid { grid-template-columns: repeat(3, 1fr); } }
+  .ex-card {
+    padding: 12px 10px; border-radius: var(--radius-sm);
+    background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+    color: var(--text); font-size: 0.88rem; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; text-align: center;
+    user-select: none; line-height: 1.3;
+  }
+  .ex-card:hover { background: var(--card-hover); }
+  .ex-card.active {
+    background: var(--card-active); border-color: var(--border-active);
+    color: var(--text); transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.2);
+  }
+  .ex-card .ratio { font-size: 0.74rem; color: var(--text-muted); margin-top: 3px; font-weight: 500; }
+  .ex-card.active .ratio { color: var(--accent-light); }
+
+  /* 主结果 */
+  .result-main {
+    text-align: center; padding: 28px 20px; margin-bottom: 14px;
+    background: linear-gradient(135deg, rgba(108, 92, 231, 0.15) 0%, rgba(0, 206, 201, 0.1) 100%);
+    border-radius: var(--radius); border: 1px solid rgba(108, 92, 231, 0.3);
+  }
+  .result-main .label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
+  .result-main .exercise-name { font-size: 1.15rem; color: var(--accent-light); font-weight: 600; margin-bottom: 4px; }
+  .result-main .reps {
+    font-size: 3.5rem; font-weight: 800; line-height: 1.1;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--danger) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin: 6px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-main .reps .unit { font-size: 1.4rem; color: var(--text-muted); -webkit-text-fill-color: var(--text-muted); margin-left: 4px; font-weight: 600; }
+  .result-main .meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; }
+
+  /* 负重表 */
+  .weight-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .weight-table th, .weight-table td {
+    padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border);
+    font-size: 0.92rem;
+  }
+  .weight-table th { color: var(--text-muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .weight-table td.num { text-align: right; font-weight: 700; color: var(--text); }
+  .weight-table tr.highlight td { background: rgba(253, 203, 110, 0.08); }
+  .weight-table tr.highlight td.num { color: var(--gold); font-size: 1.05rem; }
+  .weight-table tr.dim td { color: var(--text-dim); }
+  .weight-table tr.dim td.num { color: var(--text-dim); }
+
+  /* 等价表 */
+  .equiv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .equiv-card {
+    padding: 10px 12px; border-radius: var(--radius-sm);
+    background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.88rem;
+  }
+  .equiv-card .name { color: var(--text-muted); }
+  .equiv-card .val { font-weight: 700; color: var(--accent-light); font-variant-numeric: tabular-nums; }
+
+  /* 公式 */
+  .formula {
+    background: rgba(0,0,0,0.3); border-left: 3px solid var(--accent);
+    padding: 12px 14px; border-radius: var(--radius-sm);
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 0.85rem; color: var(--text-muted); margin: 8px 0;
+    overflow-x: auto; white-space: nowrap;
+  }
+  .formula b { color: var(--accent-light); font-weight: 600; }
+
+  /* Footer */
+  .footer { text-align: center; color: var(--text-dim); font-size: 0.76rem; margin-top: 30px; padding: 0 20px; }
+
+  /* 复制按钮 */
+  .copy-btn {
+    background: rgba(0, 206, 201, 0.15); color: var(--accent-light);
+    border: 1px solid rgba(0, 206, 201, 0.3); padding: 6px 12px;
+    border-radius: var(--radius-sm); cursor: pointer; font-size: 0.78rem;
+    font-weight: 600; transition: all 0.15s;
+  }
+  .copy-btn:hover { background: rgba(0, 206, 201, 0.25); }
+  .copy-btn.copied { background: rgba(0, 206, 201, 0.4); color: #fff; }
+
+  /* tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: 14px; background: rgba(0,0,0,0.3); border-radius: var(--radius-sm); padding: 3px; }
+  .tab {
+    flex: 1; padding: 8px; text-align: center; font-size: 0.85rem;
+    color: var(--text-muted); cursor: pointer; border-radius: 6px;
+    transition: all 0.15s; font-weight: 500;
+  }
+  .tab.active { background: var(--primary); color: #fff; }
+
+  /* 动作示意图 */
+  #demoContainer { padding: 4px 0; }
+  .demo-visual {
+    background: rgba(255,255,255,0.92);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    text-align: center;
+    min-height: 140px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .demo-img {
+    max-width: 100%; max-height: 220px; display: block; margin: 0 auto;
+    object-fit: contain;
+    border-radius: 4px;
+    filter: grayscale(100%) contrast(1.1);
+    background: #fff;
+    padding: 4px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .demo-img-fallback { width: 100%; }
+  .demo-img-fallback svg { width: 100%; height: auto; max-width: 200px; display: block; margin: 0 auto; }
+  .demo-pending {
+    margin-top: 6px; font-size: 0.72rem; color: var(--text-dim);
+    font-style: italic; text-align: center;
+  }
+  .demo-cues {
+    margin-top: 14px; padding: 12px 14px;
+    background: rgba(0,0,0,0.25); border-radius: var(--radius-sm);
+    border-left: 3px solid var(--accent);
+  }
+  .demo-cues h4 {
+    font-size: 0.78rem; color: var(--accent-light); margin-bottom: 8px;
+    text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;
+  }
+  .demo-cues ul { list-style: none; padding: 0; margin: 0; }
+  .demo-cues li {
+    font-size: 0.86rem; color: var(--text); padding: 3px 0 3px 16px;
+    position: relative; line-height: 1.5;
+  }
+  .demo-cues li::before {
+    content: '▸'; position: absolute; left: 0; top: 3px;
+    color: var(--accent); font-size: 0.8rem;
+  }
+  .demo-meta {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;
+    font-size: 0.74rem; color: var(--text-dim);
+  }
+  .demo-meta .chip {
+    padding: 3px 8px; border-radius: 10px;
+    background: rgba(108, 92, 231, 0.12); color: var(--primary-light);
+  }
+  .demo-meta .chip.warn { background: rgba(253, 121, 168, 0.12); color: var(--danger); }
+  .demo-link {
+    display: inline-block; margin-top: 12px; padding: 8px 14px;
+    background: rgba(0, 206, 201, 0.12); color: var(--accent-light);
+    border-radius: var(--radius-sm); text-decoration: none;
+    font-size: 0.84rem; font-weight: 500;
+    border: 1px solid rgba(0, 206, 201, 0.2);
+    transition: all 0.15s;
+  }
+  .demo-link:hover { background: rgba(0, 206, 201, 0.22); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>🃏 德扑惩罚换算器</h1>
+    <div class="subtitle">10000 积分 = 100 次自重深蹲；其他动作按时间×肌群承受×最小配重换算</div>
+  </div>
+
+  <!-- 输入配置 -->
+  <div class="card">
+    <div class="card-title">个人配置</div>
+    <div class="input-grid">
+      <div class="input-group">
+        <label>体重 (kg)</label>
+        <input type="number" id="bodyweight" value="70" min="30" max="200" step="0.5">
+        <div class="hint">决定负重敏感度</div>
+      </div>
+      <div class="input-group">
+        <label>积分</label>
+        <input type="number" id="points" value="10000" min="1" step="100">
+        <div class="hint">输了多少分</div>
+      </div>
+    </div>
+    <div class="slider-row">
+      <span style="font-size:0.82rem;color:var(--text-muted);">体重</span>
+      <input type="range" id="bwSlider" min="40" max="130" step="0.5" value="70">
+      <span class="val" id="bwSliderVal">70 kg</span>
+    </div>
+  </div>
+
+  <!-- 动作选择 -->
+  <div class="card">
+    <div class="card-title">选择动作</div>
+    <div id="exerciseCategories"></div>
+  </div>
+
+  <!-- 动作示意图 -->
+  <div class="card">
+    <div class="card-title">动作要领</div>
+    <div id="demoContainer"></div>
+  </div>
+
+  <!-- 主结果 -->
+  <div class="result-main">
+    <div class="label">在当前积分下</div>
+    <div class="exercise-name" id="resultExName">无负重深蹲</div>
+    <div class="reps"><span id="resultReps">100</span><span class="unit">次</span></div>
+    <div class="meta" id="resultMeta">无负重 · 70kg 体重</div>
+  </div>
+
+  <!-- 详细负重表 -->
+  <div class="card">
+    <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+      <span>负重递减表</span>
+      <button class="copy-btn" id="copyBtn">复制</button>
+    </div>
+    <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">
+      填入加重（kg），总重 = 最小配重 + 加重；可单独看那一档次数
+    </div>
+    <div class="input-group" style="margin-bottom:14px;">
+      <label>加重（留空=0，加到最小配重上）</label>
+      <input type="number" id="targetWeight" value="0" min="0" step="2.5" placeholder="0">
+    </div>
+    <table class="weight-table" id="weightTable">
+      <thead><tr><th>加重</th><th>总重</th><th>次数</th><th>难度</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- 等价换算 -->
+  <div class="card">
+    <div class="card-title">其他动作等价换算（标准重量下）</div>
+    <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">
+      同一积分在其他动作下要做的次数
+    </div>
+    <div class="equiv-grid" id="equivGrid"></div>
+  </div>
+
+  <!-- 公式说明 -->
+  <div class="card">
+    <div class="card-title">换算依据</div>
+    <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px;">基准次数 = 100 × 时间系数 × 肌群承受系数 × 器械修正；加重 N kg 让次数减半(Prilepin 10% 1RM):</div>
+    <div class="formula">加重后次数 = <b>基准次数 × (积分/10000) ÷ 2<sup>(加重 ÷ 翻倍kg)</sup></b></div>
+    <div class="formula">标准重量 = <b>1RM × 80% = (1RM倍数 × 体重) × 0.80</b></div>
+    <div class="formula">翻倍kg = <b>10% × 1RM = 10% × (1RM倍数 × 体重)</b></div>
+    <div style="font-size:0.78rem;color:var(--text-dim);margin-top:10px;line-height:1.6;">
+      1RM = 该动作能完成 1 次的最大重量。Prilepin 表显示：8RM → 4RM 痛苦翻倍时，重量增加 10% 1RM。<br>
+      • 大肌群（深蹲/硬拉）1RM 约 1.5-2× 体重 → 翻倍 kg 较大<br>
+      • 小肌群（弯举/飞鸟）1RM 约 0.3-0.5× 体重 → 翻倍 kg 较小（片 2.5kg 敏感）<br>
+      • 体重越重，翻倍 kg 越大，自动适配大体重者基础力量
+    </div>
+  </div>
+
+  <div class="footer">
+    德扑之夜专用 · 单文件离线可用 · 提交到 yanyun_helper 仓库
+  </div>
+
+</div>
+
+<script>
+// 动作示例图(29/29 真实图,无 SVG fallback)
+const DEMO_IMAGES = {
+  "squat": "images/barbell_squat.jpg",
+  "squat_jump": "images/barbell_squat.jpg",
+  "smit_squat": "images/barbell_squat.jpg",
+  "deadlift": "images/romanian_deadlift.png",
+  "leg_press": "images/leg_press.jpg",
+  "leg_curl": "images/leg_curl.jpg",
+  "calf": "images/calf_raise.png",
+  "pushup": "images/pushup_psf.png",
+  "pushup_wide": "images/pushup_psf.png",
+  "pushup_dia": "images/pushup_dia_psf.png",
+  "bench_press": "images/bench_press_wiki.jpg",
+  "fly_chest": "images/pec_deck_fly.jpg",       // ⭐ Wikimedia 蝴蝶机夹胸(两侧大衬垫)
+  "pec_deck_press": "images/fly_chest.png",         // ⭐ Wikimedia 推胸机(Butterfly-machine-1 实际是推胸)
+  "dips": "images/dips.jpg",
+  "tri_pushdown": "images/tricep_pushdown.gif",
+  "pullup": "images/pullup.gif",
+  "lat_pulldown": "images/lat_pulldown.jpg",
+  "row": "images/seated_cable_row.jpg",
+  "face_pull": "images/face_pull.png",
+  "curl": "images/barbell_curl.png",
+  "ohp": "images/dumbbell_shoulder_press.jpg",
+  "lateral": "images/lateral_raise.png",
+  "ab_wheel": "images/ab_wheel.jpg",
+  "leg_raise": "images/hanging_leg_raise.png",
+  "jumping_jack": "images/jumping_jack_makeagif.gif",
+  "jumping_rope": "images/jumping_rope.gif",
+  "plank": "images/plank.svg",
+  "wall_sit": "images/wall_sit_gymvisual.gif",
+  "jog": "images/jog.jpg"
+};
+
+// 动作示意图 SVG(每个动作一张)
+const DEMO_SVGS = {
+  "squat": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n<defs><marker id=\"arrowhead\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><polygon points=\"0 0, 6 3, 0 6\" fill=\"#fdcb6e\"/></marker></defs>\n<line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n<line x1=\"100\" y1=\"32\" x2=\"95\" y2=\"75\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<circle cx=\"100\" cy=\"25\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n<line x1=\"95\" y1=\"40\" x2=\"70\" y2=\"50\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"105\" y1=\"40\" x2=\"130\" y2=\"50\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"95\" y1=\"75\" x2=\"80\" y2=\"100\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"95\" y1=\"75\" x2=\"110\" y2=\"100\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"80\" y1=\"100\" x2=\"80\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"110\" y1=\"100\" x2=\"120\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<circle cx=\"100\" cy=\"32\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"100\" cy=\"32\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"95\" cy=\"75\" r=\"2.5\" fill=\"#fdcb6e\"/>\n<circle cx=\"80\" cy=\"100\" r=\"2.5\" fill=\"#fdcb6e\"/>\n<circle cx=\"110\" cy=\"100\" r=\"2.5\" fill=\"#fdcb6e\"/>\n<circle cx=\"70\" cy=\"50\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"130\" cy=\"50\" r=\"2.5\" fill=\"#00cec9\"/>\n<line x1=\"100\" y1=\"65\" x2=\"100\" y2=\"55\" stroke=\"#fdcb6e\" stroke-width=\"1.5\" marker-end=\"url(#arrowhead)\" opacity=\"0.85\"/>\n<text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">膝关节 90°</text>\n</svg>",
+  "squat_jump": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n<defs><marker id=\"arrowhead\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><polygon points=\"0 0, 6 3, 0 6\" fill=\"#fdcb6e\"/></marker></defs>\n<line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n<line x1=\"100\" y1=\"28\" x2=\"100\" y2=\"65\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<circle cx=\"100\" cy=\"20\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n<line x1=\"100\" y1=\"35\" x2=\"75\" y2=\"50\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"100\" y1=\"35\" x2=\"125\" y2=\"50\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"100\" y1=\"65\" x2=\"80\" y2=\"85\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"100\" y1=\"65\" x2=\"120\" y2=\"85\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"80\" y1=\"85\" x2=\"75\" y2=\"95\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"120\" y1=\"85\" x2=\"125\" y2=\"95\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<circle cx=\"100\" cy=\"27\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"100\" cy=\"28\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"100\" cy=\"65\" r=\"2.5\" fill=\"#fdcb6e\"/>\n<circle cx=\"80\" cy=\"85\" r=\"2.5\" fill=\"#fdcb6e\"/>\n<circle cx=\"120\" cy=\"85\" r=\"2.5\" fill=\"#fdcb6e\"/>\n<circle cx=\"75\" cy=\"50\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"125\" cy=\"50\" r=\"2.5\" fill=\"#00cec9\"/>\n<line x1=\"100\" y1=\"90\" x2=\"100\" y2=\"75\" stroke=\"#fdcb6e\" stroke-width=\"1.5\" marker-end=\"url(#arrowhead)\" opacity=\"0.85\"/>\n<text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">离地爆发</text>\n</svg>",
+  "smit_squat": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n<defs><marker id=\"arrowhead\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><polygon points=\"0 0, 6 3, 0 6\" fill=\"#fdcb6e\"/></marker></defs>\n<line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n<line x1=\"100\" y1=\"30\" x2=\"100\" y2=\"75\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<circle cx=\"100\" cy=\"22\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n<line x1=\"100\" y1=\"38\" x2=\"80\" y2=\"50\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"100\" y1=\"38\" x2=\"120\" y2=\"50\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"100\" y1=\"75\" x2=\"80\" y2=\"100\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"100\" y1=\"75\" x2=\"120\" y2=\"100\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"80\" y1=\"100\" x2=\"80\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"120\" y1=\"100\" x2=\"120\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<circle cx=\"100\" cy=\"29\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"100\" cy=\"30\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"100\" cy=\"75\" r=\"2.5\" fill=\"#fdcb6e\"/>\n<circle cx=\"80\" cy=\"100\" r=\"2.5\" fill=\"#fdcb6e\"/>\n<circle cx=\"120\" cy=\"100\" r=\"2.5\" fill=\"#fdcb6e\"/>\n<circle cx=\"80\" cy=\"50\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"120\" cy=\"50\" r=\"2.5\" fill=\"#00cec9\"/>\n<text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">杠铃置于肩</text>\n<line x1=\"60\" y1=\"36\" x2=\"140\" y2=\"36\" stroke=\"#fdcb6e\" stroke-width=\"2.5\" stroke-linecap=\"round\"/><circle cx=\"55\" cy=\"36\" r=\"3\" fill=\"#fdcb6e\"/><circle cx=\"145\" cy=\"36\" r=\"3\" fill=\"#fdcb6e\"/></svg>",
+  "deadlift": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n<defs><marker id=\"arrowhead\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><polygon points=\"0 0, 6 3, 0 6\" fill=\"#fdcb6e\"/></marker></defs>\n<line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n<line x1=\"85\" y1=\"42\" x2=\"110\" y2=\"80\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<circle cx=\"85\" cy=\"35\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n<line x1=\"85\" y1=\"48\" x2=\"95\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"95\" y1=\"48\" x2=\"105\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"110\" y1=\"80\" x2=\"115\" y2=\"105\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"110\" y1=\"80\" x2=\"120\" y2=\"105\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"115\" y1=\"105\" x2=\"115\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"120\" y1=\"105\" x2=\"120\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<circle cx=\"85\" cy=\"42\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"85\" cy=\"42\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"110\" cy=\"80\" r=\"2.5\" fill=\"#fdcb6e\"/>\n<circle cx=\"115\" cy=\"105\" r=\"2.5\" fill=\"#fdcb6e\"/>\n<circle cx=\"120\" cy=\"105\" r=\"2.5\" fill=\"#fdcb6e\"/>\n<circle cx=\"95\" cy=\"115\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"105\" cy=\"115\" r=\"2.5\" fill=\"#00cec9\"/>\n<line x1=\"95\" y1=\"115\" x2=\"95\" y2=\"100\" stroke=\"#fdcb6e\" stroke-width=\"1.5\" marker-end=\"url(#arrowhead)\" opacity=\"0.85\"/>\n<text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">背挺直</text>\n<line x1=\"70\" y1=\"115\" x2=\"120\" y2=\"115\" stroke=\"#fdcb6e\" stroke-width=\"3\" stroke-linecap=\"round\"/><circle cx=\"65\" cy=\"115\" r=\"4\" fill=\"#fdcb6e\"/><circle cx=\"125\" cy=\"115\" r=\"4\" fill=\"#fdcb6e\"/></svg>",
+  "leg_press": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs><marker id=\"arrowhead\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><polygon points=\"0 0, 6 3, 0 6\" fill=\"#fdcb6e\"/></marker></defs>\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <line x1=\"40\" y1=\"55\" x2=\"40\" y2=\"100\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"40\" cy=\"48\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"42\" y1=\"55\" x2=\"75\" y2=\"80\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"75\" cy=\"80\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <line x1=\"75\" y1=\"80\" x2=\"140\" y2=\"75\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"140\" y1=\"75\" x2=\"160\" y2=\"95\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"140\" cy=\"75\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <line x1=\"150\" y1=\"95\" x2=\"180\" y2=\"80\" stroke=\"#fdcb6e\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"150\" cy=\"95\" r=\"3\" fill=\"#fdcb6e\"/>\n  <line x1=\"130\" y1=\"100\" x2=\"155\" y2=\"85\" stroke=\"#fdcb6e\" stroke-width=\"1.5\" marker-end=\"url(#arrowhead)\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">推</text>\n</svg>",
+  "leg_curl": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"35\" cy=\"100\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"40\" y1=\"103\" x2=\"120\" y2=\"103\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"120\" cy=\"103\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <line x1=\"120\" y1=\"103\" x2=\"160\" y2=\"103\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"160\" cy=\"103\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <line x1=\"160\" y1=\"103\" x2=\"170\" y2=\"75\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"170\" y1=\"75\" x2=\"180\" y2=\"75\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <rect x=\"165\" y=\"68\" width=\"20\" height=\"6\" rx=\"2\" fill=\"#fdcb6e\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">勾腿弯起</text>\n</svg>",
+  "calf": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n<defs><marker id=\"arrowhead\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><polygon points=\"0 0, 6 3, 0 6\" fill=\"#fdcb6e\"/></marker></defs>\n<line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n<line x1=\"100\" y1=\"32\" x2=\"100\" y2=\"75\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<circle cx=\"100\" cy=\"25\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n<line x1=\"100\" y1=\"40\" x2=\"85\" y2=\"80\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"100\" y1=\"40\" x2=\"115\" y2=\"80\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"100\" y1=\"75\" x2=\"90\" y2=\"105\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"100\" y1=\"75\" x2=\"110\" y2=\"105\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"90\" y1=\"105\" x2=\"80\" y2=\"100\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<line x1=\"110\" y1=\"105\" x2=\"120\" y2=\"100\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\" fill=\"none\"/>\n<circle cx=\"100\" cy=\"32\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"100\" cy=\"32\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"100\" cy=\"75\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"90\" cy=\"105\" r=\"2.5\" fill=\"#fdcb6e\"/>\n<circle cx=\"110\" cy=\"105\" r=\"2.5\" fill=\"#fdcb6e\"/>\n<circle cx=\"85\" cy=\"80\" r=\"2.5\" fill=\"#00cec9\"/>\n<circle cx=\"115\" cy=\"80\" r=\"2.5\" fill=\"#00cec9\"/>\n<line x1=\"100\" y1=\"95\" x2=\"100\" y2=\"85\" stroke=\"#fdcb6e\" stroke-width=\"1.5\" marker-end=\"url(#arrowhead)\" opacity=\"0.85\"/>\n<text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">踮脚</text>\n</svg>",
+  "pushup": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs><marker id=\"arrowhead\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><polygon points=\"0 0, 6 3, 0 6\" fill=\"#fdcb6e\"/></marker></defs>\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"40\" cy=\"95\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"45\" y1=\"98\" x2=\"155\" y2=\"98\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"50\" cy=\"98\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <circle cx=\"120\" cy=\"98\" r=\"2.5\" fill=\"#00cec9\"/>\n  <line x1=\"50\" y1=\"98\" x2=\"50\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"60\" y1=\"98\" x2=\"60\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"155\" y1=\"98\" x2=\"180\" y2=\"98\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"180\" y1=\"98\" x2=\"185\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n  <line x1=\"75\" y1=\"78\" x2=\"75\" y2=\"92\" stroke=\"#fdcb6e\" stroke-width=\"1.5\" marker-end=\"url(#arrowhead)\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">标准俯卧撑</text>\n</svg>",
+  "pushup_wide": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs><marker id=\"arrowhead\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><polygon points=\"0 0, 6 3, 0 6\" fill=\"#fdcb6e\"/></marker></defs>\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"40\" cy=\"95\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"45\" y1=\"98\" x2=\"155\" y2=\"98\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"50\" cy=\"98\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <circle cx=\"120\" cy=\"98\" r=\"2.5\" fill=\"#00cec9\"/>\n  <line x1=\"50\" y1=\"98\" x2=\"50\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"60\" y1=\"98\" x2=\"60\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"155\" y1=\"98\" x2=\"180\" y2=\"98\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"180\" y1=\"98\" x2=\"185\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n  <line x1=\"75\" y1=\"78\" x2=\"75\" y2=\"92\" stroke=\"#fdcb6e\" stroke-width=\"1.5\" marker-end=\"url(#arrowhead)\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">宽距(胸外沿)</text>\n</svg>",
+  "pushup_dia": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"40\" cy=\"95\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"45\" y1=\"98\" x2=\"155\" y2=\"98\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"50\" cy=\"98\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <circle cx=\"120\" cy=\"98\" r=\"2.5\" fill=\"#00cec9\"/>\n  <line x1=\"50\" y1=\"98\" x2=\"55\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"60\" y1=\"98\" x2=\"55\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <polygon points=\"48,118 55,112 62,118 55,124\" fill=\"none\" stroke=\"#fdcb6e\" stroke-width=\"1.5\"/>\n  <line x1=\"155\" y1=\"98\" x2=\"180\" y2=\"98\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"180\" y1=\"98\" x2=\"185\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">钻石手型</text>\n</svg>",
+  "bench_press": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <line x1=\"30\" y1=\"100\" x2=\"160\" y2=\"100\" stroke=\"#6c5ce7\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"40\" y1=\"100\" x2=\"40\" y2=\"115\" stroke=\"#6c5ce7\" stroke-width=\"2.5\"/>\n  <line x1=\"150\" y1=\"100\" x2=\"150\" y2=\"115\" stroke=\"#6c5ce7\" stroke-width=\"2.5\"/>\n  <circle cx=\"50\" cy=\"92\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"55\" y1=\"95\" x2=\"145\" y2=\"95\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"70\" y1=\"95\" x2=\"75\" y2=\"55\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"130\" y1=\"95\" x2=\"125\" y2=\"55\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"50\" y1=\"50\" x2=\"150\" y2=\"50\" stroke=\"#fdcb6e\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"45\" cy=\"50\" r=\"4\" fill=\"#fdcb6e\"/>\n  <circle cx=\"155\" cy=\"50\" r=\"4\" fill=\"#fdcb6e\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">杠下放至胸上 1-2cm</text>\n</svg>",
+  "ohp": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"100\" cy=\"45\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"100\" y1=\"52\" x2=\"100\" y2=\"90\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" cy=\"55\" x2=\"100\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"55\" x2=\"80\" y2=\"25\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"55\" x2=\"120\" y2=\"25\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"100\" cy=\"90\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <line x1=\"80\" y1=\"115\" x2=\"80\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"120\" y1=\"115\" x2=\"120\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"65\" y1=\"22\" x2=\"135\" y2=\"22\" stroke=\"#fdcb6e\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"60\" cy=\"22\" r=\"3\" fill=\"#fdcb6e\"/>\n  <circle cx=\"140\" cy=\"22\" r=\"3\" fill=\"#fdcb6e\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">推至头顶</text>\n</svg>",
+  "pullup": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs><marker id=\"arrowhead\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><polygon points=\"0 0, 6 3, 0 6\" fill=\"#fdcb6e\"/></marker></defs>\n  <line x1=\"20\" y1=\"20\" x2=\"180\" y2=\"20\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"60\" y1=\"22\" x2=\"65\" y2=\"40\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"140\" y1=\"22\" x2=\"135\" y2=\"40\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"60\" cy=\"22\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <circle cx=\"140\" cy=\"22\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <circle cx=\"100\" cy=\"48\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"100\" y1=\"55\" x2=\"100\" y2=\"100\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"100\" x2=\"90\" y2=\"120\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"100\" x2=\"110\" y2=\"120\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"170\" y1=\"100\" x2=\"170\" y2=\"60\" stroke=\"#fdcb6e\" stroke-width=\"1.5\" marker-end=\"url(#arrowhead)\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">下巴过杠</text>\n</svg>",
+  "dips": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"50\" y1=\"35\" x2=\"50\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"150\" y1=\"35\" x2=\"150\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"20\" y1=\"118\" x2=\"180\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"50\" cy=\"55\" r=\"3\" fill=\"#fdcb6e\"/>\n  <circle cx=\"150\" cy=\"55\" r=\"3\" fill=\"#fdcb6e\"/>\n  <circle cx=\"100\" cy=\"62\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"100\" y1=\"69\" x2=\"100\" y2=\"100\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"100\" x2=\"120\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"100\" x2=\"80\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">身体前倾</text>\n</svg>",
+  "lat_pulldown": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs><marker id=\"arrowhead\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><polygon points=\"0 0, 6 3, 0 6\" fill=\"#fdcb6e\"/></marker></defs>\n  <line x1=\"20\" y1=\"15\" x2=\"180\" y2=\"15\" stroke=\"#dfe6e9\" stroke-width=\"2\"/>\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <line x1=\"40\" y1=\"22\" x2=\"160\" y2=\"22\" stroke=\"#fdcb6e\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n  <line x1=\"60\" y1=\"22\" x2=\"70\" y2=\"55\" stroke=\"#dfe6e9\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <line x1=\"140\" y1=\"22\" x2=\"130\" y2=\"55\" stroke=\"#dfe6e9\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <circle cx=\"100\" cy=\"62\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"100\" y1=\"69\" x2=\"100\" y2=\"100\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"100\" x2=\"155\" y2=\"105\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"155\" y1=\"105\" x2=\"165\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"100\" y1=\"72\" x2=\"70\" y2=\"50\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <line x1=\"100\" y1=\"72\" x2=\"130\" y2=\"50\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <line x1=\"100\" y1=\"30\" x2=\"100\" y2=\"45\" stroke=\"#fdcb6e\" stroke-width=\"1.5\" marker-end=\"url(#arrowhead)\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">拉至锁骨</text>\n</svg>",
+  "row": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <line x1=\"20\" y1=\"15\" x2=\"180\" y2=\"15\" stroke=\"#dfe6e9\" stroke-width=\"2\"/>\n  <circle cx=\"80\" cy=\"50\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"80\" y1=\"57\" x2=\"100\" y2=\"90\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"90\" x2=\"140\" y2=\"100\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <line x1=\"140\" y1=\"100\" x2=\"150\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <circle cx=\"140\" cy=\"100\" r=\"2.5\" fill=\"#00cec9\"/>\n  <line x1=\"85\" y1=\"65\" x2=\"110\" y2=\"80\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"90\" y1=\"70\" x2=\"115\" y2=\"85\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"105\" y1=\"78\" x2=\"120\" y2=\"88\" stroke=\"#fdcb6e\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n  <line x1=\"115\" y1=\"20\" x2=\"115\" y2=\"85\" stroke=\"#dfe6e9\" stroke-width=\"1.5\" opacity=\"0.6\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">顶峰收缩</text>\n</svg>",
+  "fly_chest": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"100\" cy=\"35\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"100\" y1=\"42\" x2=\"100\" y2=\"85\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"48\" x2=\"60\" y2=\"60\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"60\" y1=\"60\" x2=\"40\" y2=\"75\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"48\" x2=\"140\" y2=\"60\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"140\" y1=\"60\" x2=\"160\" y2=\"75\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"100\" cy=\"48\" r=\"3\" fill=\"#fdcb6e\"/>\n  <line x1=\"100\" y1=\"85\" x2=\"90\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <line x1=\"100\" y1=\"85\" x2=\"110\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">微弯肘,胸前合拢</text>\n</svg>",
+  "lateral": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"100\" cy=\"35\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"100\" y1=\"42\" x2=\"100\" y2=\"85\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"48\" x2=\"40\" y2=\"50\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"48\" x2=\"160\" y2=\"50\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"100\" cy=\"48\" r=\"3\" fill=\"#fdcb6e\"/>\n  <rect x=\"32\" y=\"46\" width=\"6\" height=\"10\" rx=\"2\" fill=\"#fdcb6e\"/>\n  <rect x=\"162\" y=\"46\" width=\"6\" height=\"10\" rx=\"2\" fill=\"#fdcb6e\"/>\n  <line x1=\"100\" y1=\"85\" x2=\"90\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <line x1=\"100\" y1=\"85\" x2=\"110\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">抬至与肩平</text>\n</svg>",
+  "face_pull": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"100\" cy=\"35\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"100\" y1=\"42\" x2=\"100\" y2=\"85\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"48\" x2=\"85\" y2=\"30\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"48\" x2=\"115\" y2=\"30\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"85\" y1=\"30\" x2=\"92\" y2=\"38\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"115\" y1=\"30\" x2=\"108\" y2=\"38\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"100\" cy=\"48\" r=\"3\" fill=\"#fdcb6e\"/>\n  <line x1=\"100\" y1=\"85\" x2=\"90\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <line x1=\"100\" y1=\"85\" x2=\"110\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">外旋肩部</text>\n</svg>",
+  "tri_pushdown": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"20\" y1=\"15\" x2=\"180\" y2=\"15\" stroke=\"#dfe6e9\" stroke-width=\"2\"/>\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"100\" cy=\"35\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"100\" y1=\"42\" x2=\"100\" y2=\"85\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"48\" x2=\"90\" y2=\"80\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"48\" x2=\"110\" y2=\"80\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"90\" y1=\"80\" x2=\"88\" y2=\"105\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"110\" y1=\"80\" x2=\"112\" y2=\"105\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"80\" y1=\"105\" x2=\"120\" y2=\"105\" stroke=\"#fdcb6e\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"22\" x2=\"100\" y2=\"48\" stroke=\"#dfe6e9\" stroke-width=\"1.5\" opacity=\"0.5\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">大臂夹紧</text>\n</svg>",
+  "curl": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"100\" cy=\"35\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"100\" y1=\"42\" x2=\"100\" y2=\"85\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"48\" x2=\"80\" y2=\"65\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"80\" y1=\"65\" x2=\"70\" y2=\"45\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"48\" x2=\"120\" y2=\"65\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"120\" y1=\"65\" x2=\"130\" y2=\"45\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"80\" cy=\"65\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <circle cx=\"120\" cy=\"65\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <rect x=\"62\" y=\"40\" width=\"6\" height=\"10\" rx=\"2\" fill=\"#fdcb6e\"/>\n  <rect x=\"132\" y=\"40\" width=\"6\" height=\"10\" rx=\"2\" fill=\"#fdcb6e\"/>\n  <line x1=\"100\" y1=\"85\" x2=\"90\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <line x1=\"100\" y1=\"85\" x2=\"110\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">大臂不动</text>\n</svg>",
+  "ab_wheel": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"45\" cy=\"80\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"50\" y1=\"83\" x2=\"140\" y2=\"83\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"140\" cy=\"83\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <line x1=\"50\" y1=\"83\" x2=\"25\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"22\" cy=\"115\" r=\"6\" fill=\"none\" stroke=\"#fdcb6e\" stroke-width=\"2.5\"/>\n  <circle cx=\"22\" cy=\"115\" r=\"2\" fill=\"#fdcb6e\"/>\n  <line x1=\"140\" y1=\"83\" x2=\"160\" y2=\"83\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <line x1=\"160\" y1=\"83\" x2=\"160\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <line x1=\"160\" y1=\"83\" x2=\"175\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">不塌腰</text>\n</svg>",
+  "leg_raise": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs><marker id=\"arrowhead\" markerWidth=\"6\" markerHeight=\"6\" refX=\"5\" refY=\"3\" orient=\"auto\"><polygon points=\"0 0, 6 3, 0 6\" fill=\"#fdcb6e\"/></marker></defs>\n  <line x1=\"20\" y1=\"20\" x2=\"180\" y2=\"20\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"60\" y1=\"22\" x2=\"65\" y2=\"40\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <line x1=\"140\" y1=\"22\" x2=\"135\" y2=\"40\" stroke=\"#dfe6e9\" stroke-width=\"3\"/>\n  <circle cx=\"60\" cy=\"22\" r=\"2.5\" fill=\"#00cec9\"/>\n  <circle cx=\"140\" cy=\"22\" r=\"2.5\" fill=\"#00cec9\"/>\n  <circle cx=\"100\" cy=\"48\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"100\" y1=\"55\" x2=\"100\" y2=\"80\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"100\" cy=\"80\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <line x1=\"100\" y1=\"80\" x2=\"60\" y2=\"85\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"80\" x2=\"140\" y2=\"85\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"170\" y1=\"100\" x2=\"170\" y2=\"85\" stroke=\"#fdcb6e\" stroke-width=\"1.5\" marker-end=\"url(#arrowhead)\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">腿抬至水平</text>\n</svg>",
+  "plank": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"40\" cy=\"85\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"45\" y1=\"88\" x2=\"155\" y2=\"88\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"45\" y1=\"88\" x2=\"35\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"55\" y1=\"88\" x2=\"45\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"100\" cy=\"88\" r=\"3\" fill=\"#fdcb6e\"/>\n  <line x1=\"155\" y1=\"88\" x2=\"180\" y2=\"88\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"180\" y1=\"88\" x2=\"185\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"40\" y1=\"80\" x2=\"180\" y2=\"80\" stroke=\"#fdcb6e\" stroke-width=\"0.8\" stroke-dasharray=\"2 2\" opacity=\"0.5\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">头-背-腿 一条线</text>\n</svg>",
+  "wall_sit": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <line x1=\"40\" y1=\"20\" x2=\"40\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <text x=\"35\" y=\"100\" text-anchor=\"end\" fill=\"#dfe6e9\" font-size=\"8\" opacity=\"0.6\">墙</text>\n  <circle cx=\"47\" cy=\"35\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"50\" y1=\"42\" x2=\"50\" y2=\"75\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"50\" cy=\"75\" r=\"3\" fill=\"#fdcb6e\"/>\n  <line x1=\"50\" y1=\"75\" x2=\"120\" y2=\"75\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"120\" cy=\"75\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <line x1=\"120\" y1=\"75\" x2=\"120\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">大腿与地面平行</text>\n</svg>",
+  "jumping_jack": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"100\" cy=\"30\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"100\" y1=\"37\" x2=\"100\" y2=\"80\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"40\" x2=\"60\" y2=\"15\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"40\" x2=\"140\" y2=\"15\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"80\" x2=\"75\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"80\" x2=\"125\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"100\" cy=\"80\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <text x=\"100\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">全身协调</text>\n</svg>",
+  "jog": "<svg viewBox=\"0 0 200 140\" xmlns=\"http://www.w3.org/2000/svg\">\n  <line x1=\"10\" y1=\"118\" x2=\"190\" y2=\"118\" stroke=\"#6c5ce7\" stroke-width=\"1\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <circle cx=\"90\" cy=\"25\" r=\"7\" fill=\"none\" stroke=\"#dfe6e9\" stroke-width=\"2.5\"/>\n  <line x1=\"90\" y1=\"32\" x2=\"105\" y2=\"75\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"105\" cy=\"75\" r=\"2.5\" fill=\"#fdcb6e\"/>\n  <line x1=\"95\" y1=\"42\" x2=\"115\" y2=\"55\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"115\" y1=\"55\" x2=\"130\" y2=\"50\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"95\" y1=\"42\" x2=\"70\" y2=\"55\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"70\" y1=\"55\" x2=\"60\" y2=\"45\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"105\" y1=\"75\" x2=\"80\" y2=\"105\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"80\" y1=\"105\" x2=\"70\" y2=\"118\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"105\" y1=\"75\" x2=\"135\" y2=\"100\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"135\" y1=\"100\" x2=\"150\" y2=\"115\" stroke=\"#dfe6e9\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <text x=\"120\" y=\"135\" text-anchor=\"middle\" fill=\"#fdcb6e\" font-size=\"9\" font-weight=\"600\">中等强度</text>\n</svg>"
+};
+
+// 文字要领(每条 1 行)
+const DEMO_CUES = {
+  "squat": [
+    "站距与肩同宽或略宽,脚尖微外八",
+    "下蹲至大腿与地面平行,膝盖与脚尖同向",
+    "全程保持背部挺直,核心收紧",
+    "发力站起时脚跟蹬地,臀部向前推"
+  ],
+  "squat_jump": [
+    "从深蹲位快速爆发跳起",
+    "落地轻柔,膝盖缓冲",
+    "体力消耗大,适合体能好的朋友"
+  ],
+  "smit_squat": [
+    "杠铃置于肩部斜方肌上",
+    "史密斯机导轨固定,新手友好",
+    "下蹲幅度同无负重深蹲"
+  ],
+  "deadlift": [
+    "双脚与髋同宽,杠贴小腿",
+    "屈髋俯身,背部挺直不弓背",
+    "发力时脚跟蹬地,杠沿腿上升",
+    "到顶时臀部夹紧,肩胛后收"
+  ],
+  "leg_press": [
+    "坐在器械上,背贴靠垫",
+    "双脚放在推板上,与髋同宽",
+    "推出至腿微屈,缓慢回放",
+    "膝盖不要锁死"
+  ],
+  "leg_curl": [
+    "俯卧在器械上,膝关节对准轴心",
+    "勾腿弯起至大腿后侧充分收缩",
+    "顶峰停 1 秒,缓慢下放"
+  ],
+  "calf": [
+    "双手持哑铃或扶墙保持平衡",
+    "踮脚至小腿肌肉完全收缩",
+    "顶峰停顿,缓慢下放到底"
+  ],
+  "pushup": [
+    "手位与肩同宽,身体一条直线",
+    "下放至胸部接近地面",
+    "发力推起,肩胛稳定",
+    "核心收紧,不下塌不撅臀"
+  ],
+  "pushup_wide": [
+    "手位比肩宽 1.5 倍",
+    "重点刺激胸肌外沿",
+    "肘部不要过度外展"
+  ],
+  "pushup_dia": [
+    "双手在胸下合并呈钻石形",
+    "重点刺激三头肌和胸中缝",
+    "肘部贴近躯干"
+  ],
+  "bench_press": [
+    "躺凳上,眼睛在杠正下方",
+    "握距略宽于肩,下放至胸上 1-2cm",
+    "推起至手臂伸直但肘不锁死",
+    "肩胛后收下沉,挺胸"
+  ],
+  "fly_chest": [
+    "调整座椅高度,把手与胸齐平",
+    "背贴靠背,双手握两侧把手",
+    "呼气,双手向中间合拢(像拥抱大树)",
+    "顶峰挤压 1-2 秒,胸肌中缝发力",
+    "吸气,缓慢控制回原位(不完全打开)"
+  ],
+  "pec_deck_press": [
+    "坐稳,背贴靠背,握前方把手",
+    "起始位:把手在胸前,肘部弯曲",
+    "呼气,双臂向前推至手臂伸直(肘不锁死)",
+    "吸气,缓慢控制回胸前",
+    "跟卧推类似,但轨迹固定更安全"
+  ],
+  "dips": [
+    "双手撑双杠,身体略前倾",
+    "下放至上臂与地面平行",
+    "发力撑起至手臂伸直",
+    "身体前倾侧重胸,直立侧重三头"
+  ],
+  "tri_pushdown": [
+    "面对器械,大臂夹紧躯干",
+    "用前臂下压至手臂完全伸直",
+    "顶峰挤压三头 1 秒",
+    "缓慢回放,大臂不动"
+  ],
+  "pullup": [
+    "正握横杠(掌心朝前),握距比肩宽",
+    "发力将下巴拉过横杠",
+    "缓慢下放至手臂完全伸直",
+    "不要摆动借力"
+  ],
+  "lat_pulldown": [
+    "坐稳,大腿卡在垫下",
+    "正握横杠,握距比肩宽",
+    "下拉至横杠触及锁骨",
+    "顶峰收缩背阔肌 1 秒"
+  ],
+  "row": [
+    "坐稳,双脚蹬板,膝盖微弯",
+    "挺胸,背部略前倾",
+    "把手拉至腹部,肩胛后收",
+    "缓慢前放至手臂伸直"
+  ],
+  "face_pull": [
+    "面对绳索,双手握住绳两端",
+    "拉向面部,肘高于肩",
+    "外旋肩部,挤压后三角",
+    "康复友好,改善圆肩"
+  ],
+  "curl": [
+    "站姿,双手反握把手",
+    "大臂夹紧躯干,只动前臂",
+    "弯举至二头完全收缩",
+    "缓慢下放,充分拉伸"
+  ],
+  "ohp": [
+    "站姿或坐姿,杠铃置锁骨",
+    "从锁骨位垂直推起至头顶",
+    "手臂伸直但肘不锁死",
+    "核心收紧,不要过度挺腰"
+  ],
+  "lateral": [
+    "站姿,双手持哑铃体侧",
+    "肘微弯,抬至与肩平",
+    "缓慢下放,不要耸肩",
+    "小重量多次数,三角肌中束"
+  ],
+  "ab_wheel": [
+    "跪姿,双手握轮",
+    "缓慢前滚至身体接近水平",
+    "核心发力收回,腰部不塌",
+    "新手退阶:只滚小幅"
+  ],
+  "leg_raise": [
+    "悬挂单杠,手臂伸直",
+    "双腿并拢抬起至水平",
+    "顶峰挤压腹肌 1 秒",
+    "缓慢下放,不要摇摆"
+  ],
+  "jumping_jack": [
+    "站姿开始,双脚跳开同时双臂上举",
+    "再跳回起始位,双臂下落",
+    "保持节奏连贯,落地轻盈",
+    "有氧热身,关节友好"
+  ],
+  "jumping_rope": [
+    "手柄握紧,绳长调到腋下高度",
+    "大臂夹紧身侧,用手腕发力",
+    "跳起高度 2-3cm 让绳通过即可",
+    "落地轻柔,前脚掌着地",
+    "初学先练 100 次/组,熟练后提速"
+  ],
+  "plank": [
+    "前臂和脚尖撑地",
+    "身体一条直线,头-背-腿",
+    "臀部不翘不塌,核心收紧",
+    "坚持到发抖为止,休息 30s 再来"
+  ],
+  "wall_sit": [
+    "背贴墙,双脚向前迈出",
+    "下滑至大腿与地面平行",
+    "膝盖在脚正上方,90° 弯曲",
+    "坚持到股四头发抖"
+  ],
+  "jog": [
+    "中等速度,能说话的程度",
+    "前脚掌或全脚掌着地",
+    "手臂自然前后摆动",
+    "适合热身或减脂,非力量"
+  ]
+};
+
+// 动作数据库
+// 1RM = ratio × 体重(标准训练男性参考)
+// base = 力量标准组 reps(10 reps @ 80% 1RM, Prilepin 区间); 有氧/时间动作 base=MET 法
+// 翻倍 kg = 10% × 1RM (Prilepin 8RM→4RM 翻倍)
+// 基准次数 = 10000 积分无负重时该动作的次数（基于 MET 系数换算）
+const EXERCISES = [
+    { id: 'squat', name: '无负重深蹲', cat: '下肢', ratio: 1.5, base: 100, minWeight: 0, standardPct: 0.8, note: '标准组 70kg 1RM×80%' },
+    { id: 'squat_jump', name: '跳跃深蹲', cat: '下肢', ratio: 1.5, base: 80, minWeight: 0, standardPct: 0.8, note: '爆发力版本' },
+    { id: 'smit_squat', name: '史密斯深蹲', cat: '下肢', ratio: 1.5, base: 80, minWeight: 20, standardPct: 0.8, note: '含空杠20kg', decayDivisor: 2.0 },
+    { id: 'deadlift', name: '硬拉', cat: '下肢', ratio: 2.0, base: 50, minWeight: 20, standardPct: 0.8, note: '最大复合动作', decayDivisor: 2.0 },
+    { id: 'leg_press', name: '腿举', cat: '下肢', ratio: 2.0, base: 90, minWeight: 5, standardPct: 0.8, note: '可加大量', decayDivisor: 3.0 },
+    { id: 'leg_curl', name: '腿弯举', cat: '下肢', ratio: 0.6, base: 80, minWeight: 5, standardPct: 0.8, note: '腘绳' },
+    { id: 'calf', name: '提踵(小腿)', cat: '下肢', ratio: 1.5, base: 120, minWeight: 2.5, standardPct: 0.8, note: '哑铃增重' },
+    { id: 'pushup', name: '俯卧撑', cat: '胸/三头', ratio: 1.0, base: 100, minWeight: 0, standardPct: 0.8, note: '可背杠' },
+    { id: 'pushup_wide', name: '宽距俯卧撑', cat: '胸/三头', ratio: 1.0, base: 90, minWeight: 0, standardPct: 0.8, note: '胸外沿' },
+    { id: 'pushup_dia', name: '钻石俯卧撑', cat: '胸/三头', ratio: 1.0, base: 70, minWeight: 0, standardPct: 0.8, note: '三头多' },
+    { id: 'bench_press', name: '史密斯卧推', cat: '胸/三头', ratio: 1.0, base: 60, minWeight: 20, standardPct: 0.8, note: '含空杠', decayDivisor: 1.5 },
+    { id: 'fly_chest', name: '蝴蝶机夹胸', cat: '胸/三头', ratio: 0.5, base: 80, minWeight: 6, standardPct: 0.8, note: '两侧向中间合拢' },
+    { id: 'pec_deck_press', name: '蝴蝶机推胸', cat: '胸/三头', ratio: 0.5, base: 70, minWeight: 6, standardPct: 0.8, note: '坐姿前推', decayDivisor: 2.0 },
+    { id: 'dips', name: '双杠臂屈伸', cat: '胸/三头', ratio: 1.0, base: 35, minWeight: 0, standardPct: 0.8, note: '可腰挂' },
+    { id: 'tri_pushdown', name: '三头肌下压', cat: '胸/三头', ratio: 0.4, base: 90, minWeight: 2.5, standardPct: 0.8, note: '小肌群' },
+    { id: 'pullup', name: '引体向上', cat: '背/二头', ratio: 1.0, base: 25, minWeight: 0, standardPct: 0.8, note: '可腰挂' },
+    { id: 'lat_pulldown', name: '高位下拉', cat: '背/二头', ratio: 1.0, base: 80, minWeight: 2.5, standardPct: 0.8, note: '插片', decayDivisor: 3.0 },
+    { id: 'row', name: '坐姿划船', cat: '背/二头', ratio: 1.0, base: 80, minWeight: 2.5, standardPct: 0.8, note: '顶峰收缩', decayDivisor: 3.0 },
+    { id: 'face_pull', name: '面拉', cat: '背/二头', ratio: 0.3, base: 100, minWeight: 2.5, standardPct: 0.8, note: '后三角' },
+    { id: 'curl', name: '拉力器弯举', cat: '背/二头', ratio: 0.4, base: 90, minWeight: 2.5, standardPct: 0.8, note: '二头' },
+    { id: 'ohp', name: '肩推', cat: '肩', ratio: 0.6, base: 35, minWeight: 20, standardPct: 0.8, note: '小肌群敏感', decayDivisor: 1.5 },
+    { id: 'lateral', name: '侧平举', cat: '肩', ratio: 0.3, base: 90, minWeight: 2.5, standardPct: 0.8, note: '三角肌中束' },
+    { id: 'ab_wheel', name: '腹肌轮', cat: '核心', ratio: 0.0, base: 50, minWeight: 0, standardPct: 0.8, note: '不靠增重' },
+    { id: 'leg_raise', name: '悬垂举腿', cat: '核心', ratio: 0.0, base: 60, minWeight: 0, standardPct: 0.8, note: '腰挂加重' },
+    { id: 'jumping_jack', name: '开合跳', cat: '有氧', ratio: 0.0, base: 156, minWeight: 0, note: '纯有氧' },
+    { id: 'jumping_rope', name: '跳绳', cat: '有氧', ratio: 0.0, base: 203, minWeight: 0, note: '协调+心肺' },
+    { id: 'plank', name: '平板支撑', cat: '时间', ratio: 0.0, base: 417, minWeight: 0, time: true, note: '秒为单位' },
+    { id: 'wall_sit', name: '靠墙静蹲', cat: '时间', ratio: 0.0, base: 357, minWeight: 0, time: true, note: '秒为单位' },
+    { id: 'jog', name: '慢跑(6km/h)', cat: '时间', ratio: 0.0, base: 210, minWeight: 0, time: true, note: '约3.5分钟' }
+];
+
+// 把片重量取整到 2.5 的倍数，最小 2.5
+function roundPlate(kg) {
+  if (kg <= 0) return 0;
+  if (kg < 2.5) return 2.5;
+  return Math.round(kg / 2.5) * 2.5;
+}
+
+// 计算翻倍 kg
+function doubleKg(ex, bw) {
+  if (ex.ratio === 0) return 0;  // 无负重概念的动作
+  return roundPlate(0.10 * ex.ratio * bw);
+}
+
+// 计算指定负重下的次数
+function calcReps(ex, points, bw, weight) {
+  const dbl = doubleKg(ex, bw);
+  const base = ex.base * (points / 10000);
+  const addW = Number(weight || 0);
+  if (dbl === 0 || addW === 0) return Math.max(1, Math.round(base));
+
+  // 小肌群/孤立动作按 Prilepin 正常衰减；大肌群/插片器械用更缓的衰减曲线。
+  // decayDivisor=1: 正常；1.5-3: 加重后次数下降更慢，避免高位下拉 36.5kg 这种中等重量被压到 3 次。
+  const decayDivisor = ex.decayDivisor || 1;
+  const reps = base / Math.pow(2, addW / (dbl * decayDivisor));
+  return Math.max(1, Math.round(reps));
+}
+
+// 状态
+const state = {
+  bw: 70,
+  points: 10000,
+  exId: 'squat',
+  weight: 0,
+};
+
+function getOpenCats() {
+  return new Set(Array.from(document.querySelectorAll('.category-section'))
+    .filter(sec => !sec.classList.contains('collapsed'))
+    .map(sec => sec.dataset.cat));
+}
+
+function refreshActiveExerciseCard() {
+  document.querySelectorAll('.ex-card').forEach(card => {
+    card.classList.toggle('active', card.dataset.id === state.exId);
+  });
+}
+
+// 渲染动作分类
+function renderExercises(openCats = null) {
+  const cats = {};
+  EXERCISES.forEach(ex => {
+    if (!cats[ex.cat]) cats[ex.cat] = [];
+    cats[ex.cat].push(ex);
+  });
+
+  const html = Object.keys(cats).map(cat => {
+    const items = cats[cat].map(ex => {
+      const active = ex.id === state.exId ? 'active' : '';
+      const dbl = doubleKg(ex, state.bw);
+      const dblTxt = dbl > 0 ? `翻倍 ${dbl}kg` : '无负重';
+      return `<div class="ex-card ${active}" data-id="${ex.id}">
+        <div>${ex.name}</div>
+        <div class="ratio">${dblTxt}</div>
+      </div>`;
+    }).join('');
+    // 默认全部收起；如果传入 openCats，则保留用户已经展开的分组
+    const collapsed = !openCats || !openCats.has(cat);
+    const collapsedCls = collapsed ? ' collapsed' : '';
+    const chevron = collapsed ? '▶' : '▼';
+    return `<div class="category-section${collapsedCls}" data-cat="${cat}">
+      <div class="category-toggle" data-cat="${cat}">
+        <span class="chevron">${chevron}</span>
+        <span class="cat-text">${cat}</span>
+        <span class="badge">${cats[cat].length} 项</span>
+      </div>
+      <div class="ex-grid">${items}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('exerciseCategories').innerHTML = html;
+
+  // 绑定动作卡片点击
+  document.querySelectorAll('.ex-card').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      state.exId = el.dataset.id;
+      const ex = EXERCISES.find(e => e.id === state.exId);
+      if (ex.time) state.weight = 0;
+      refreshActiveExerciseCard();
+      renderResult();
+      renderDemo();
+      renderWeightTable();
+      renderEquiv();
+    });
+  });
+
+  // 绑定分类折叠
+  document.querySelectorAll('.category-toggle').forEach(el => {
+    el.addEventListener('click', () => {
+      const sec = el.closest('.category-section');
+      const collapsed = sec.classList.toggle('collapsed');
+      el.querySelector('.chevron').textContent = collapsed ? '▶' : '▼';
+    });
+  });
+}
+
+// 渲染主结果(v5:0 加重 = minWeight,base 重设为 minWeight 痛苦量)
+function renderResult() {
+  const ex = EXERCISES.find(e => e.id === state.exId);
+  const reps = calcReps(ex, state.points, state.bw, state.weight);
+  const unit = ex.time ? '秒' : '次';
+  const oneRm = ex.ratio * state.bw;
+  const minW = ex.minWeight || 0;
+  const addWeight = state.weight;
+  const baseReps = calcReps(ex, 10000, state.bw, 0);
+  const isSelfweight = minW === 0 && ex.ratio >= 0.7;  // 大肌群自重类
+
+  let titleText = ex.name;
+  if (ex.ratio > 0 && !ex.time) {
+    if (addWeight > 0) {
+      // 加重: 总 = minW + add
+      titleText = `${ex.name} ${minW + addWeight}kg`;
+    } else if (isSelfweight) {
+      titleText = `${ex.name} 自重${state.bw}kg`;
+    } else {
+      titleText = `${ex.name} ${minW}kg`;
+    }
+  }
+  document.getElementById('resultExName').textContent = titleText;
+  document.getElementById('resultReps').textContent = reps;
+  document.querySelector('.result-main .reps .unit').textContent = unit;
+
+  let meta = `${state.points.toLocaleString()} 积分 · 10000积分≈${baseReps}${unit}`;
+  if (ex.ratio > 0 && !ex.time) {
+    meta += ` · 1RM≈${Math.round(oneRm)}kg`;
+    if (addWeight > 0) {
+      meta += ` · 加重${addWeight}kg(总${minW + addWeight}kg)`;
+    } else if (!isSelfweight && minW > 0) {
+      meta += ` · 最小配重${minW}kg`;
+    }
+  } else if (ex.time) {
+    meta += ' · 时间类';
+  } else {
+    meta += ` · ${ex.cat}`;
+  }
+  document.getElementById('resultMeta').textContent = meta;
+}
+
+// 渲染负重表(v5:加重从 minWeight 起算,Prilepin 翻倍)
+function renderWeightTable() {
+  const ex = EXERCISES.find(e => e.id === state.exId);
+  const tbody = document.querySelector('#weightTable tbody');
+  const dbl = doubleKg(ex, state.bw);
+  const minW = ex.minWeight || 0;
+
+  if (ex.ratio === 0 && ex.time) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:20px;">时间类按秒计</td></tr>`;
+    return;
+  }
+  if (ex.ratio === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:20px;">自重/有氧类,无加重</td></tr>`;
+    return;
+  }
+
+  // 加重档位:从 minWeight 起算,按 dbl 步进
+  const adds = [];
+  if (minW > 0) adds.push(0);  // 0 加重 = minW(默认配重)
+  for (let i = 0.5; i <= 6; i += 0.5) {
+    const w = Math.round(dbl * i * 2) / 2;
+    if (w + minW > ex.ratio * state.bw * 1.2) break;
+    adds.push(w);
+  }
+
+  const rows = adds.map(addW => {
+    const reps = calcReps(ex, state.points, state.bw, addW);
+    const baseReps = calcReps(ex, 10000, state.bw, 0);
+    const ratio = reps / baseReps;
+    let diff = '';
+    if (addW === 0) diff = '基准';
+    else if (ratio < 0.05) diff = '接近力竭';
+    else {
+      const n = Math.log2(1 / ratio);
+      diff = `× ${n.toFixed(1)} 翻`;
+    }
+    const isTarget = (state.weight === addW);
+    const cls = isTarget ? 'highlight' : (addW > 0 && reps <= 1 ? 'dim' : '');
+    const realW = minW + addW;
+    const addTxt = addW === 0 ? `${minW}kg` : `+${addW}kg`;
+    return `<tr class="${cls}">
+      <td style="font-weight:700;color:${addW===0?'var(--accent)':'var(--text)'};">${addTxt}</td>
+      <td class="num" style="font-weight:600;">${realW}kg</td>
+      <td class="num">${reps}${ex.time ? '秒' : '次'}</td>
+      <td style="color:var(--text-dim);font-size:0.84rem;">${diff}</td>
+    </tr>`;
+  }).join('');
+
+  tbody.innerHTML = rows;
+}
+
+// 渲染等价换算
+function renderEquiv() {
+  const ex = EXERCISES.find(e => e.id === state.exId);
+  const grid = document.getElementById('equivGrid');
+  const others = EXERCISES.filter(e => e.id !== ex.id);
+
+  grid.innerHTML = others.map(o => {
+    const reps = calcReps(o, state.points, state.bw, 0);
+    return `<div class="equiv-card">
+      <span class="name">${o.name}</span>
+      <span class="val">${reps} ${o.time ? '秒' : '次'}</span>
+    </div>`;
+  }).join('');
+}
+
+
+// 渲染动作示意图 + 文字要领
+function renderDemo() {
+  const ex = EXERCISES.find(e => e.id === state.exId);
+  const container = document.getElementById('demoContainer');
+  const imgPath = DEMO_IMAGES[ex.id];
+  const svgFallback = DEMO_SVGS[ex.id] || '<svg viewBox="0 0 200 140"><text x="100" y="70" text-anchor="middle" fill="#636e72">暂无示意图</text></svg>';
+  const cues = DEMO_CUES[ex.id] || ['暂无文字要领'];
+  const dbl = doubleKg(ex, state.bw);
+  const dblTxt = dbl > 0 ? `翻倍 ${dbl}kg` : '自重/时间类';
+  const link = `https://www.bilibili.com/search?keyword=${encodeURIComponent(ex.name + ' 健身')}`;
+
+  // 优先用真实图,缺位走 SVG
+  const visual = imgPath
+    ? `<img class="demo-img" src="${imgPath}" alt="${ex.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+       <div class="demo-img-fallback" style="display:none">${svgFallback}</div>`
+    : `<div class="demo-img-fallback">${svgFallback}<div class="demo-pending">⏳ 待补真实图</div></div>`;
+
+  container.innerHTML = `
+    <div class="demo-visual">${visual}</div>
+    <div class="demo-cues">
+      <h4>动作要领</h4>
+      <ul>${cues.map(c => `<li>${c}</li>`).join('')}</ul>
+    </div>
+    <div class="demo-meta">
+      <span class="chip">目标:${ex.cat}</span>
+      <span class="chip">${dblTxt}</span>
+      <span class="chip">1RM ${ex.ratio}× 体重</span>
+      ${ex.time ? '<span class="chip warn">时间类</span>' : ''}
+    </div>
+    <a class="demo-link" href="${link}" target="_blank" rel="noopener">📺 B 站搜 "${ex.name}" 视频教程</a>
+  `;
+}
+
+function renderAll(options = {}) {
+  const openCats = options.preserveOpen ? getOpenCats() : null;
+  renderExercises(openCats);
+  renderResult();
+  renderDemo();
+  renderWeightTable();
+  renderEquiv();
+}
+
+// 事件绑定
+document.getElementById('bodyweight').addEventListener('input', e => {
+  const v = parseFloat(e.target.value) || 70;
+  state.bw = v;
+  document.getElementById('bwSlider').value = Math.min(130, Math.max(40, v));
+  document.getElementById('bwSliderVal').textContent = v + ' kg';
+  renderAll({ preserveOpen: true });
+});
+document.getElementById('points').addEventListener('input', e => {
+  state.points = Math.max(1, parseInt(e.target.value) || 10000);
+  renderAll({ preserveOpen: true });
+});
+document.getElementById('bwSlider').addEventListener('input', e => {
+  const v = parseFloat(e.target.value);
+  state.bw = v;
+  document.getElementById('bodyweight').value = v;
+  document.getElementById('bwSliderVal').textContent = v + ' kg';
+  renderAll({ preserveOpen: true });
+});
+document.getElementById('targetWeight').addEventListener('input', e => {
+  state.weight = parseFloat(e.target.value) || 0;
+  renderResult();
+  renderWeightTable();
+});
+
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const ex = EXERCISES.find(e => e.id === state.exId);
+  const reps = calcReps(ex, state.points, state.bw, state.weight);
+  const wTxt = state.weight > 0 ? `负重 ${state.weight}kg` : '无负重';
+  const unit = ex.time ? '秒' : '次';
+  const txt = `🃏 ${ex.name} × ${reps}${unit} (${wTxt} · ${state.points}积分 · ${state.bw}kg)`;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ 已复制';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 1500);
+  });
+});
+
+// 初始化
+renderAll();
+</script>
+</body>
+</html>
