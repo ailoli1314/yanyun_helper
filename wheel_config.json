@@ -1,63 +1,6 @@
 {
   "wheels": [
     {
-      "id": "wheel_snack",
-      "title": "零食转盘",
-      "description": "今天吃什么零食",
-      "options": [
-        {
-          "id": 1,
-          "name": "薯片",
-          "votes": 0
-        },
-        {
-          "id": 2,
-          "name": "饼干",
-          "votes": 0
-        },
-        {
-          "id": 3,
-          "name": "巧克力",
-          "votes": 0
-        },
-        {
-          "id": 4,
-          "name": "坚果",
-          "votes": 0
-        },
-        {
-          "id": 5,
-          "name": "酸奶",
-          "votes": 0
-        },
-        {
-          "id": 6,
-          "name": "水果",
-          "votes": 0
-        },
-        {
-          "id": 7,
-          "name": "糖果",
-          "votes": 0
-        },
-        {
-          "id": 8,
-          "name": "蛋糕",
-          "votes": 0
-        },
-        {
-          "id": 9,
-          "name": "冰淇淋",
-          "votes": 0
-        },
-        {
-          "id": 10,
-          "name": "爆米花",
-          "votes": 0
-        }
-      ]
-    },
-    {
       "id": "wheel_1782297398268",
       "title": "德扑之夜-技能大转盘",
       "options": [
