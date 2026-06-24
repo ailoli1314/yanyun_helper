@@ -317,6 +317,34 @@
             white-space: nowrap;
         }
         .create-wheel-section button:hover { background: #218838; }
+
+        /* ===== Toast 提示 ===== */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            max-width: 400px;
+            background: #333;
+            color: #fff;
+            border-radius: 8px;
+            padding: 12px 20px;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            font-size: 14px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+            word-break: break-word;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .toast.success { background: #28a745; }
+        .toast.error { background: #ff6b6b; }
     </style>
 </head>
 <body>
@@ -378,7 +406,7 @@
 
     <script>
         // ============ 常量 ============
-        var REPO = 'v_zhangguibin/yanyun_helper';
+        var REPO = 'ailoli1314/yanyun_helper';
         var TOKEN_KEY='gh_token_workout';  // 和 workout_today.html 共用 cookie
         var CONFIG_FILE = 'wheel_config.json';
         var VOTES_FILE = 'wheel_votes.json';
@@ -472,8 +500,9 @@
                 body: JSON.stringify(body)
             });
             if (!res.ok) {
-                var err = await res.json();
-                throw new Error(err.message || res.status);
+                var errText = '';
+                try { var err = await res.json(); errText = err.message || err.error; } catch(e) {}
+                throw new Error('HTTP ' + res.status + (errText ? ': ' + errText : ''));
             }
             return await res.json();
         }
@@ -595,8 +624,11 @@
                 hasVotesChange = false;
                 updateCommitBtn();
                 setStatus('\u2714 \u4FEE\u6539\u5DF2\u63D0\u4EA4\u5230 GitHub');
+                showToast('\u2714 \u63D0\u4EA4\u6210\u529F', 'success');
             } catch (e) {
-                setStatus('\u2718 \u63D0\u4EA4\u5931\u8D25: ' + e.message, 'error');
+                var errMsg = '\u2718 \u63D0\u4EA4\u5931\u8D25: ' + e.message;
+                setStatus(errMsg, 'error');
+                showToast(errMsg, 'error');
                 updateCommitBtn();
             } finally {
                 btn.classList.remove('loading');
@@ -608,6 +640,16 @@
             var el = document.getElementById('statusText');
             el.textContent = msg;
             el.className = 'status-text' + (type === 'error' ? ' error' : '');
+        }
+
+        function showToast(msg, type) {
+            var el = document.getElementById('toast');
+            el.textContent = msg;
+            el.className = 'toast ' + (type || '') + ' show';
+            clearTimeout(el._timer);
+            el._timer = setTimeout(function() {
+                el.className = 'toast';
+            }, 4000);
         }
 
         function getTopVotedOptions(wheelId) {
@@ -910,5 +952,6 @@
 
         init();
     </script>
+    <div class="toast" id="toast"></div>
 </body>
 </html>
