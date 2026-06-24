@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 大转盘 - 随机选择器</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+        .container.show-settings {
+            grid-template-columns: 1fr 1fr;
+        }
+        @media (max-width: 768px) {
+            .container.show-settings { grid-template-columns: 1fr; }
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .panel {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .wheel-selector {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        canvas { display: block; width: 100%; height: auto; }
+
+        .spin-btn {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: 4px solid white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        .spin-btn:hover { transform: translate(-50%,-50%) scale(1.1); }
+        .spin-btn:active { transform: translate(-50%,-50%) scale(0.95); }
+        .spin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .result {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            min-height: 36px;
+        }
+
+        /* ===== 右侧设置面板 ===== */
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0;
+        }
+        .panel-header h2 {
+            color: #667eea;
+            margin: 0;
+        }
+
+        .settings-toggle-btn {
+            background: none;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 14px;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .settings-toggle-btn:hover { background: #667eea; color: white; }
+
+        .settings-panel {
+            display: none;
+        }
+        .settings-panel.open {
+            display: block;
+        }
+
+        .add-option {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+        .add-option input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .add-option input:focus { outline: none; border-color: #667eea; }
+        .add-option button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .add-option button:hover { background: #5568d3; }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 340px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+        }
+
+        .option-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+        .option-item:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .option-item.in-wheel { border-left: 4px solid #4ECDC4; }
+        .option-item.not-in-wheel { border-left: 4px solid #ccc; opacity: 0.7; }
+
+        .option-name {
+            flex: 1;
+            font-weight: 500;
+            margin-right: 8px;
+            word-break: break-word;
+            font-size: 14px;
+        }
+        .option-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .vote-btn {
+            background: #ffd700;
+            color: #333;
+            border: none;
+            border-radius: 20px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: transform 0.2s;
+            min-width: 50px;
+            justify-content: center;
+        }
+        .vote-btn:hover { transform: scale(1.1); }
+        .vote-btn.voted { background: #ff6b6b; color: white; }
+        .vote-btn .vote-count { font-weight: bold; min-width: 16px; }
+
+        .option-rank {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            font-size: 12px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-right: 8px;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 26px; height: 26px;
+            cursor: pointer;
+            font-size: 15px;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .delete-btn:hover { background: #e55a5a; }
+
+        /* ===== action bar ===== */
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 12px;
+            padding: 12px 0;
+            border-top: 2px solid #eee;
+        }
+        .action-bar .status-text {
+            font-size: 13px;
+            color: #666;
+            flex: 1;
+        }
+        .action-bar .status-text.error { color: #ff6b6b; }
+
+        .commit-btn {
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .commit-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        .commit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .commit-btn .spinner {
+            display: none;
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        .commit-btn.loading .spinner { display: inline-block; }
+        .commit-btn.loading .btn-text { opacity: 0.7; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .change-badge {
+            background: #ff6b6b;
+            color: white;
+            border-radius: 12px;
+            padding: 0 8px;
+            font-size: 12px;
+            font-weight: bold;
+            line-height: 20px;
+        }
+        .change-badge.none { background: #28a745; }
+
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #666;
+            padding: 8px 0;
+        }
+
+        .create-wheel-section {
+            display: flex;
+            gap: 10px;
+            padding-top: 12px;
+            border-top: 2px solid #eee;
+        }
+        .create-wheel-section input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .create-wheel-section input:focus { outline: none; border-color: #667eea; }
+        .create-wheel-section button {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .create-wheel-section button:hover { background: #218838; }
+    </style>
+</head>
+<body>
+    <h1>🎰 大转盘随机选择器</h1>
+
+    <div class="container">
+        <!-- 左侧：转盘 -->
+        <div class="panel" style="border-radius: 16px 16px 0 0;">
+            <div class="panel-header" style="margin-bottom:15px;">
+                <h2 style="font-size:18px;color:#667eea;margin:0;">🎡 大转盘</h2>
+                <button class="settings-toggle-btn" id="settingsToggle" onclick="toggleSettings()">⚙️ 设置</button>
+            </div>
+
+            <select class="wheel-selector" id="wheelSelector" onchange="selectWheel(this.value)"></select>
+
+            <div class="wheel-container">
+                <canvas id="wheelCanvas" width="400" height="400"></canvas>
+                <button class="spin-btn" id="spinBtn">旋转</button>
+            </div>
+
+            <div class="result" id="result">👆 按旋转试试</div>
+        </div>
+
+        <!-- 右侧：转盘设置（默认隐藏） -->
+        <div class="panel settings-panel" id="settingsPanel" style="border-radius: 16px 16px 0 0;">
+            <h2 style="color:#667eea;margin:0 0 16px 0;">⚙️ 转盘设置</h2>
+
+            <div class="settings-body" id="settingsBody">
+                <div class="add-option">
+                    <input type="text" id="newOptionInput" placeholder="选项名称（最多10字）" maxlength="10">
+                    <input type="text" id="newOptionDesc" placeholder="说明（可选）" maxlength="50" style="flex:0.7;">
+                    <button onclick="addOption()">添加</button>
+                </div>
+
+                <div class="options-list" id="optionsList"></div>
+
+                <div class="info-bar">
+                    <span id="optionsCount">共 0 个选项，0 个进入转盘</span>
+                </div>
+
+                <!-- 确认修改 -->
+                <div class="action-bar">
+                    <div class="status-text" id="statusText">暂无修改</div>
+                    <span class="change-badge" id="changeBadge">0</span>
+                    <button class="commit-btn" id="commitBtn" onclick="commitChanges()" disabled>
+                        <span class="spinner"></span>
+                        <span class="btn-text">📤 确认修改</span>
+                    </button>
+                </div>
+
+                <div class="create-wheel-section">
+                    <input type="text" id="newWheelTitle" placeholder="新转盘标题" maxlength="20">
+                    <button onclick="createWheel()" style="background:#28a745;">创建</button>
+                    <button onclick="deleteWheel()" style="background:#ff6b6b;" id="deleteWheelBtn">删除转盘</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ 常量 ============
+        var REPO = 'v_zhangguibin/yanyun_helper';
+        var TOKEN_KEY='gh_token_workout';  // 和 workout_today.html 共用 cookie
+        var CONFIG_FILE = 'wheel_config.json';
+        var VOTES_FILE = 'wheel_votes.json';
+        var MAX_WHEEL_OPTIONS = 10;
+
+        // ============ 状态 ============
+        var wheels = [];
+        var currentWheelId = '';
+        var deviceVotes = {};
+        var deviceId = '';
+        var isSpinning = false;
+        var currentRotation = 0;
+        var hasConfigChange = false;
+        var hasVotesChange = false;
+        var settingsOpen = false;
+
+        // ============ 设备 ID ============
+        function getDeviceId() {
+            var id = localStorage.getItem('wheel_device_id');
+            if (!id) {
+                id = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('wheel_device_id', id);
+            }
+            return id;
+        }
+
+        // ============ Token ============
+        function getToken() {
+            var tok = localStorage.getItem(TOKEN_KEY);
+            if (!tok && window.__gh_token) tok = window.__gh_token;
+            return tok || '';
+        }
+
+        function ensureToken() {
+            var tok = getToken();
+            if (!tok) {
+                tok = prompt('请输入 GitHub Token（用于提交修改到仓库，只会提示一次，之后自动保存）');
+                if (!tok) return '';
+                localStorage.setItem(TOKEN_KEY, tok);
+            }
+            return tok;
+        }
+
+        // ============ GitHub API ============
+        function deb64(str) {
+            try { return decodeURIComponent(escape(atob(str))); }
+            catch (e) { return ''; }
+        }
+
+        function enb64(str) {
+            try { return btoa(unescape(encodeURIComponent(str))); }
+            catch (e) { return null; }
+        }
+
+        function githubAPI(path, opts) {
+            opts = opts || {};
+            opts.headers = opts.headers || {};
+            var tok = getToken();
+            if (tok) opts.headers['Authorization'] = 'token ' + tok;
+            if (!opts.headers['Accept']) opts.headers['Accept'] = 'application/vnd.github.v3+json';
+            return fetch('https://api.github.com/repos/' + REPO + path, opts);
+        }
+
+        async function loadJSON(file) {
+            var r = await githubAPI('/contents/' + file);
+            if (!r.ok) return null;
+            var d = await r.json();
+            return JSON.parse(deb64(d.content));
+        }
+
+        async function pushJSON(file, data, msg) {
+            var tok = ensureToken();
+            if (!tok) throw new Error('需要 Token');
+
+            var sha = null;
+            var r = await githubAPI('/contents/' + file);
+            if (r.ok) {
+                var d = await r.json();
+                sha = d.sha;
+            }
+
+            var b64 = enb64(JSON.stringify(data, null, 2));
+            if (!b64) throw new Error('编码失败');
+
+            var body = { message: msg, content: b64, branch: 'main' };
+            if (sha) body.sha = sha;
+
+            var res = await githubAPI('/contents/' + file, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) {
+                var err = await res.json();
+                throw new Error(err.message || res.status);
+            }
+            return await res.json();
+        }
+
+        // ============ 加载数据 ============
+        async function loadConfig() {
+            var data = await loadJSON(CONFIG_FILE);
+            if (data && data.wheels) {
+                wheels = data.wheels;
+                localStorage.setItem('wheel_config_cache', JSON.stringify({ wheels: wheels }));
+            } else {
+                var cached = localStorage.getItem('wheel_config_cache');
+                if (cached) { wheels = JSON.parse(cached).wheels || []; }
+                else { wheels = defaultConfig(); }
+            }
+        }
+
+        async function loadVotes() {
+            var data = await loadJSON(VOTES_FILE);
+            if (data && data.device_votes) {
+                deviceVotes = data.device_votes;
+                localStorage.setItem('wheel_votes_cache', JSON.stringify({ device_votes: deviceVotes }));
+            } else {
+                var cached = localStorage.getItem('wheel_votes_cache');
+                if (cached) { deviceVotes = JSON.parse(cached).device_votes || {}; }
+                else { deviceVotes = {}; }
+            }
+        }
+
+        function defaultConfig() {
+            return [
+                { id: 'wheel_workout', title: '健身动作大转盘', options: [
+                    { id: 1, name: '深蹲', votes: 0, desc: '' }, { id: 2, name: '卧推', votes: 0, desc: '' },
+                    { id: 3, name: '硬拉', votes: 0, desc: '' }, { id: 4, name: '引体向上', votes: 0, desc: '' },
+                    { id: 5, name: '俯卧撑', votes: 0, desc: '' }
+                ]},
+                { id: 'wheel_snack', title: '零食转盘', options: [
+                    { id: 1, name: '薯片', votes: 0, desc: '' }, { id: 2, name: '巧克力', votes: 0, desc: '' },
+                    { id: 3, name: '坚果', votes: 0, desc: '' }, { id: 4, name: '水果', votes: 0, desc: '' },
+                    { id: 5, name: '冰淇淋', votes: 0, desc: '' }
+                ]}
+            ];
+        }
+
+        // ============ 设置折叠 ============
+        function toggleSettings() {
+            settingsOpen = !settingsOpen;
+            var panel = document.getElementById('settingsPanel');
+            var container = document.getElementsByClassName('container')[0];
+            var btn = document.getElementById('settingsToggle');
+            panel.className = 'panel settings-panel' + (settingsOpen ? ' open' : '');
+            container.className = 'container' + (settingsOpen ? ' show-settings' : '');
+            btn.textContent = settingsOpen ? '✕ 关闭' : '⚙️ 设置';
+        }
+
+        // ============ 变更追踪 ============
+        function markConfigChanged() { hasConfigChange = true; updateCommitBtn(); }
+        function markVotesChanged() { hasVotesChange = true; updateCommitBtn(); }
+
+        function updateCommitBtn() {
+            var btn = document.getElementById('commitBtn');
+            var badge = document.getElementById('changeBadge');
+            var statusText = document.getElementById('statusText');
+            var total = 0;
+            var parts = [];
+            if (hasConfigChange) { total++; parts.push('配置'); }
+            if (hasVotesChange) { total++; parts.push('点赞'); }
+            badge.textContent = total;
+            badge.className = 'change-badge' + (total === 0 ? ' none' : '');
+            btn.disabled = total === 0;
+            if (total === 0) {
+                statusText.textContent = '暂无修改';
+                statusText.className = 'status-text';
+            } else {
+                statusText.textContent = '有 ' + total + ' 项修改待提交（' + parts.join('、') + '）';
+                statusText.className = 'status-text';
+            }
+        }
+
+        // ============ 确认提交 ============
+        async function commitChanges() {
+            var btn = document.getElementById('commitBtn');
+            if (btn.disabled) return;
+
+            var tok = getToken();
+            if (!tok) {
+                tok = prompt('请粘贴 GitHub Token（只需输入一次，本页面所有网页通用）');
+                if (!tok) return;
+                localStorage.setItem(TOKEN_KEY, tok);
+            }
+
+            if (!hasConfigChange && !hasVotesChange) {
+                setStatus('没有需要提交的修改', 'error');
+                return;
+            }
+
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            try {
+                var now = new Date().toLocaleString('zh-CN');
+                var changes = [];
+                if (hasConfigChange) changes.push('配置');
+                if (hasVotesChange) changes.push('点赞');
+                var msg = '\uD83C\uDFB0 \u66F4\u65B0\u8F6C\u76D8' + changes.join('\u3001') + ' - ' + now;
+
+                if (hasConfigChange) {
+                    setStatus('正在提交 ' + CONFIG_FILE + '...');
+                    await pushJSON(CONFIG_FILE, { wheels: wheels }, msg);
+                    localStorage.setItem('wheel_config_cache', JSON.stringify({ wheels: wheels }));
+                }
+                if (hasVotesChange) {
+                    setStatus('正在提交 ' + VOTES_FILE + '...');
+                    await pushJSON(VOTES_FILE, { device_votes: deviceVotes }, msg);
+                    localStorage.setItem('wheel_votes_cache', JSON.stringify({ device_votes: deviceVotes }));
+                }
+
+                hasConfigChange = false;
+                hasVotesChange = false;
+                updateCommitBtn();
+                setStatus('\u2714 \u4FEE\u6539\u5DF2\u63D0\u4EA4\u5230 GitHub');
+            } catch (e) {
+                setStatus('\u2718 \u63D0\u4EA4\u5931\u8D25: ' + e.message, 'error');
+                updateCommitBtn();
+            } finally {
+                btn.classList.remove('loading');
+            }
+        }
+
+        // ============ UI ============
+        function setStatus(msg, type) {
+            var el = document.getElementById('statusText');
+            el.textContent = msg;
+            el.className = 'status-text' + (type === 'error' ? ' error' : '');
+        }
+
+        function getTopVotedOptions(wheelId) {
+            var wheel = wheels.find(function(w) { return w.id === wheelId; });
+            if (!wheel) return [];
+            return wheel.options.slice().sort(function(a, b) { return b.votes - a.votes; }).slice(0, MAX_WHEEL_OPTIONS);
+        }
+
+        function hasVoted(wheelId, optionId) {
+            return !!(deviceVotes[deviceId] && deviceVotes[deviceId][wheelId] &&
+                      deviceVotes[deviceId][wheelId].indexOf(optionId) !== -1);
+        }
+
+        async function vote(optionId) {
+            var wheel = wheels.find(function(w) { return w.id === currentWheelId; });
+            if (!wheel) return;
+            var option = wheel.options.find(function(o) { return o.id === optionId; });
+            if (!option) return;
+
+            if (hasVoted(currentWheelId, optionId)) {
+                // 取消点赞
+                option.votes--;
+                var votedList = deviceVotes[deviceId][currentWheelId];
+                var idx = votedList.indexOf(optionId);
+                if (idx !== -1) votedList.splice(idx, 1);
+                if (votedList.length === 0) delete deviceVotes[deviceId][currentWheelId];
+            } else {
+                // 点赞
+                option.votes++;
+                if (!deviceVotes[deviceId]) deviceVotes[deviceId] = {};
+                if (!deviceVotes[deviceId][currentWheelId]) deviceVotes[deviceId][currentWheelId] = [];
+                deviceVotes[deviceId][currentWheelId].push(optionId);
+            }
+
+            renderOptions();
+            drawWheel();
+            markVotesChanged();
+        }
+
+        async function addOption() {
+            var input = document.getElementById('newOptionInput');
+            var descInput = document.getElementById('newOptionDesc');
+            var name = input.value.trim();
+            if (!name) { alert('请输入选项名称'); return; }
+            var wheel = wheels.find(function(w) { return w.id === currentWheelId; });
+            if (!wheel) return;
+            var ids = wheel.options.map(function(o) { return o.id; });
+            var newId = ids.length > 0 ? Math.max.apply(null, ids) + 1 : 1;
+            wheel.options.push({ id: newId, name: name, votes: 0, desc: descInput.value.trim() });
+            input.value = '';
+            descInput.value = '';
+            renderOptions();
+            drawWheel();
+            markConfigChanged();
+        }
+
+        async function deleteOption(optionId) {
+            if (!confirm('确定要删除这个选项吗？')) return;
+            var wheel = wheels.find(function(w) { return w.id === currentWheelId; });
+            if (!wheel) return;
+            wheel.options = wheel.options.filter(function(o) { return o.id !== optionId; });
+            renderOptions();
+            drawWheel();
+            markConfigChanged();
+        }
+
+        async function createWheel() {
+            var input = document.getElementById('newWheelTitle');
+            var title = input.value.trim();
+            if (!title) { alert('请输入转盘标题'); return; }
+            wheels.push({ id: 'wheel_' + Date.now(), title: title, options: [] });
+            input.value = '';
+            renderWheelSelector();
+            selectWheel(wheels[wheels.length - 1].id);
+            markConfigChanged();
+        }
+
+        async function deleteWheel() {
+            if (wheels.length <= 1) {
+                alert('至少保留一个转盘');
+                return;
+            }
+            if (!confirm('确定要删除当前转盘「' + currentWheelTitle() + '」吗？\n转盘下的所有选项也会被删除。')) return;
+
+            var idx = wheels.findIndex(function(w) { return w.id === currentWheelId; });
+            wheels.splice(idx, 1);
+
+            // 切换到下一个转盘
+            var nextIdx = Math.min(idx, wheels.length - 1);
+            renderWheelSelector();
+            selectWheel(wheels[nextIdx].id);
+            markConfigChanged();
+        }
+
+        function currentWheelTitle() {
+            var w = wheels.find(function(w) { return w.id === currentWheelId; });
+            return w ? w.title : '';
+        }
+
+        function renderWheelSelector() {
+            var sel = document.getElementById('wheelSelector');
+            sel.innerHTML = wheels.map(function(w) {
+                return '<option value="' + w.id + '">' + w.title + '</option>';
+            }).join('');
+            if (currentWheelId) sel.value = currentWheelId;
+        }
+
+        function selectWheel(wheelId) {
+            currentWheelId = wheelId;
+            document.getElementById('wheelSelector').value = wheelId;
+            renderOptions();
+            drawWheel();
+            document.getElementById('result').textContent = '\uD83D\uDC46 \u6309\u65CB\u8F6C\u8BD5\u8BD5';
+        }
+
+        function renderOptions() {
+            var wheel = wheels.find(function(w) { return w.id === currentWheelId; });
+            if (!wheel) { document.getElementById('optionsList').innerHTML = ''; return; }
+
+            var topOptions = getTopVotedOptions(currentWheelId);
+            var topIds = {};
+            topOptions.forEach(function(o) { topIds[o.id] = true; });
+
+            var votedMap = (deviceVotes[deviceId] || {})[currentWheelId] || [];
+            var votedIds = {};
+            votedMap.forEach(function(id) { votedIds[id] = true; });
+
+            var sorted = wheel.options.slice().sort(function(a, b) { return b.votes - a.votes; });
+
+            var html = '';
+            sorted.forEach(function(opt) {
+                var inWheel = !!topIds[opt.id];
+                var voted = !!votedIds[opt.id];
+                var rank = inWheel ? (topOptions.findIndex(function(o) { return o.id === opt.id; }) + 1) : null;
+                html += '<div class="option-item ' + (inWheel ? 'in-wheel' : 'not-in-wheel') + '">';
+                html += '<div style="display:flex;align-items:center;flex:1;min-width:0;">';
+                if (rank) html += '<span class="option-rank">' + rank + '</span>';
+                html += '<div>';
+                html += '<span class="option-name">' + opt.name + '</span>';
+                if (opt.desc) html += '<div style="font-size:11px;color:#999;margin-top:2px;">' + opt.desc + '</div>';
+                html += '</div>';
+                html += '</div><div class="option-actions">';
+                html += '<button class="vote-btn ' + (voted ? 'voted' : '') + '" onclick="vote(' + opt.id + ')">';
+                html += voted ? '\u2764\uFE0F' : '\uD83D\uDC4D';
+                html += ' <span class="vote-count">' + opt.votes + '</span></button>';
+                html += '<button class="delete-btn" onclick="deleteOption(' + opt.id + ')" title="删除">\u00D7</button>';
+                html += '</div></div>';
+            });
+            document.getElementById('optionsList').innerHTML = html;
+            document.getElementById('optionsCount').textContent =
+                '\u5171 ' + wheel.options.length + ' \u4E2A\u9009\u9879\uFF0C' + topOptions.length + ' \u4E2A\u8FDB\u5165\u8F6C\u76D8';
+        }
+
+        // ============ 绘制转盘 ============
+        function drawWheel() {
+            var canvas = document.getElementById('wheelCanvas');
+            var ctx = canvas.getContext('2d');
+            var options = getTopVotedOptions(currentWheelId);
+
+            var dpr = window.devicePixelRatio || 1;
+            canvas.width = 400 * dpr;
+            canvas.height = 400 * dpr;
+            canvas.style.width = '400px';
+            canvas.style.height = '400px';
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, 400, 400);
+
+            if (options.length === 0) {
+                ctx.fillStyle = '#f5f5f5';
+                ctx.fillRect(0, 0, 400, 400);
+                ctx.fillStyle = '#999';
+                ctx.font = '18px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('暂无选项', 200, 200);
+                ctx.font = '14px Arial';
+                ctx.fillText('点击 设置 按钮添加选项', 200, 230);
+                return;
+            }
+
+            var cx = 200, cy = 200, r = 180;
+            var angle = (2 * Math.PI) / options.length;
+            var colors = ['#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98D8C8','#F7DC6F','#BB8FCE','#85C1E9'];
+
+            options.forEach(function(opt, i) {
+                var a1 = i * angle + currentRotation;
+                var a2 = a1 + angle;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r, a1, a2);
+                ctx.closePath();
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 14px "PingFang SC","Microsoft YaHei",Arial,sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            options.forEach(function(opt, i) {
+                var mid = i * angle + angle / 2 + currentRotation;
+                var tx = cx + Math.cos(mid) * (r * 0.6);
+                var ty = cy + Math.sin(mid) * (r * 0.6);
+                ctx.save();
+                ctx.translate(tx, ty);
+                ctx.rotate(mid);
+                ctx.fillText(opt.name, 0, 0);
+                ctx.restore();
+            });
+
+            var grd = ctx.createRadialGradient(cx, cy, 5, cx, cy, 25);
+            grd.addColorStop(0, '#fff');
+            grd.addColorStop(1, '#f0f0f0');
+            ctx.beginPath();
+            ctx.arc(cx, cy, 25, 0, 2 * Math.PI);
+            ctx.fillStyle = grd;
+            ctx.fill();
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - r - 8);
+            ctx.lineTo(cx - 14, cy - r - 36);
+            ctx.lineTo(cx + 14, cy - r - 36);
+            ctx.closePath();
+            ctx.fillStyle = '#FFD700';
+            ctx.fill();
+            ctx.strokeStyle = '#E6B800';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        // ============ 旋转 ============
+        function spinWheel() {
+            if (isSpinning) return;
+            var options = getTopVotedOptions(currentWheelId);
+            if (options.length === 0) {
+                alert('转盘上没有选项，请点击 设置 按钮添加选项！');
+                return;
+            }
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('result').textContent = '\uD83C\uDFA1 \u65CB\u8F6C\u4E2D...';
+
+            var anglePer = (2 * Math.PI) / options.length;
+            var total = (5 + Math.random() * 5) * 2 * Math.PI + Math.random() * 2 * Math.PI;
+            var duration = 3500;
+            var t0 = performance.now();
+            var start = currentRotation;
+
+            function anim(now) {
+                var t = Math.min((now - t0) / duration, 1);
+                currentRotation = start + total * (1 - Math.pow(1 - t, 3));
+                drawWheel();
+                if (t < 1) {
+                    requestAnimationFrame(anim);
+                } else {
+                    currentRotation = currentRotation % (2 * Math.PI);
+                    isSpinning = false;
+                    document.getElementById('spinBtn').disabled = false;
+                    var norm = ((3 * Math.PI / 2 - currentRotation) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+                    var idx = Math.floor(norm / anglePer) % options.length;
+                    var winner = options[idx];
+                    var resultText = '\uD83C\uDF89 ' + winner.name;
+                    if (winner.desc) resultText += '<br><span style="font-size:14px;color:#666;font-weight:normal;">' + winner.desc + '</span>';
+                    document.getElementById('result').innerHTML = resultText;
+                }
+            }
+            requestAnimationFrame(anim);
+        }
+
+        // ============ 初始化 ============
+        async function init() {
+            deviceId = getDeviceId();
+            await loadConfig();
+            await loadVotes();
+            hasConfigChange = false;
+            hasVotesChange = false;
+            updateCommitBtn();
+
+            renderWheelSelector();
+            if (wheels.length > 0) selectWheel(wheels[0].id);
+            drawWheel();
+
+            document.getElementById('spinBtn').onclick = spinWheel;
+            document.getElementById('newOptionInput').onkeypress = function(e) {
+                if (e.key === 'Enter') addOption();
+            };
+            document.getElementById('newOptionDesc').onkeypress = function(e) {
+                if (e.key === 'Enter') addOption();
+            };
+            document.getElementById('newWheelTitle').onkeypress = function(e) {
+                if (e.key === 'Enter') createWheel();
+            };
+        }
+
+        init();
+    </script>
+</body>
+</html>
