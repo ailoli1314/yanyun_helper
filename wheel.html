@@ -467,7 +467,9 @@
             var tok = getToken();
             if (tok) opts.headers['Authorization'] = 'token ' + tok;
             if (!opts.headers['Accept']) opts.headers['Accept'] = 'application/vnd.github.v3+json';
-            return fetch('https://api.github.com/repos/' + REPO + path, opts);
+            // 缓存爆破
+            var separator = path.indexOf('?') === -1 ? '?' : '&';
+            return fetch('https://api.github.com/repos/' + REPO + path + separator + '_t=' + Date.now(), opts);
         }
 
         async function loadJSON(file) {
