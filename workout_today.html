@@ -123,7 +123,7 @@ if(localStorage.getItem('theme')==='dark'){
   document.getElementById('themeBtn').textContent='🌙';
 }
 function getToken(){
-  var tok=localStorage.getItem(TOKEN_KEY);
+  var tok=localStorage.getItem(TOKEN_KEY)||localStorage.getItem("***");
   if(!tok&&window.__gh_token)tok=window.__gh_token;
   return tok||'';
 }
