@@ -336,8 +336,7 @@ async function saveToGithub(){
       });
     }else{
       var err=await res.json();
-      alert('❌ 保存失败: '+(err.message||res.status)+'
-
+      alert('❌ 保存失败: '+(err.message||res.status)+'  
 请检查 GitHub Token');
       document.getElementById('saveBtn').textContent='✅ 确认完成';
       document.getElementById('saveBtn').disabled=false;
