@@ -324,7 +324,7 @@ async function saveToGithub(){
     var body=JSON.stringify({message:'Training log '+dateStr,content:bc,sha:sha});
     var res=await fetch('https://api.github.com/repos/'+REPO+'/contents/training_log.json',{method:'PUT',headers:{'Authorization':'token '+token,'Content-Type':'application/json'},body:body});
     if(res.ok){
-      showToast('✅ 已保存！正在推进...');
+      showToast('✅ 已保存 '+exercises.length+' 项！');
       document.getElementById('saveBtn').textContent='推进中...';
       advanceCurrentDay(token).then(function(){
         showToast('✅ 已完成！即将显示下一天...');
@@ -336,12 +336,14 @@ async function saveToGithub(){
       });
     }else{
       var err=await res.json();
-      showToast('⚠ '+(err.message||res.status));
+      alert('❌ 保存失败: '+(err.message||res.status)+'
+
+请检查 GitHub Token');
       document.getElementById('saveBtn').textContent='✅ 确认完成';
       document.getElementById('saveBtn').disabled=false;
     }
   }catch(e){
-    showToast('⚠ 网络错误');
+    alert('❌ 网络错误，请重试');
     document.getElementById('saveBtn').textContent='✅ 确认完成';
     document.getElementById('saveBtn').disabled=false;
   }
