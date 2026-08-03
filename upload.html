@@ -169,14 +169,15 @@
             <p style="color: var(--text-muted); margin-bottom: 20px;">在此手动粘贴或管理已获取的资源链接</p>
 
             <div class="url-list" id="urlList">
-                <!-- 视频链接 -->
+                <!-- 视频链接列表 -->
                 <div class="url-item">
                     <div class="url-item-header">
-                        <span class="url-item-title">🎬 B站视频嵌入链接</span>
+                        <span class="url-item-title">🎬 功能演示视频列表</span>
                         <span class="url-item-type">视频</span>
                     </div>
-                    <input type="text" id="urlVideo" placeholder="粘贴 B站嵌入链接，如：//player.bilibili.com/player.html?bvid=xxx" value="">
-                    <button class="btn btn-secondary btn-sm btn-copy" onclick="copyUrl('urlVideo')">复制链接</button>
+                    <div id="videoUrlList"></div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addVideoUrlRow()">＋ 添加视频</button>
+                    <p class="field-tip">可直接粘贴 B 站普通视频页链接、BV 号或播放器嵌入链接，发布时会自动转换。</p>
                 </div>
 
                 <!-- 下载链接 -->
@@ -190,40 +191,40 @@
                     <input type="text" id="urlLanzou" placeholder="📦 蓝奏云分享链接，如：https://xxx.lanzou*.com/xxx" value="">
                 </div>
 
-                <!-- 图片链接 -->
+                <!-- 功能演示视频链接 -->
                 <div class="url-item">
                     <div class="url-item-header">
-                        <span class="url-item-title">📷 OCR识别演示图</span>
-                        <span class="url-item-type">图片</span>
+                        <span class="url-item-title">🎬 OCR识别演示视频</span>
+                        <span class="url-item-type">视频</span>
                     </div>
-                    <input type="text" id="urlOcr" placeholder="粘贴图片直链" value="">
+                    <input type="text" id="urlOcr" placeholder="粘贴 B站普通视频页链接或播放器嵌入链接" value="">
                     <button class="btn btn-secondary btn-sm btn-copy" onclick="copyUrl('urlOcr')">复制链接</button>
                 </div>
 
                 <div class="url-item">
                     <div class="url-item-header">
-                        <span class="url-item-title">📷 录制回放演示图</span>
-                        <span class="url-item-type">图片</span>
+                        <span class="url-item-title">🎬 录制回放演示视频</span>
+                        <span class="url-item-type">视频</span>
                     </div>
-                    <input type="text" id="urlRecord" placeholder="粘贴图片直链" value="">
+                    <input type="text" id="urlRecord" placeholder="粘贴 B站普通视频页链接或播放器嵌入链接" value="">
                     <button class="btn btn-secondary btn-sm btn-copy" onclick="copyUrl('urlRecord')">复制链接</button>
                 </div>
 
                 <div class="url-item">
                     <div class="url-item-header">
-                        <span class="url-item-title">📷 条件触发演示图</span>
-                        <span class="url-item-type">图片</span>
+                        <span class="url-item-title">🎬 条件触发演示视频</span>
+                        <span class="url-item-type">视频</span>
                     </div>
-                    <input type="text" id="urlTrigger" placeholder="粘贴图片直链" value="">
+                    <input type="text" id="urlTrigger" placeholder="粘贴 B站普通视频页链接或播放器嵌入链接" value="">
                     <button class="btn btn-secondary btn-sm btn-copy" onclick="copyUrl('urlTrigger')">复制链接</button>
                 </div>
 
                 <div class="url-item">
                     <div class="url-item-header">
-                        <span class="url-item-title">📷 设备鉴权演示图</span>
-                        <span class="url-item-type">图片</span>
+                        <span class="url-item-title">🎬 设备鉴权演示视频</span>
+                        <span class="url-item-type">视频</span>
                     </div>
-                    <input type="text" id="urlAuth" placeholder="粘贴图片直链" value="">
+                    <input type="text" id="urlAuth" placeholder="粘贴 B站普通视频页链接或播放器嵌入链接" value="">
                     <button class="btn btn-secondary btn-sm btn-copy" onclick="copyUrl('urlAuth')">复制链接</button>
                 </div>
             </div>
@@ -238,7 +239,7 @@
                 <h4>快速开始</h4>
                 <ol>
                     <li>根据资源类型，点击上方相应的平台入口</li>
-                    <li>上传图片/视频/文件，获取分享链接</li>
+                    <li>上传视频/文件，获取播放器嵌入链接</li>
                     <li>将链接粘贴到「已获取的链接」对应区域</li>
                     <li>点击「发布配置」，配置即时生效，所有页面自动更新</li>
                 </ol>
@@ -246,8 +247,8 @@
             <div class="help-box">
                 <h4>链接格式说明</h4>
                 <ol>
-                    <li><strong>B站视频</strong>：嵌入链接格式 <code>//player.bilibili.com/player.html?bvid=你的BV号</code></li>
-                    <li><strong>图片直链</strong>：类似 <code>https://i.loli.net/xxx.jpg</code></li>
+                    <li><strong>B站视频</strong>：可直接粘贴 <code>https://www.bilibili.com/video/BV号/</code></li>
+                    <li><strong>自动转换</strong>：发布时会转换为播放器地址，并关闭自动播放</li>
                     <li><strong>下载链接</strong>：蓝奏云分享链接或其他直链</li>
                 </ol>
             </div>
@@ -294,14 +295,38 @@
         // 从云端加载配置
         async function loadUrls() {
             const config = await CloudConfig.get();
-            document.getElementById('urlVideo').value = config.video?.demo || '';
+            loadVideoUrlRows(config.video);
             document.getElementById('urlBaiduPan').value = config.download?.baiduPan || '';
             document.getElementById('urlAliDrive').value = config.download?.aliDrive || '';
             document.getElementById('urlLanzou').value = config.download?.lanzou || '';
-            document.getElementById('urlOcr').value = config.images?.ocr || '';
-            document.getElementById('urlRecord').value = config.images?.record || '';
-            document.getElementById('urlTrigger').value = config.images?.trigger || '';
-            document.getElementById('urlAuth').value = config.images?.auth || '';
+            const featureVideos = config.videos || config.images || {};
+            document.getElementById('urlOcr').value = featureVideos.ocr || '';
+            document.getElementById('urlRecord').value = featureVideos.record || '';
+            document.getElementById('urlTrigger').value = featureVideos.trigger || '';
+            document.getElementById('urlAuth').value = featureVideos.auth || '';
+        }
+
+        function addVideoUrlRow(title = '', url = '') {
+            const row = document.createElement('div');
+            row.className = 'video-url-row';
+            row.innerHTML = '<input class="video-title-input" type="text" placeholder="视频标题，如：基础操作" value="">' +
+                '<input class="video-url-input" type="text" placeholder="B站普通视频页链接或播放器嵌入链接" value="">' +
+                '<button type="button" class="btn btn-secondary btn-sm" aria-label="删除视频">删除</button>';
+            row.querySelector('.video-title-input').value = title;
+            row.querySelector('.video-url-input').value = url;
+            row.querySelector('button').addEventListener('click', () => row.remove());
+            document.getElementById('videoUrlList').appendChild(row);
+        }
+
+        function loadVideoUrlRows(videoConfig) {
+            const list = document.getElementById('videoUrlList');
+            list.innerHTML = '';
+            let videos = videoConfig && Array.isArray(videoConfig.demos) ? videoConfig.demos : [];
+            if (videos.length === 0 && videoConfig && videoConfig.demo) {
+                videos = [{ title: '功能演示', url: videoConfig.demo }];
+            }
+            videos.forEach(video => addVideoUrlRow(video.title || '', video.url || ''));
+            if (videos.length === 0) addVideoUrlRow();
         }
 
         // 复制链接
@@ -332,20 +357,25 @@
 
             const config = {
                 video: {
-                    demo: document.getElementById('urlVideo').value.trim()
+                    demos: Array.from(document.querySelectorAll('#videoUrlList .video-url-row')).map(row => ({
+                        title: row.querySelector('.video-title-input').value.trim(),
+                        url: VideoUrl.normalize(row.querySelector('.video-url-input').value)
+                    })).filter(video => video.url),
+                    demo: ''
                 },
                 download: {
                     baiduPan: document.getElementById('urlBaiduPan').value.trim(),
                     aliDrive: document.getElementById('urlAliDrive').value.trim(),
                     lanzou: document.getElementById('urlLanzou').value.trim()
                 },
-                images: {
-                    ocr: document.getElementById('urlOcr').value.trim(),
-                    record: document.getElementById('urlRecord').value.trim(),
-                    trigger: document.getElementById('urlTrigger').value.trim(),
-                    auth: document.getElementById('urlAuth').value.trim()
+                videos: {
+                    ocr: VideoUrl.normalize(document.getElementById('urlOcr').value),
+                    record: VideoUrl.normalize(document.getElementById('urlRecord').value),
+                    trigger: VideoUrl.normalize(document.getElementById('urlTrigger').value),
+                    auth: VideoUrl.normalize(document.getElementById('urlAuth').value)
                 }
             };
+            config.video.demo = config.video.demos[0]?.url || '';
 
             try {
                 const success = await CloudConfig.save(config);

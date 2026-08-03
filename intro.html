@@ -29,11 +29,13 @@
     <section class="demo-section">
         <div class="container">
             <h2 class="section-title"><span class="title-icon">🎬</span>功能演示</h2>
-            <div class="video-container">
-                <!-- B站视频嵌入 - 用户上传B站后替换BV号 -->
-                <iframe id="bilibiliPlayer" src="" allowfullscreen></iframe>
+            <div class="video-showcase" id="videoShowcase" hidden>
+                <div class="video-container">
+                    <iframe id="bilibiliPlayer" title="功能演示视频" src="" allowfullscreen></iframe>
+                </div>
+                <div class="video-switcher" id="videoSwitcher" aria-label="功能演示视频列表"></div>
             </div>
-            <p class="video-tip">点击上方视频查看游戏秘籍功能演示</p>
+            <p class="video-tip" id="videoTip">暂无功能演示视频</p>
         </div>
     </section>
 
@@ -43,8 +45,8 @@
             
             <div class="detail-item">
                 <div class="detail-image">
-                    <img id="imgOcr" src="" alt="OCR识别演示图" style="display:none;">
-                    <div class="image-placeholder" id="placeholderOcr"><span>📷</span><p>OCR识别演示图</p></div>
+                    <iframe id="videoOcr" class="feature-video" title="OCR识别演示视频" src="" allowfullscreen style="display:none;"></iframe>
+                    <div class="image-placeholder" id="placeholderOcr"><span>🎬</span><p>OCR识别演示视频</p></div>
                 </div>
                 <div class="detail-content">
                     <h3>🔍 OCR 文字识别</h3>
@@ -60,8 +62,8 @@
 
             <div class="detail-item reverse">
                 <div class="detail-image">
-                    <img id="imgRecord" src="" alt="录制回放演示图" style="display:none;">
-                    <div class="image-placeholder" id="placeholderRecord"><span>🎮</span><p>录制回放演示图</p></div>
+                    <iframe id="videoRecord" class="feature-video" title="录制回放演示视频" src="" allowfullscreen style="display:none;"></iframe>
+                    <div class="image-placeholder" id="placeholderRecord"><span>🎬</span><p>录制回放演示视频</p></div>
                 </div>
                 <div class="detail-content">
                     <h3>🎬 录制与回放</h3>
@@ -73,13 +75,17 @@
                         <li>支持循环次数设置</li>
                         <li>子回放嵌套，复杂流程轻松实现</li>
                     </ul>
+                    <a href="replay-advanced-commands.html" class="manual-link">
+                        <span>查看回放高级指令手册</span>
+                        <span aria-hidden="true">→</span>
+                    </a>
                 </div>
             </div>
 
             <div class="detail-item">
                 <div class="detail-image">
-                    <img id="imgTrigger" src="" alt="条件触发演示图" style="display:none;">
-                    <div class="image-placeholder" id="placeholderTrigger"><span>⚡</span><p>条件触发演示图</p></div>
+                    <iframe id="videoTrigger" class="feature-video" title="条件触发演示视频" src="" allowfullscreen style="display:none;"></iframe>
+                    <div class="image-placeholder" id="placeholderTrigger"><span>🎬</span><p>条件触发演示视频</p></div>
                 </div>
                 <div class="detail-content">
                     <h3>⚡ 条件触发智能回放</h3>
@@ -96,8 +102,8 @@
 
             <div class="detail-item reverse">
                 <div class="detail-image">
-                    <img id="imgAuth" src="" alt="设备鉴权演示图" style="display:none;">
-                    <div class="image-placeholder" id="placeholderAuth"><span>🔐</span><p>设备鉴权演示图</p></div>
+                    <iframe id="videoAuth" class="feature-video" title="设备鉴权演示视频" src="" allowfullscreen style="display:none;"></iframe>
+                    <div class="image-placeholder" id="placeholderAuth"><span>🎬</span><p>设备鉴权演示视频</p></div>
                 </div>
                 <div class="detail-content">
                     <h3>🔐 设备鉴权管理</h3>
@@ -182,10 +188,8 @@
             const config = await CloudConfig.get();
             if (config) {
                 _downloadConfig = config;
-                // 加载视频
-                if (config.video && config.video.demo) {
-                    document.getElementById('bilibiliPlayer').src = config.video.demo;
-                }
+                // 加载视频列表；兼容旧版 video.demo 单视频配置
+                loadVideos(config.video);
                 // 绑定下载按钮弹窗
                 if (config.download) {
                     var hasLink = config.download.baiduPan || config.download.aliDrive || config.download.lanzou;
@@ -194,33 +198,83 @@
                         document.getElementById('footerDownload').addEventListener('click', openDownloadModal);
                     }
                 }
-                // 加载介绍页图片
-                if (config.images) {
-                    loadImage('imgOcr', 'placeholderOcr', config.images.ocr);
-                    loadImage('imgRecord', 'placeholderRecord', config.images.record);
-                    loadImage('imgTrigger', 'placeholderTrigger', config.images.trigger);
-                    loadImage('imgAuth', 'placeholderAuth', config.images.auth);
+                // 加载四个功能演示视频；兼容旧版 images 字段
+                var featureVideos = config.videos || config.images || {};
+                if (featureVideos) {
+                    loadVideo('videoOcr', 'placeholderOcr', featureVideos.ocr);
+                    loadVideo('videoRecord', 'placeholderRecord', featureVideos.record);
+                    loadVideo('videoTrigger', 'placeholderTrigger', featureVideos.trigger);
+                    loadVideo('videoAuth', 'placeholderAuth', featureVideos.auth);
                 }
             }
 
-            // 加载单张图片的函数
-            function loadImage(imgId, placeholderId, url) {
+            function loadVideos(videoConfig) {
+                var videos = videoConfig && Array.isArray(videoConfig.demos) ? videoConfig.demos : [];
+                if (videos.length === 0 && videoConfig && videoConfig.demo) {
+                    videos = [{ title: '功能演示', url: videoConfig.demo }];
+                }
+                videos = videos.filter(function(video) { return video && video.url; });
+                if (videos.length === 0) return;
+
+                var showcase = document.getElementById('videoShowcase');
+                var player = document.getElementById('bilibiliPlayer');
+                var switcher = document.getElementById('videoSwitcher');
+                var tip = document.getElementById('videoTip');
+                showcase.hidden = false;
+                tip.textContent = '左右切换，查看不同功能演示';
+                var current = 0;
+                function render(index) {
+                    current = (index + videos.length) % videos.length;
+                    var video = videos[current];
+                    player.src = VideoUrl.normalize(video.url);
+                    player.title = video.title || ('功能演示 ' + (current + 1));
+                    switcher.innerHTML = '';
+                    var previous = document.createElement('button');
+                    previous.className = 'video-arrow';
+                    previous.type = 'button';
+                    previous.setAttribute('aria-label', '上一个视频');
+                    previous.textContent = '‹';
+                    previous.onclick = function() { render(current - 1); };
+                    switcher.appendChild(previous);
+                    videos.forEach(function(item, itemIndex) {
+                        var button = document.createElement('button');
+                        button.className = 'video-tab' + (itemIndex === current ? ' active' : '');
+                        button.type = 'button';
+                        button.textContent = item.title || ('功能演示 ' + (itemIndex + 1));
+                        button.onclick = function() { render(itemIndex); };
+                        switcher.appendChild(button);
+                    });
+                    var next = document.createElement('button');
+                    next.className = 'video-arrow';
+                    next.type = 'button';
+                    next.setAttribute('aria-label', '下一个视频');
+                    next.textContent = '›';
+                    next.onclick = function() { render(current + 1); };
+                    switcher.appendChild(next);
+                }
+                render(0);
+            }
+
+            // 加载单个嵌入视频，保留原 images 配置字段以兼容现有云端配置结构
+            function loadVideo(videoId, placeholderId, url) {
                 if (url) {
-                    var img = document.getElementById(imgId);
+                    var video = document.getElementById(videoId);
                     var placeholder = document.getElementById(placeholderId);
-                    img.src = url;
-                    img.onload = function() {
-                        img.style.display = 'block';
+                    video.src = VideoUrl.normalize(url);
+                    video.onload = function() {
+                        video.style.display = 'block';
                         if (placeholder) placeholder.style.display = 'none';
                     };
-                    img.onerror = function() {
-                        img.style.display = 'none';
+                    video.onerror = function() {
+                        video.style.display = 'none';
                         if (placeholder) placeholder.style.display = 'flex';
                     };
+                    // iframe 的 load 事件只表示播放器页面加载完成，无法可靠判断视频是否可播放。
+                    video.style.display = 'block';
+                    if (placeholder) placeholder.style.display = 'none';
                 }
             }
         });
-    </script>
     </script>
 </body>
 </html>

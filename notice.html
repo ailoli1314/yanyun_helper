@@ -171,18 +171,20 @@
                     return;
                 }
 
-                // 渲染公告列表
-                gridEl.innerHTML = notices.map(notice => `
-                    <article class="notice-card">
-                        <div class="notice-badge ${notice.type === 'hot' ? 'hot' : ''}">${NoticeTypeConfig.labels[notice.type] || '公告'}</div>
-                        <div class="notice-date">${notice.date}</div>
-                        <h3>${NoticeTypeConfig.emojis[notice.type] || '📢'} ${notice.title}</h3>
-                        <p>${notice.content}</p>
-                        ${notice.link ? `<a href="${notice.link}" class="notice-link">查看详情 →</a>` : ''}
-                    </article>
-                `).join('');
-
-                gridEl.style.display = 'grid';
+                // 按横向列渲染，卡片放入当前最短列，减少不同正文长度带来的空隙
+                const cards = notices.map(notice => {
+                    const card = document.createElement('article');
+                    card.className = 'notice-card';
+                    card.innerHTML = `<div class="notice-badge ${notice.type === 'hot' ? 'hot' : ''}">${escapeHtml(NoticeTypeConfig.labels[notice.type] || '公告')}</div>
+                        <div class="notice-date">${escapeHtml(notice.date || '')}</div>
+                        <h3>${NoticeTypeConfig.emojis[notice.type] || '📢'} ${escapeHtml(notice.title || '')}</h3>
+                        <p>${escapeHtml(notice.content || '')}</p>
+                        ${notice.link ? `<a href="${escapeHtml(notice.link)}" class="notice-link">查看详情 →</a>` : ''}`;
+                    return card;
+                });
+                gridEl.style.display = 'flex';
+                window._noticeCards = cards;
+                renderNoticeMasonry(gridEl, cards);
                 
                 // 触发滚动动画
                 initScrollAnimations();
@@ -194,6 +196,37 @@
                 errorEl.style.display = 'flex';
             }
         }
+
+        function escapeHtml(value) {
+            const div = document.createElement('div');
+            div.textContent = String(value || '');
+            return div.innerHTML;
+        }
+
+        function renderNoticeMasonry(container, cards) {
+            container.innerHTML = '';
+            const columnCount = window.innerWidth <= 768 ? 1 : (window.innerWidth <= 1100 ? 2 : 3);
+            const columns = Array.from({ length: columnCount }, () => {
+                const column = document.createElement('div');
+                column.className = 'notice-masonry-column';
+                container.appendChild(column);
+                return column;
+            });
+            cards.forEach(card => {
+                const target = columns.reduce((shortest, column) =>
+                    column.offsetHeight < shortest.offsetHeight ? column : shortest);
+                target.appendChild(card);
+            });
+        }
+
+        let noticeResizeTimer;
+        window.addEventListener('resize', () => {
+            if (!window._noticeCards) return;
+            clearTimeout(noticeResizeTimer);
+            noticeResizeTimer = setTimeout(() => {
+                renderNoticeMasonry(document.getElementById('notice-grid'), window._noticeCards);
+            }, 150);
+        });
 
         // 初始化滚动动画
         function initScrollAnimations() {

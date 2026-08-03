@@ -200,8 +200,9 @@ const CloudConfig = {
 
     /** 默认配置（云端无数据时的兜底） */
     DEFAULT: {
-        video: { demo: "" },
+        video: { demo: "", demos: [] },
         download: { baiduPan: "", aliDrive: "", lanzou: "" },
+        videos: { ocr: "", record: "", trigger: "", auth: "" },
         images: { ocr: "", record: "", trigger: "", auth: "" }
     },
 
@@ -234,7 +235,24 @@ const CloudConfig = {
     }
 };
 
+// 将 B 站详情页、BV 号或播放器链接统一成可嵌入的播放器地址
+const VideoUrl = {
+    normalize(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+        const match = raw.match(/(BV[0-9A-Za-z]{10})/i);
+        if (!match) return raw;
+        let page = 1;
+        try {
+            const parsed = new URL(raw.startsWith('//') ? `https:${raw}` : raw);
+            const value = parsed.searchParams.get('p') || parsed.searchParams.get('page');
+            if (value && /^\d+$/.test(value)) page = Number(value);
+        } catch (_) {}
+        return `https://player.bilibili.com/player.html?bvid=${match[1]}&page=${page}&autoplay=0`;
+    }
+};
+
 // 导出
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { SCF_API, NoticeManager, CloudConfig };
+    module.exports = { SCF_API, NoticeManager, CloudConfig, VideoUrl };
 }

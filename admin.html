@@ -65,7 +65,7 @@
         .badge-discount { background: rgba(253, 203, 110, 0.3); color: #fdcb6e; }
         .badge-notice { background: rgba(0, 206, 201, 0.3); color: var(--secondary); }
         .badge-tutorial { background: rgba(162, 155, 254, 0.3); color: var(--primary-light); }
-        .notice-item-content { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 10px; }
+        .notice-item-content { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
         .notice-item-actions { display: flex; gap: 10px; }
 
         .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 15px 30px; border-radius: 8px; font-weight: 500; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
@@ -356,6 +356,7 @@
         async function addNotice() {
             const type = document.getElementById('noticeType').value;
             const title = document.getElementById('noticeTitle').value.trim();
+            // textarea.value 会保留用户输入的换行；只去掉首尾空白，不做单行格式化
             const content = document.getElementById('noticeContent').value.trim();
             const link = document.getElementById('noticeLink').value.trim();
 
