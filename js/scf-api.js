@@ -201,7 +201,7 @@ const CloudConfig = {
     /** 默认配置（云端无数据时的兜底） */
     DEFAULT: {
         video: { demo: "", demos: [] },
-        download: { baiduPan: "", aliDrive: "", lanzou: "" },
+        download: { baiduPan: "", aliDrive: "", lanzou: "", version: "" },
         videos: { ocr: "", record: "", trigger: "", auth: "" },
         images: { ocr: "", record: "", trigger: "", auth: "" }
     },

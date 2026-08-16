@@ -186,6 +186,7 @@
                         <span class="url-item-title">📦 应用下载链接</span>
                         <span class="url-item-type">下载</span>
                     </div>
+                    <input type="text" id="urlVersion" placeholder="🔢 最新版本号，如：1.1" value="" style="margin-bottom:8px;">
                     <input type="text" id="urlBaiduPan" placeholder="💾 百度网盘分享链接，如：https://pan.baidu.com/s/xxx" value="" style="margin-bottom:8px;">
                     <input type="text" id="urlAliDrive" placeholder="☁️ 阿里云盘分享链接，如：https://www.alipan.com/s/xxx" value="" style="margin-bottom:8px;">
                     <input type="text" id="urlLanzou" placeholder="📦 蓝奏云分享链接，如：https://xxx.lanzou*.com/xxx" value="">
@@ -296,6 +297,7 @@
         async function loadUrls() {
             const config = await CloudConfig.get();
             loadVideoUrlRows(config.video);
+            document.getElementById('urlVersion').value = config.download?.version || '';
             document.getElementById('urlBaiduPan').value = config.download?.baiduPan || '';
             document.getElementById('urlAliDrive').value = config.download?.aliDrive || '';
             document.getElementById('urlLanzou').value = config.download?.lanzou || '';
@@ -364,6 +366,7 @@
                     demo: ''
                 },
                 download: {
+                    version: document.getElementById('urlVersion').value.trim(),
                     baiduPan: document.getElementById('urlBaiduPan').value.trim(),
                     aliDrive: document.getElementById('urlAliDrive').value.trim(),
                     lanzou: document.getElementById('urlLanzou').value.trim()
