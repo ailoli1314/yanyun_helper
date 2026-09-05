@@ -130,10 +130,10 @@
     const segs = [];
     let day = 1;
     while (day <= lastDay) {
-      const diff = Math.floor((Date.UTC(y, m - 1, day) - ANCHOR_DATE) / DAY_MS);
+      const diff = Math.floor((Date.UTC(y, m, day) - ANCHOR_DATE) / DAY_MS);
       const daysToNext = 15 - (((diff % 15) + 15) % 15);
       const end = Math.min(day + daysToNext - 1, lastDay);
-      const r = getRoles(y, m, day);
+      const r = getRoles(y, m + 1, day);
       segs.push({ start: day, end: end, a: r.aIdx, b: r.bIdx, c: r.cIdx });
       day = end + 1;
     }
