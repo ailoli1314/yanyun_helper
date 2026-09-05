@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>看店排班表（上2休1）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: #f5f6f8; color: #1a1a1a; padding: 24px;
+  }
+  .page {
+    max-width: 1040px; margin: 0 auto; background: #fff;
+    border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 24px;
+  }
+  .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+  .toolbar .nav { display: flex; gap: 8px; }
+  .toolbar button {
+    border: 1px solid #d0d5dd; background: #fff; color: #333;
+    padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 14px;
+  }
+  .toolbar button:hover { background: #f0f2f5; }
+  h1 { font-size: 24px; font-weight: 700; text-align: center; }
+  .spacer { width: 160px; }
+  .legend {
+    display: flex; gap: 20px; justify-content: center;
+    font-size: 14px; color: #444; margin: 14px 0 6px; font-weight: 600;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 13px; height: 13px; border-radius: 4px; display: inline-block; }
+  .rule-note {
+    text-align: center; font-size: 12px; color: #999; margin: 0 0 14px; line-height: 1.8;
+  }
+  .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  .cal-head { text-align: center; font-weight: 600; color: #888; font-size: 13px; padding: 4px 0; }
+  .cell { border: 1px solid #e5e7eb; border-radius: 8px; min-height: 96px; padding: 6px; background: #fff; }
+  .cell.blank { background: transparent; border: none; }
+  .cell.today { border: 2px solid #f59e0b; }
+  .day-num { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 5px; }
+  .slot {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; border-radius: 5px;
+    padding: 3px 6px; margin-bottom: 3px;
+  }
+  .shift {
+    font-size: 10px; font-weight: 700; color: #6b7280;
+    background: rgba(0,0,0,0.07); padding: 1px 5px; border-radius: 3px; flex: 0 0 auto;
+  }
+  .name { font-weight: 700; }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page { box-shadow: none; border-radius: 0; }
+    .toolbar button, .toolbar .nav { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="toolbar">
+    <div class="nav">
+      <button id="prev">‹ 上月</button>
+      <button id="today">回到本月</button>
+      <button id="next">下月 ›</button>
+    </div>
+    <h1 id="monthTitle"></h1>
+    <div class="spacer"></div>
+  </div>
+  <div class="legend" id="legend"></div>
+  <div class="rule-note">上 2 休 1 · 每人连续工作 2 天休 1 天 · 晚班每 2 天轮换一次 · 晚班后绝不接早班</div>
+  <div class="calendar" id="calendar"></div>
+</div>
+<script>
+  const NAMES = ['可露雪', '可露雪妹', '可露雪妹夫'];
+  const COLORS = [
+    { deep: '#2563EB', light: '#DBEAFE' },  // 可露雪 - 蓝
+    { deep: '#DB2777', light: '#FCE7F3' },  // 可露雪妹 - 玫红
+    { deep: '#16A34A', light: '#DCFCE7' }   // 可露雪妹夫 - 绿
+  ];
+  // 6 天循环：每天 (early, late, rest) 的人名 index
+  // 晚班按 妹→夫→雪 每人连续 2 天轮换；早班按 雪→妹→夫 每人连续 2 天轮换
+  const CYCLE = [
+    { early: 0, late: 1, rest: 2 },  // D1: 早雪 晚妹 休夫
+    { early: 0, late: 2, rest: 1 },  // D2: 早雪 晚夫 休妹
+    { early: 1, late: 2, rest: 0 },  // D3: 早妹 晚夫 休雪
+    { early: 1, late: 0, rest: 2 },  // D4: 早妹 晚雪 休夫
+    { early: 2, late: 0, rest: 1 },  // D5: 早夫 晚雪 休妹
+    { early: 2, late: 1, rest: 0 }   // D6: 早夫 晚妹 休雪
+  ];
+  const ANCHOR_DATE = Date.UTC(2026, 8, 1); // 基准日 2026-09-01 = 循环第 1 天
+  const DAY_MS = 86400000;
+
+  let cur = new Date();
+
+  function assign(y, m, d) {
+    const diff = Math.floor((Date.UTC(y, m - 1, d) - ANCHOR_DATE) / DAY_MS);
+    const idx = ((diff % 6) + 6) % 6;
+    return CYCLE[idx];
+  }
+
+  function slotHTML(shift, nameIdx) {
+    return '<div class="slot" style="background:' + COLORS[nameIdx].light + ';border-left:3px solid ' + COLORS[nameIdx].deep + '">' +
+      '<span class="shift">' + shift + '</span>' +
+      '<span class="name" style="color:' + COLORS[nameIdx].deep + '">' + NAMES[nameIdx] + '</span>' +
+      '</div>';
+  }
+
+  function render() {
+    const y = cur.getFullYear(), m = cur.getMonth();
+    document.getElementById('monthTitle').textContent = y + '年' + (m + 1) + '月';
+
+    document.getElementById('legend').innerHTML = NAMES.map((n, i) =>
+      '<span><i class="dot" style="background:' + COLORS[i].deep + '"></i>' + n + '</span>'
+    ).join('');
+
+    const lastDay = new Date(y, m + 1, 0).getDate();
+    const firstDow = new Date(y, m, 1).getDay();
+    const lead = (firstDow + 6) % 7;
+    const cells = [];
+    const today = new Date();
+
+    for (let i = 0; i < lead; i++) cells.push('<div class="cell blank"></div>');
+    for (let d = 1; d <= lastDay; d++) {
+      const a = assign(y, m + 1, d);
+      const isToday = (today.getFullYear() === y && today.getMonth() === m && today.getDate() === d);
+      cells.push(
+        '<div class="cell' + (isToday ? ' today' : '') + '">' +
+          '<div class="day-num">' + d + '</div>' +
+          slotHTML('早', a.early) +
+          slotHTML('晚', a.late) +
+          slotHTML('休', a.rest) +
+        '</div>'
+      );
+    }
+    document.getElementById('calendar').innerHTML =
+      ['一', '二', '三', '四', '五', '六', '日'].map(h => '<div class="cal-head">' + h + '</div>').join('') +
+      cells.join('');
+  }
+
+  document.getElementById('prev').onclick  = () => { cur = new Date(cur.getFullYear(), cur.getMonth() - 1, 1); render(); };
+  document.getElementById('next').onclick  = () => { cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1); render(); };
+  document.getElementById('today').onclick = () => { cur = new Date(); render(); };
+  render();
+</script>
+</body>
+</html>
