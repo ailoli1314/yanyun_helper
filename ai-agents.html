@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Coding Agent 对比 · 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: #f5f6f8; color: #1a1a1a; padding: 24px; line-height: 1.6;
+  }
+  .page {
+    max-width: 1080px; margin: 0 auto; background: #fff;
+    border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 28px;
+  }
+  .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .toolbar a {
+    text-decoration: none; color: #2563EB; font-size: 14px; font-weight: 600;
+    padding: 6px 14px; border: 1px solid #d0d5dd; border-radius: 8px;
+  }
+  .toolbar a:hover { background: #f0f2f5; }
+  h1 { font-size: 24px; font-weight: 700; text-align: center; }
+  .subtitle { text-align: center; font-size: 13px; color: #888; margin: 6px 0 18px; }
+  .note {
+    background: #fff7ed; border: 1px solid #fed7aa; color: #92400e;
+    border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 18px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 12px 10px; border-bottom: 1px solid #eef0f3; vertical-align: top; text-align: left; }
+  th { background: #fafbfc; color: #555; font-size: 13px; font-weight: 700; white-space: nowrap; }
+  tr:hover td { background: #fafbfc; }
+  .rank { font-weight: 800; font-size: 15px; color: #9ca3af; width: 34px; text-align: center; }
+  .rank.top { color: #f59e0b; }
+  .name { font-weight: 700; font-size: 15px; white-space: nowrap; }
+  .name .sub { font-weight: 400; font-size: 12px; color: #999; display: block; margin-top: 2px; }
+  .form { white-space: nowrap; font-size: 13px; }
+  .tag {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 12px; font-weight: 700; margin-right: 4px;
+  }
+  .tag.desktop { background: #dcfce7; color: #15803d; }
+  .tag.cli { background: #dbeafe; color: #1d4ed8; }
+  .tag.model { background: #f3e8ff; color: #7e22ce; }
+  .link { color: #2563EB; text-decoration: none; font-size: 13px; word-break: break-all; }
+  .link:hover { text-decoration: underline; }
+  .cost { font-size: 13px; white-space: nowrap; }
+  .pros { font-size: 13px; color: #15803d; }
+  .cons { font-size: 13px; color: #b91c1c; margin-top: 4px; }
+  .pros b, .cons b { margin-right: 4px; }
+  @media (max-width: 720px) {
+    .page { padding: 16px; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tr { border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 12px; padding: 8px; }
+    td { border: none; padding: 6px 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="toolbar">
+    <a href="index.html">← 返回首页</a>
+    <span style="font-size:13px;color:#999;">更新于 2026-09-06</span>
+  </div>
+  <h1>🤖 AI Coding Agent 对比</h1>
+  <p class="subtitle">按「桌面开箱即用 × 综合能力 × 免费友好度」排序 · 仅收录官方渠道</p>
+
+  <div class="note">
+    ⚠️ 排序说明：前 4 名是真正「下载即用」的桌面形态，按成熟度排；5–9 是热门但需命令行的 agent，按免费/生态排；DeepSeek 是模型供应商不是客户端，单独垫底。单论 agent 能力天花板是 Claude Code，但它 2026 年才补上官方桌面版。
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>工具</th><th>形态</th><th>官方入口</th><th>费用</th><th>优劣对比</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="rank top">1</td>
+        <td class="name">Cursor<span class="sub">Anysphere</span></td>
+        <td class="form"><span class="tag desktop">桌面 IDE</span></td>
+        <td><a class="link" href="https://cursor.com/download" target="_blank">cursor.com/download</a></td>
+        <td class="cost">免费 tier + 订阅</td>
+        <td>
+          <div class="pros"><b>✓</b>最成熟的 agentic IDE，下载即用、模型可选、迭代最快</div>
+          <div class="cons"><b>✗</b>闭源，深度用量要订阅</div>
+        </td>
+      </tr>
+      <tr>
+        <td class="rank top">2</td>
+        <td class="name">Claude Code<span class="sub">Anthropic</span></td>
+        <td class="form"><span class="tag desktop">桌面版</span> <span class="tag cli">CLI</span></td>
+        <td><a class="link" href="https://claude.com/download" target="_blank">claude.com/download</a></td>
+        <td class="cost">Pro/Max 或 API key</td>
+        <td>
+          <div class="pros"><b>✓</b>能力天花板：sub-agent、computer use、动态工作流、Routines</div>
+          <div class="cons"><b>✗</b>需订阅，桌面版较新</div>
+        </td>
+      </tr>
+      <tr>
+        <td class="rank top">3</td>
+        <td class="name">Codex<span class="sub">OpenAI</span></td>
+        <td class="form"><span class="tag desktop">桌面版</span> <span class="tag cli">CLI</span></td>
+        <td><a class="link" href="https://openai.com/codex/" target="_blank">openai.com/codex</a></td>
+        <td class="cost">ChatGPT 订阅 / API</td>
+        <td>
+          <div class="pros"><b>✓</b>OpenAI 官方，桌面版 2026.3 上 Windows，并行多 agent</div>
+          <div class="cons"><b>✗</b>生态偏 OpenAI 一家</div>
+        </td>
+      </tr>
+      <tr>
+        <td class="rank top">4</td>
+        <td class="name">Windsurf / Devin Desktop<span class="sub">Cognition</span></td>
+        <td class="form"><span class="tag desktop">桌面 IDE</span></td>
+        <td><a class="link" href="https://windsurf.com" target="_blank">windsurf.com</a></td>
+        <td class="cost">免费 tier + Pro</td>
+        <td>
+          <div class="pros"><b>✓</b>免费 tier 慷慨，VS Code 系零上手成本</div>
+          <div class="cons"><b>✗</b>2026 品牌/归属调整中（收购方公开信息不一）</div>
+        </td>
+      </tr>
+      <tr>
+        <td class="rank">5</td>
+        <td class="name">Gemini CLI<span class="sub">Google</span></td>
+        <td class="form"><span class="tag cli">CLI</span></td>
+        <td><a class="link" href="https://github.com/google-gemini/gemini-cli" target="_blank">github.com/google-gemini/gemini-cli</a></td>
+        <td class="cost">免费 60 req/min · 1000 req/day</td>
+        <td>
+          <div class="pros"><b>✓</b>免费额度最大，1M 上下文</div>
+          <div class="cons"><b>✗</b>无桌面版</div>
+        </td>
+      </tr>
+      <tr>
+        <td class="rank">6</td>
+        <td class="name">OpenCode<span class="sub">开源</span></td>
+        <td class="form"><span class="tag desktop">桌面版</span> <span class="tag cli">CLI</span></td>
+        <td><a class="link" href="https://opencode.ai/download" target="_blank">opencode.ai/download</a></td>
+        <td class="cost">开源，模型按 provider</td>
+        <td>
+          <div class="pros"><b>✓</b>开源、75+ 模型、有桌面版</div>
+          <div class="cons"><b>✗</b>Anthropic 2026.1 封锁其 Claude 接入</div>
+        </td>
+      </tr>
+      <tr>
+        <td class="rank">7</td>
+        <td class="name">Goose<span class="sub">Block · 开源</span></td>
+        <td class="form"><span class="tag desktop">桌面版</span> <span class="tag cli">CLI</span></td>
+        <td><a class="link" href="https://github.com/block/goose" target="_blank">github.com/block/goose</a></td>
+        <td class="cost">开源</td>
+        <td>
+          <div class="pros"><b>✓</b>开源、MCP 生态、已入 Linux Foundation</div>
+          <div class="cons"><b>✗</b>需自配 provider</div>
+        </td>
+      </tr>
+      <tr>
+        <td class="rank">8</td>
+        <td class="name">Qwen Code<span class="sub">阿里通义</span></td>
+        <td class="form"><span class="tag cli">CLI</span></td>
+        <td><a class="link" href="https://github.com/QwenLM/qwen-code" target="_blank">github.com/QwenLM/qwen-code</a></td>
+        <td class="cost">开源，通义计费</td>
+        <td>
+          <div class="pros"><b>✓</b>通义生态、多协议框架</div>
+          <div class="cons"><b>✗</b>无桌面版、生态较新</div>
+        </td>
+      </tr>
+      <tr>
+        <td class="rank">9</td>
+        <td class="name">Aider<span class="sub">开源</span></td>
+        <td class="form"><span class="tag cli">CLI + Web UI</span></td>
+        <td><a class="link" href="https://aider.chat" target="_blank">aider.chat</a></td>
+        <td class="cost">开源</td>
+        <td>
+          <div class="pros"><b>✓</b>git 集成好、轻量</div>
+          <div class="cons"><b>✗</b>无桌面版</div>
+        </td>
+      </tr>
+      <tr>
+        <td class="rank">10</td>
+        <td class="name">DeepSeek<span class="sub">深度求索</span></td>
+        <td class="form"><span class="tag model">模型供应商</span></td>
+        <td class="cost">—</td>
+        <td class="cost">API 计费</td>
+        <td>
+          <div class="pros"><b>✓</b>模型便宜、质量高</div>
+          <div class="cons"><b>✗</b>无官方 agent 桌面版，只能接别的 agent 当后端</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>
