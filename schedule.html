@@ -30,10 +30,13 @@
   }
   .legend {
     display: flex; gap: 20px; justify-content: center;
-    font-size: 14px; color: #444; margin: 12px 0 16px; font-weight: 600;
+    font-size: 14px; color: #444; margin: 12px 0 6px; font-weight: 600;
   }
   .legend span { display: inline-flex; align-items: center; gap: 6px; }
   .dot { width: 13px; height: 13px; border-radius: 4px; display: inline-block; }
+  .rule-note {
+    text-align: center; font-size: 12px; color: #999; margin: 0 0 14px;
+  }
   .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
   .cal-head { text-align: center; font-weight: 600; color: #888; font-size: 13px; padding: 4px 0; }
   .cell { border: 1px solid #e5e7eb; border-radius: 8px; min-height: 96px; padding: 6px; background: #fff; }
@@ -70,6 +73,7 @@
   </div>
   <div class="duty-info" id="dutyInfo"></div>
   <div class="legend" id="legend"></div>
+  <div class="rule-note">规则：每人每 3 天休 1 天；辅助顶晚班前一天必休，晚班后绝不接早班</div>
   <div class="calendar" id="calendar"></div>
 </div>
 <script>
@@ -79,6 +83,10 @@
     { deep: '#DB2777', light: '#FCE7F3' },  // 可露雪妹 - 玫红
     { deep: '#16A34A', light: '#DCFCE7' }   // 可露雪妹夫 - 绿
   ];
+  // 15 天循环模板：辅助者的状态 0=休, 1=晚, 2=早
+  // 序列: 休 晚 晚 休 早 早 早 休 晚 晚 晚 休 早 早 休
+  const C_TEMPLATE = [0,1,1,0,2,2,2,0,1,1,1,0,2,2,0];
+
   // 基准：2026年9月上半月 => 晚班主力 = 可露雪（index 0）
   const ANCHOR = 2026 * 24 + (9 - 1) * 2;
 
@@ -88,16 +96,15 @@
 
   function assign(y, m, d) {
     const p = periodIndex(y, m, d);
-    const night = ((p - ANCHOR) % 3 + 3) % 3;
-    const morning = (night + 1) % 3;
-    const cover = (night + 2) % 3;
-    const halfStart = d > 15 ? 16 : 1;
-    const off = (d - halfStart) % 3;
-    let early, late, rest;
-    if (off === 0)      { early = morning; late = night;  rest = cover; }
-    else if (off === 1) { early = cover;   late = night;  rest = morning; }
-    else                { early = morning; late = cover;  rest = night; }
-    return { early, late, rest, night, morning, cover };
+    const aIdx = ((p - ANCHOR) % 3 + 3) % 3;  // 晚班主力
+    const bIdx = (aIdx + 1) % 3;               // 早班主力
+    const cIdx = (aIdx + 2) % 3;               // 辅助
+    // 半月内第几天（1..15，循环）
+    const dayInHalf = d > 15 ? ((d - 16) % 15) + 1 : d;
+    const cState = C_TEMPLATE[dayInHalf - 1];
+    if (cState === 0)      return { early: bIdx, late: aIdx, rest: cIdx };  // 辅助休
+    else if (cState === 1) return { early: bIdx, late: cIdx, rest: aIdx };  // 辅助顶晚班
+    else                   return { early: cIdx, late: aIdx, rest: bIdx };  // 辅助顶早班
   }
 
   function badge(nameIdx) {
@@ -123,9 +130,9 @@
     const info1 = assign(y, m + 1, 1);
     const info2 = lastDay >= 16 ? assign(y, m + 1, 16) : null;
 
-    let html = '上半月(1-15) 晚班主力：' + badge(info1.night) + '　早班主力：' + badge(info1.morning) + '　顶班：' + badge(info1.cover);
+    let html = '上半月(1-15) 晚班主力：' + badge(info1.late) + '　早班主力：' + badge(info1.early) + '　辅助：' + badge(info1.rest);
     if (info2) {
-      html += '　｜　下半月(16-' + lastDay + ') 晚班主力：' + badge(info2.night) + '　早班主力：' + badge(info2.morning) + '　顶班：' + badge(info2.cover);
+      html += '　｜　下半月(16-' + lastDay + ') 晚班主力：' + badge(info2.late) + '　早班主力：' + badge(info2.early) + '　辅助：' + badge(info2.rest);
     }
     document.getElementById('dutyInfo').innerHTML = html;
 
