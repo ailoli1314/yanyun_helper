@@ -108,7 +108,16 @@
   const ANCHOR_DATE = Date.UTC(2026, 8, 1); // 基准日 2026-09-01
   const DAY_MS = 86400000;
 
-  let T = 12;                          // 当前周期（天），可改
+  // —— cookie 读写：记住用户设置的周期，刷新后自动填充 ——
+  function getCycleCookie() {
+    const m = document.cookie.match(/(?:^|;\s*)schedule_cycle=(\d+)/);
+    return m ? parseInt(m[1], 10) : null;
+  }
+  function saveCycleCookie(v) {
+    document.cookie = 'schedule_cycle=' + v + '; max-age=' + (365 * 24 * 3600) + '; path=/';
+  }
+
+  let T = getCycleCookie() || 12;      // 优先从 cookie 读，没有则默认 12 天
   let cur = new Date();
 
   // 所有内部函数统一用 0-indexed 月 m0
@@ -169,7 +178,7 @@
       w.textContent = '✓ 无「晚→早」倒班';
     }
     document.getElementById('ruleNote').textContent =
-      '晚班主力每 ' + T + ' 天轮换 · 周期内上2休1 · 周期切换处晚班连续 3 天（1次/周期）';
+      '晚班主力每 ' + T + ' 天轮换 · 周期内上2休1 · 周期切换处晚班连续 3 天（1次/周期）· 设置已记忆，刷新不丢';
 
     const segs = monthSegments(y, m0);
     document.getElementById('dutyInfo').innerHTML = segs.map(s => {
@@ -207,6 +216,7 @@
     const v = parseInt(e.target.value, 10);
     if (!isNaN(v) && v >= 3) {
       T = v;
+      saveCycleCookie(v);   // 保存到 cookie，刷新后自动填充
       render();
     }
   });
@@ -214,6 +224,8 @@
   document.getElementById('prev').onclick  = () => { cur = new Date(cur.getFullYear(), cur.getMonth() - 1, 1); render(); };
   document.getElementById('next').onclick  = () => { cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1); render(); };
   document.getElementById('today').onclick = () => { cur = new Date(); render(); };
+
+  document.getElementById('cycleInput').value = T;   // 用 cookie 里的值填充输入框
   render();
 </script>
 </body>
