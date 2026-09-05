@@ -24,12 +24,16 @@
   h1 { font-size: 24px; font-weight: 700; text-align: center; }
   .spacer { width: 160px; }
   .cycle-setting {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
+    display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px;
     margin: 10px 0 6px; font-size: 14px; color: #444;
   }
-  .cycle-setting input {
-    width: 70px; padding: 6px 8px; font-size: 15px; font-weight: 700;
+  .cycle-setting input[type="number"] {
+    width: 64px; padding: 6px 8px; font-size: 15px; font-weight: 700;
     border: 1px solid #d0d5dd; border-radius: 8px; text-align: center;
+  }
+  .cycle-setting input[type="date"] {
+    padding: 5px 8px; font-size: 14px;
+    border: 1px solid #d0d5dd; border-radius: 8px;
   }
   .cycle-setting input:focus { outline: 2px solid #2563EB; border-color: #2563EB; }
   .cycle-warning { font-size: 12px; }
@@ -89,6 +93,9 @@
     <label>晚班主力固定周期：</label>
     <input type="number" id="cycleInput" min="3" step="3" value="12">
     <label>天</label>
+    <span style="margin:0 6px;color:#ccc;">|</span>
+    <label>排班基准日（周期第1天）：</label>
+    <input type="date" id="anchorInput">
     <span class="cycle-warning" id="cycleWarning"></span>
   </div>
 
@@ -105,19 +112,30 @@
     { deep: '#16A34A', light: '#DCFCE7' }   // 可露雪妹夫 - 绿
   ];
   const TEMPLATE = [0, 2, 1];          // 3日循环：辅助 休→早→晚（晚班主力=晚晚休）
-  const ANCHOR_DATE = Date.UTC(2026, 8, 1); // 基准日 2026-09-01
   const DAY_MS = 86400000;
 
-  // —— cookie 读写：记住用户设置的周期，刷新后自动填充 ——
-  function getCycleCookie() {
-    const m = document.cookie.match(/(?:^|;\s*)schedule_cycle=(\d+)/);
-    return m ? parseInt(m[1], 10) : null;
+  // —— cookie 读写：记住周期 T 和基准日，刷新后自动填充 ——
+  function getCookie(name) {
+    const m = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]+)'));
+    return m ? decodeURIComponent(m[1]) : null;
   }
-  function saveCycleCookie(v) {
-    document.cookie = 'schedule_cycle=' + v + '; max-age=' + (365 * 24 * 3600) + '; path=/';
+  function saveCookie(name, v) {
+    document.cookie = name + '=' + encodeURIComponent(v) + '; max-age=' + (365 * 24 * 3600) + '; path=/';
+  }
+  function parseDateStr(s) {  // 'YYYY-MM-DD' -> UTC 时间戳
+    const [y, m, d] = s.split('-').map(Number);
+    return Date.UTC(y, m - 1, d);
+  }
+  function formatDateUTC(ts) {  // UTC 时间戳 -> 'YYYY-MM-DD'
+    const dt = new Date(ts);
+    const y = dt.getUTCFullYear();
+    const m = String(dt.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(dt.getUTCDate()).padStart(2, '0');
+    return y + '-' + m + '-' + d;
   }
 
-  let T = getCycleCookie() || 12;      // 优先从 cookie 读，没有则默认 12 天
+  let T = parseInt(getCookie('schedule_cycle'), 10) || 12;
+  let ANCHOR_DATE = getCookie('schedule_anchor') ? parseDateStr(getCookie('schedule_anchor')) : Date.UTC(2026, 8, 1);
   let cur = new Date();
 
   // 所有内部函数统一用 0-indexed 月 m0
@@ -168,7 +186,6 @@
       '<span><i class="dot" style="background:' + COLORS[i].deep + '"></i>' + n + '</span>'
     ).join('');
 
-    // 周期警告
     const w = document.getElementById('cycleWarning');
     if (T % 3 !== 0) {
       w.className = 'cycle-warning bad';
@@ -178,7 +195,7 @@
       w.textContent = '✓ 无「晚→早」倒班';
     }
     document.getElementById('ruleNote').textContent =
-      '晚班主力每 ' + T + ' 天轮换 · 周期内上2休1 · 周期切换处晚班连续 3 天（1次/周期）· 设置已记忆，刷新不丢';
+      '晚班主力每 ' + T + ' 天轮换 · 周期内上2休1 · 周期切换处晚班连续 3 天（1次/周期）· 周期与基准日已记忆，刷新不丢';
 
     const segs = monthSegments(y, m0);
     document.getElementById('dutyInfo').innerHTML = segs.map(s => {
@@ -212,11 +229,22 @@
       cells.join('');
   }
 
+  // 周期输入：改 T 即时保存 cookie 并重算
   document.getElementById('cycleInput').addEventListener('input', function (e) {
     const v = parseInt(e.target.value, 10);
     if (!isNaN(v) && v >= 3) {
       T = v;
-      saveCycleCookie(v);   // 保存到 cookie，刷新后自动填充
+      saveCookie('schedule_cycle', String(v));
+      render();
+    }
+  });
+
+  // 基准日输入：改基准日即时保存 cookie 并重算
+  document.getElementById('anchorInput').addEventListener('change', function (e) {
+    const v = e.target.value;   // 'YYYY-MM-DD'
+    if (v) {
+      ANCHOR_DATE = parseDateStr(v);
+      saveCookie('schedule_anchor', v);
       render();
     }
   });
@@ -225,7 +253,9 @@
   document.getElementById('next').onclick  = () => { cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1); render(); };
   document.getElementById('today').onclick = () => { cur = new Date(); render(); };
 
-  document.getElementById('cycleInput').value = T;   // 用 cookie 里的值填充输入框
+  // 用 cookie 里的值填充输入框
+  document.getElementById('cycleInput').value = T;
+  document.getElementById('anchorInput').value = formatDateUTC(ANCHOR_DATE);
   render();
 </script>
 </body>
