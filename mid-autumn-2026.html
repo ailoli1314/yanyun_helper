@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重磅福利 · 蓝星摸鱼办</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ===== 摸鱼办文件 · 局部样式（自包含，不污染 style.css） ===== */
+        body { background: var(--gradient-bg); }
+        .muyu-page { padding: 48px 0 80px; min-height: 100vh; }
+
+        /* 灯笼 */
+        .lantern { position: fixed; top: -8px; font-size: 2.2rem; z-index: 999; pointer-events: none;
+                   filter: drop-shadow(0 4px 12px rgba(253, 121, 168, 0.45)); }
+        .lantern-l { left: 6vw; } .lantern-r { right: 6vw; }
+        .lantern-rope { animation: sway 4s ease-in-out infinite; transform-origin: top center; display: block; }
+        .lantern-r .lantern-rope { animation-delay: 1.2s; }
+        @keyframes sway { 0%,100% { transform: rotate(4deg); } 50% { transform: rotate(-4deg); } }
+
+        /* 公告眉栏（替代站点导航） */
+        .doc-banner { text-align: center; margin: 26px 0 8px; }
+        .doc-banner a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem;
+                        letter-spacing: 2px; border-bottom: 1px dashed rgba(255,255,255,0.25); padding-bottom: 2px; }
+        .doc-banner a:hover { color: var(--primary-light); border-color: var(--primary-light); }
+
+        /* 红头文件本体 */
+        .doc { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+               border-radius: var(--radius); box-shadow: var(--shadow-card);
+               max-width: 800px; margin: 0 auto; padding: 48px 56px 40px; position: relative; }
+        .doc-head { text-align: center; margin-bottom: 10px; }
+        .doc-org { font-size: 2rem; font-weight: 800; letter-spacing: 10px; text-indent: 10px;
+                   background: linear-gradient(135deg, #ff7675 0%, #fd79a8 60%, #ffb3ba 100%);
+                   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .doc-secret { display: inline-block; margin-top: 10px; padding: 3px 14px; border-radius: 4px;
+                      border: 1.5px solid #ff7675; color: #ff7675; font-weight: 700; font-size: 0.85rem; letter-spacing: 4px; }
+        .doc-redline { height: 3px; background: #ff7675; margin: 22px 0 8px; border-radius: 2px;
+                       box-shadow: 0 0 14px rgba(255,118,117,0.5); }
+        .doc-starline { text-align: center; color: #ff7675; font-size: 1.05rem; letter-spacing: 6px; margin-bottom: 34px; }
+        .doc h2 { text-align: center; font-size: 1.5rem; margin: 42px 0 10px; line-height: 1.7; }
+        .doc-fileid { text-align: center; color: var(--text-muted); font-size: 0.9rem; letter-spacing: 1px; }
+        .doc > p:first-of-type { text-align: center; color: var(--text-muted); margin: 18px 0 34px; letter-spacing: 2px; }
+
+        .doc h3 { font-size: 1.15rem; margin: 36px 0 14px; color: var(--primary-light);
+                   display: flex; align-items: center; gap: 10px; }
+        .doc h3::before { content: ''; width: 4px; height: 18px; border-radius: 2px; background: var(--primary); }
+        .doc ol, .doc ul { margin: 0 0 10px 1.2em; }
+        .doc li { margin: 10px 0; color: var(--text); }
+        .doc li strong { color: #ffeaa7; }
+        .doc p { margin: 12px 0; }
+        .doc .biz { color: #ffeaa7; }
+
+        /* 揭晓按钮 */
+        .reveal-box { text-align: center; margin: 46px 0 30px; }
+        .reveal-btn { display: inline-flex; align-items: center; gap: 10px; padding: 16px 44px;
+                      border-radius: 50px; font-size: 1.15rem; font-weight: 700; cursor: pointer; border: none;
+                      background: linear-gradient(135deg, #ff7675 0%, #fd79a8 100%); color: #fff;
+                      box-shadow: 0 4px 20px rgba(253,121,168,0.45); transition: all .3s; }
+        .reveal-btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 8px 30px rgba(253,121,168,0.6); }
+        .reveal-btn:active { transform: scale(0.96); }
+        .reveal-hint { color: var(--text-muted); font-size: 0.85rem; margin-top: 12px; }
+
+        /* 倒计时（中秋前） */
+        .countdown { margin: 4px 0 26px; }
+        .cd-label { color: var(--text-muted); letter-spacing: 3px; font-size: 0.95rem; margin-bottom: 14px; }
+        .cd-cells { display: flex; justify-content: center; gap: 14px; }
+        .cd-cell { min-width: 88px; padding: 14px 10px 10px; border-radius: 14px;
+                   background: rgba(255,255,255,0.05); border: 1px solid rgba(255,118,117,0.35); }
+        .cd-num { display: block; font-size: 2.3rem; font-weight: 800; line-height: 1.1;
+                  font-variant-numeric: tabular-nums;
+                  background: linear-gradient(135deg, #ffeaa7 0%, #ff7675 60%, #fd79a8 100%);
+                  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .cd-unit { display: block; margin-top: 6px; color: var(--text-muted); font-size: 0.85rem;
+                   letter-spacing: 4px; text-indent: 4px; }
+        .cd-note { margin-top: 14px; color: var(--text-muted); font-size: 0.85rem; }
+        .reveal-btn.locked { background: linear-gradient(135deg, #636e72 0%, #7a6772 100%);
+                             cursor: not-allowed; box-shadow: none; }
+        .reveal-btn.locked:hover { transform: none; box-shadow: none; }
+        .reveal-btn.shaking { animation: btn-shake .45s; }
+        @keyframes btn-shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); }
+                               40% { transform: translateX(8px); } 60% { transform: translateX(-5px); }
+                               80% { transform: translateX(5px); } }
+
+        /* 福利揭晓 */
+        .welfare { display: none; text-align: center; padding: 34px 20px 30px; margin: 10px 0 6px;
+                   border-radius: var(--radius); border: 1px dashed rgba(255,118,117,0.45);
+                   background: radial-gradient(circle at 50% 0%, rgba(253,121,168,0.12) 0%, transparent 60%); }
+        .welfare.show { display: block; animation: pop-in .5s cubic-bezier(.2,1.4,.4,1); }
+        @keyframes pop-in { 0% { opacity: 0; transform: scale(.86); } 100% { opacity: 1; transform: scale(1); } }
+        .welfare-emoji { font-size: 3rem; display: block; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+        .welfare-title { font-size: 2rem; font-weight: 800; letter-spacing: 4px;
+                         background: linear-gradient(135deg, #ffeaa7 0%, #ff7675 50%, #fd79a8 100%);
+                         -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+                         filter: drop-shadow(0 0 18px rgba(255,118,117,0.35)); }
+        .welfare-note { color: var(--text-muted); margin-top: 14px; font-size: 0.95rem; }
+        .welfare-wish { margin-top: 26px; font-size: 1.05rem; line-height: 2.1; }
+        .welfare-wish strong { color: #ffeaa7; }
+
+        /* 三千万拨款凭证 */
+        .welfare-grant { margin: 28px auto 0; max-width: 480px; padding: 18px 22px 16px;
+                         border: 1px solid rgba(255,234,167,0.35); border-radius: 12px;
+                         background: linear-gradient(180deg, rgba(255,234,167,0.07) 0%, rgba(255,234,167,0.02) 100%); }
+        .grant-title { margin: 0 0 14px; color: var(--text-muted); font-size: 0.88rem;
+                       letter-spacing: 2px; text-align: center; }
+        .grant-line { margin: 8px 0; font-size: 1.18rem; font-weight: 700; letter-spacing: 4px;
+                      color: #ffeaa7; text-align: center;
+                      text-shadow: 0 0 16px rgba(255,234,167,0.28);
+                      opacity: 0; transform: translateY(10px); }
+        .welfare.show .grant-line { animation: grant-pop .5s cubic-bezier(.2,1.4,.4,1) forwards; }
+        .welfare.show .grant-line:nth-child(3) { animation-delay: .15s; }
+        .welfare.show .grant-line:nth-child(4) { animation-delay: .35s; }
+        @keyframes grant-pop { 0% { opacity: 0; transform: translateY(10px) scale(.92); }
+                                100% { opacity: 1; transform: translateY(0) scale(1); } }
+        .grant-note { margin: 14px 0 0; color: var(--text-muted); font-size: 0.78rem;
+                      line-height: 1.8; text-align: center; }
+        .peek-verdict { margin: 24px auto 0; max-width: 520px; padding: 14px 18px; font-size: 0.92rem;
+                        border-radius: 10px; border: 1px dashed rgba(255,234,167,0.4);
+                        background: rgba(255,234,167,0.07); color: var(--text); }
+
+        /* 调试坞：仅本地预览（file:// / localhost / ?debug）出现，线上访客不可见 */
+        .debug-dock { display: none; position: fixed; right: 14px; bottom: 14px; z-index: 1200; }
+        .debug-toggle { width: 38px; height: 38px; border-radius: 50%; cursor: pointer;
+                        border: 1px solid rgba(255,255,255,0.2); background: rgba(45,52,64,0.85);
+                        color: var(--text-muted); font-size: 1rem; }
+        .debug-toggle:hover { color: var(--text); border-color: rgba(255,255,255,0.4); }
+        .debug-panel { display: none; position: absolute; right: 0; bottom: 48px; min-width: 210px;
+                       background: rgba(45,52,64,0.95); border: 1px solid rgba(255,255,255,0.15);
+                       border-radius: 12px; padding: 12px 14px; box-shadow: var(--shadow-card); }
+        .debug-panel.open { display: block; }
+        .debug-title { font-size: 0.78rem; color: var(--text-muted); margin: 0 0 8px; letter-spacing: 1px; }
+        .debug-info { font-size: 0.78rem; color: #ffeaa7; margin: 0 0 10px; }
+        .debug-btn { display: block; width: 100%; margin: 6px 0 0; padding: 8px 10px; border-radius: 8px;
+                     border: 1px solid rgba(255,255,255,0.18); background: transparent; color: var(--text);
+                     font-size: 0.82rem; cursor: pointer; text-align: left; }
+        .debug-btn:hover { background: rgba(255,255,255,0.08); }
+
+        /* 落款 & 附则 */
+        .doc-sign { margin-top: 44px; color: var(--text); line-height: 2;
+                   display: flex; justify-content: flex-end; align-items: flex-end; gap: 22px; }
+        .doc-sign-text { text-align: right; }
+        /* 定制印章 A：月饼即章，盖在落款处 */
+        .seal-note { color: var(--text-muted); font-size: 0.78rem; }
+        .doc-seal-svg { flex: 0 0 auto; width: 170px; height: 170px; margin-bottom: 10px;
+                        transform: rotate(-9deg); pointer-events: none;
+                        filter: drop-shadow(0 14px 30px rgba(0,0,0,0.5));
+                        animation: stamp-thump .55s cubic-bezier(.2,1.6,.4,1) 1.15s both; }
+        @keyframes stamp-thump { 0% { opacity: 0; transform: rotate(-9deg) scale(1.8); }
+                                 65% { opacity: 1; transform: rotate(-9deg) scale(0.95); }
+                                 100% { opacity: 1; transform: rotate(-9deg) scale(1); } }
+        .seal-text { fill: #b3352c; font-family: "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif; font-weight: 700; }
+        .fish-glyph path { fill: none; stroke: #b3352c; stroke-width: 7; stroke-linecap: square; stroke-linejoin: miter; }
+        .fish-glyph .fine { stroke-width: 4; }
+        .doc-ps { margin-top: 34px; padding: 16px 20px; border-left: 3px solid var(--primary);
+                  background: rgba(108,92,231,0.08); border-radius: 0 10px 10px 0;
+                  color: var(--text-muted); font-size: 0.88rem; line-height: 1.9; }
+
+        @media (max-width: 640px) {
+            .doc { padding: 34px 22px; }
+            .doc-org { font-size: 1.45rem; letter-spacing: 6px; text-indent: 6px; }
+            .welfare-title { font-size: 1.5rem; }
+            .lantern { font-size: 1.6rem; }
+            .doc-sign { flex-direction: column; align-items: flex-end; gap: 10px; }
+            .doc-seal-svg { width: 120px; height: 120px; margin-bottom: 0; }
+            .cd-cells { gap: 8px; }
+            .cd-cell { min-width: 66px; padding: 10px 6px 8px; }
+            .cd-num { font-size: 1.6rem; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .lantern-rope, .welfare-emoji { animation: none; }
+            .welfare.show { animation: none; }
+            .doc-seal-svg { animation: none; }
+            .reveal-btn.shaking { animation: none; }
+            .welfare.show .grant-line { animation: none; opacity: 1; transform: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 站点导航已按"纯公告"定位移除：本页是独立公文，不挂站点品牌。 -->
+
+    <div class="lantern lantern-l"><span class="lantern-rope">🏮</span></div>
+    <div class="lantern lantern-r"><span class="lantern-rope">🏮</span></div>
+
+    <p class="doc-banner"><a href="notice.html">返回公告栏</a></p>
+
+    <!-- ══ 摸鱼办定制印章 A · 公共定义（隐藏画布） ══ -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <radialGradient id="cakeGrad" cx="42%" cy="38%" r="75%">
+                <stop offset="0%" stop-color="#f5c46a"/>
+                <stop offset="55%" stop-color="#d99943"/>
+                <stop offset="100%" stop-color="#b5762d"/>
+            </radialGradient>
+            <radialGradient id="faceGrad" cx="45%" cy="42%" r="70%">
+                <stop offset="0%" stop-color="#e0a94f"/>
+                <stop offset="100%" stop-color="#b07830"/>
+            </radialGradient>
+            <filter id="sealWear" x="-8%" y="-8%" width="116%" height="116%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.11" numOctaves="3" seed="7" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" result="d"/>
+                <feComponentTransfer in="d" result="d2">
+                    <feFuncA type="discrete" tableValues="0 1 1 1 1 1 1 1 1 1 0.7 1 1 1 1 1"/>
+                </feComponentTransfer>
+                <feGaussianBlur in="d2" stdDeviation="0.25"/>
+            </filter>
+            <filter id="inkBleed" x="-10%" y="-10%" width="120%" height="120%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="2" seed="11" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="1.8"/>
+            </filter>
+            <path id="petal" d="M150,44 C153,48 153,52 150,57 C147,52 147,48 150,44"/>
+
+            <!-- ══ 印芯：上弧机构名 · 中心金文鱼 · 下横中秋专用 ══ -->
+            <g id="sealCore">
+              <g filter="url(#sealWear)">
+                <!-- 外圈 -->
+                <circle cx="150" cy="150" r="86" fill="none" stroke="#b3352c" stroke-width="4.5"/>
+                <!-- 内圈 -->
+                <circle cx="150" cy="150" r="57" fill="none" stroke="#b3352c" stroke-width="1.8"/>
+                <!-- 上弧：蓝星摸鱼办 -->
+                <path id="arcTop" d="M 89,150 A 61,61 0 0 1 211,150" fill="none"/>
+                <text class="seal-text" font-size="23" letter-spacing="4">
+                  <textPath href="#arcTop" startOffset="50%" text-anchor="middle">蓝星摸鱼办</textPath>
+                </text>
+        <!-- 下横：中秋专用 -->
+        <text class="seal-text" x="150" y="225" font-size="13" letter-spacing="2" text-anchor="middle">中秋专用</text>
+        <!-- 中心：古朴鱼字纹（仿金文方笔 · 竖排） -->
+        <g class="fish-glyph" filter="url(#inkBleed)">
+          <path d="M134,126 L150,108 L166,126"/>
+          <path d="M136,126 L164,126"/>
+          <path d="M139,126 L139,174"/>
+          <path d="M161,126 L161,174"/>
+          <path d="M139,144 L161,144"/>
+          <path d="M139,160 L161,160"/>
+          <path d="M150,126 L150,174"/>
+          <path d="M150,174 L150,181"/>
+          <path d="M150,181 L138,195"/>
+          <path d="M150,181 L162,195"/>
+          <path class="fine" d="M131,187 L137,193"/>
+          <path class="fine" d="M169,187 L163,193"/>
+        </g>
+      </g>
+            </g>
+        </defs>
+    </svg>
+
+    <section class="muyu-page">
+        <div class="container">
+            <div class="doc">
+
+                <div class="doc-head">
+                    <div class="doc-org">蓝星摸鱼办文件</div>
+                    <span class="doc-secret">绝密 ★ 想现在就告诉你</span>
+                </div>
+                <div class="doc-redline"></div>
+                <div class="doc-starline">★ ★ ★ ★ ★ ★ ★</div>
+
+                <h2>关于隆重发放中秋国庆双节<br>史诗级重磅福利的通知</h2>
+                <div class="doc-fileid">摸鱼办发〔2026〕中秋节号</div>
+
+                <p>全体摸鱼同仁：</p>
+
+                <p>皓月当空，双节同庆。经摸鱼办党组（扩大）会议连日加班研究（会议全程严格执行"干活三十秒，摸鱼五分钟"行业标准，均已留痕备案），现就 2026 年中秋国庆双节福利发放有关事项通知如下：</p>
+
+                <p>本次福利：<strong class="biz">规格之高，为本办成立以来第一次；覆盖之广，蓝星八十亿人一个不少；诚意之足，连扫地机器人都投了赞成票。</strong></p>
+
+                <h3>一、福利亮点</h3>
+                <ol>
+                    <li><strong>覆盖全员</strong>：凡蓝星在册居民，无论在职、离职、居家、出家，一律平等享有；</li>
+                    <li><strong>零门槛</strong>：不用抽奖，不用拼团，不用转发五个群，不用@所有人；</li>
+                    <li><strong>自动到账</strong>：中秋之夜零时起，依托月光专线，点对点、面对面、心贴心直达，逾期不作废，终身可回溯；</li>
+                    <li><strong>假一赔十</strong>：但本福利无价，故无法理赔，敬请谅解。</li>
+                </ol>
+                <p>具体福利内容因密级过高，暂不公布。请全体同仁保持期待，提前安排好激动的心情，避免揭晓当日心率超标。期间如出现频繁看表、反复刷新、嘴角不自觉上扬等症状，属正常现象，无需就医。</p>
+
+                <h3>二、工作要求</h3>
+                <ol>
+                    <li>请各单位即日起悬挂灯笼、倒排工期、挂图作战，营造隆重氛围；</li>
+                    <li>请全体同仁中秋之夜赏月时保持手机畅通，留意月光专线信号；</li>
+                    <li>福利发放期间，摸鱼办实行 24 小时值班制度（值班表：扫地机器人全包）。</li>
+                </ol>
+
+                <h3>三、福利揭晓</h3>
+                <p>经摸鱼办全体职工大会一致表决通过（应到三人，实到三人，其中一人为扫地机器人），2026 年中秋国庆史诗级重磅福利，定于<strong class="biz">中秋当日零时</strong>，依托月光专线准时揭晓——</p>
+
+                <div class="reveal-box">
+                    <div class="countdown" id="countdown">
+                        <div class="cd-label">距史诗级重磅福利揭晓还有</div>
+                        <div class="cd-cells">
+                            <div class="cd-cell"><span class="cd-num" id="cdD">--</span><span class="cd-unit">天</span></div>
+                            <div class="cd-cell"><span class="cd-num" id="cdH">--</span><span class="cd-unit">时</span></div>
+                            <div class="cd-cell"><span class="cd-num" id="cdM">--</span><span class="cd-unit">分</span></div>
+                            <div class="cd-cell"><span class="cd-num" id="cdS">--</span><span class="cd-unit">秒</span></div>
+                        </div>
+                        <div class="cd-note">（福利将于中秋当日零时解锁；月光专线信号全覆盖，无需蹲守刷新）</div>
+                    </div>
+                    <button class="reveal-btn" id="revealBtn" onclick="tryReveal()">🏮 点击揭晓史诗级重磅福利</button>
+                    <div class="reveal-hint" id="revealHint">（已经隆重到需要手动揭晓的程度了）</div>
+                </div>
+
+                <div class="welfare" id="welfare">
+                    <span class="welfare-emoji">🎑</span>
+                    <div class="welfare-title">祝大家假期快乐</div>
+                    <p class="welfare-note">就是这句话本身。</p>
+                    <p>短短几个字，攒了一整年；字字不要钱，句句都算数。愿全体同仁——</p>
+                    <p class="welfare-wish">
+                        <strong>月饼吃不胖，假期睡到自然醒；</strong><br>
+                        <strong>摸鱼摸得心安理得，过节过得理直气壮。</strong>
+                    </p>
+
+                    <div class="welfare-grant">
+                        <p class="grant-title">── 随文附赠三千万，请查收 ──</p>
+                        <p class="grant-line">千万要开心 🎑</p>
+                        <p class="grant-line">千万要幸福 🏮</p>
+                        <p class="grant-line">千万要自由 🐟</p>
+                        <p class="grant-note">财务科备注：本笔巨款已计入您的摸鱼账户，免手续费、永不冻结、永不过期。另：本办不发行货币，三千万仅限开心、幸福、自由三种面额，恕不找零。</p>
+                    </div>
+
+                    <div class="peek-verdict" id="peekVerdict" style="display:none"></div>
+                </div>
+
+                <div class="doc-sign">
+                    <div class="doc-sign-text">
+                        <p>蓝星摸鱼办</p>
+                        <p>中秋国庆双节当日</p>
+                        <p class="seal-note">（本文件已加盖摸鱼办定制月饼章，印泥为豆沙馅，五仁过敏者可放心观赏）</p>
+                    </div>
+                    <svg class="doc-seal-svg" viewBox="0 0 300 300" role="img" aria-label="蓝星摸鱼办中秋专用月饼印章">
+                        <path fill="url(#cakeGrad)" stroke="rgba(90,45,15,0.4)" stroke-width="1.5" d="M267.0,150.0 L266.2,154.3 L264.2,158.6 L261.3,162.5 L258.3,166.3 L255.8,170.0 L254.3,173.8 L254.0,177.9 L254.6,182.3 L255.7,187.0 L256.6,191.8 L256.6,196.5 L255.4,200.8 L252.8,204.4 L249.2,207.2 L244.8,209.6 L240.5,211.7 L236.6,213.9 L233.7,216.7 L231.6,220.2 L230.3,224.5 L229.2,229.2 L227.9,233.9 L225.9,238.2 L222.9,241.5 L219.1,243.6 L214.5,244.6 L209.6,244.8 L204.8,244.8 L200.3,245.2 L196.4,246.4 L193.1,248.7 L190.0,251.9 L187.0,255.7 L183.7,259.4 L180.1,262.4 L176.0,264.1 L171.6,264.3 L167.1,263.2 L162.5,261.3 L158.2,259.2 L154.0,257.6 L150.0,257.0 L146.0,257.6 L141.8,259.2 L137.5,261.3 L132.9,263.2 L128.4,264.1 L124.0,264.1 L119.9,262.4 L116.3,259.4 L113.0,255.7 L110.0,251.9 L106.9,248.7 L103.6,246.4 L99.7,245.2 L95.3,244.8 L90.4,244.8 L85.5,244.6 L80.9,243.6 L77.1,241.5 L74.1,238.2 L72.1,233.9 L70.8,229.2 L69.7,224.5 L68.4,220.2 L66.3,216.7 L63.4,213.9 L59.5,211.7 L55.2,209.6 L50.8,207.2 L47.2,204.4 L44.6,200.8 L43.4,196.5 L43.4,191.8 L44.3,187.0 L45.4,182.3 L46.0,177.9 L45.7,173.8 L44.2,170.0 L41.7,166.3 L38.7,162.5 L35.8,158.6 L33.8,154.3 L33.0,150.0 L33.8,145.7 L35.8,141.4 L38.7,137.5 L41.7,133.7 L44.2,130.0 L45.7,126.2 L46.0,122.1 L45.4,117.7 L44.3,113.0 L43.4,108.2 L43.4,103.5 L44.6,99.2 L47.2,95.6 L50.8,92.8 L55.2,90.4 L59.5,88.3 L63.4,86.1 L66.3,83.3 L68.4,79.8 L69.7,75.5 L70.8,70.8 L72.1,66.1 L74.1,61.8 L77.1,58.5 L80.9,56.4 L85.5,55.4 L90.4,55.2 L95.2,55.2 L99.7,54.8 L103.6,53.6 L106.9,51.3 L110.0,48.1 L113.0,44.3 L116.3,40.6 L119.9,37.6 L124.0,35.9 L128.4,35.7 L132.9,36.8 L137.5,38.7 L141.8,40.8 L146.0,42.4 L150.0,43.0 L154.0,42.4 L158.2,40.8 L162.5,38.7 L167.1,36.8 L171.6,35.7 L176.0,35.9 L180.1,37.6 L183.7,40.6 L187.0,44.3 L190.0,48.1 L193.1,51.3 L196.4,53.6 L200.3,54.8 L204.8,55.2 L209.6,55.2 L214.5,55.4 L219.1,56.4 L222.9,58.5 L225.9,61.8 L227.9,66.1 L229.2,70.8 L230.3,75.5 L231.6,79.8 L233.7,83.3 L236.6,86.1 L240.5,88.3 L244.8,90.4 L249.2,92.7 L252.8,95.6 L255.4,99.2 L256.6,103.5 L256.6,108.2 L255.7,113.0 L254.6,117.7 L254.0,122.1 L254.3,126.2 L255.8,130.0 L258.3,133.7 L261.3,137.5 L264.2,141.4 L266.2,145.7 Z"/>
+                        <circle cx="150" cy="150" r="98" fill="none" stroke="rgba(122,66,20,0.18)" stroke-width="16"/>
+                        <g stroke="rgba(90,45,15,0.5)" stroke-width="1.5" fill="rgba(255,235,190,0.12)">
+                            <use href="#petal"/>
+                            <use href="#petal" transform="rotate(45 150 150)"/>
+                            <use href="#petal" transform="rotate(90 150 150)"/>
+                            <use href="#petal" transform="rotate(135 150 150)"/>
+                            <use href="#petal" transform="rotate(180 150 150)"/>
+                            <use href="#petal" transform="rotate(225 150 150)"/>
+                            <use href="#petal" transform="rotate(270 150 150)"/>
+                            <use href="#petal" transform="rotate(315 150 150)"/>
+                        </g>
+                        <circle cx="150" cy="150" r="92" fill="url(#faceGrad)" stroke="rgba(90,45,15,0.35)" stroke-width="1"/>
+                        <use href="#sealCore"/>
+                        <ellipse cx="118" cy="92" rx="52" ry="26" fill="#ffffff" opacity="0.08"/>
+                    </svg>
+                </div>
+
+                <div class="doc-ps">
+                    <strong>附则</strong>：本通知最终解释权归摸鱼办所有；福利一经发放，概不退换；提前打探福利内容者，罚抄《职工带薪摸鱼守则》全文一遍。
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ 摸鱼办内部调试通道：仅本地预览环境显示 ══ -->
+    <div class="debug-dock" id="dbgDock">
+        <button class="debug-toggle" id="dbgToggle" title="摸鱼办内部调试通道">🛠</button>
+        <div class="debug-panel" id="dbgPanel">
+            <p class="debug-title">摸鱼办 · 内部调试通道</p>
+            <p class="debug-info" id="dbgInfo">手贱档案：0 次</p>
+            <button class="debug-btn" onclick="debugUnlock()">🔓 跳过倒计时（直接解锁）</button>
+            <button class="debug-btn" onclick="debugReset()">🧹 清零手贱档案并刷新</button>
+        </div>
+    </div>
+
+    <script>
+        /* ===== 福利倒计时状态机：中秋当日零时（+08:00）解锁 ===== */
+        var UNLOCK_TS = new Date('2026-09-25T00:00:00+08:00').getTime();
+        var cdTimer = null, warnTimer = null, unlocked = false;
+
+        /* ===== 手贱档案：封印期点击计数，cookie 入档（file:// 或拦截时 localStorage 兜底），中秋当夜清算 ===== */
+        var PEEK_COOKIE = 'muyuPeekCount';
+        function getPeekCount() {
+            var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + PEEK_COOKIE + '=([^;]*)'));
+            if (m) return parseInt(m[1], 10) || 0;
+            try { return parseInt(localStorage.getItem(PEEK_COOKIE), 10) || 0; }
+            catch (e) { return 0; }
+        }
+        function setPeekCount(n) {
+            document.cookie = PEEK_COOKIE + '=' + n + ';max-age=2592000;path=/;SameSite=Lax';
+            try { localStorage.setItem(PEEK_COOKIE, String(n)); } catch (e) {}
+        }
+
+        /* 每点一次换一句，逐级升级；超出台账长度后按次数循环播报 */
+        var WARNINGS = [
+            '⚠️ 附则警告：提前打探福利内容者，罚抄《职工带薪摸鱼守则》全文一遍。',
+            '⚠️ 档案科通报：您本次的尝试已记录在案，中秋当日当面对质。',
+            '⚠️ 保卫科提示：福利封印系月饼办特批，请勿暴力拆封。',
+            '⚠️ 财务科声明：福利尚未到账，账上只有一个月亮，恕不外借。',
+            '⚠️ 人事科关切：连续点击不影响解锁时间，但已影响您的手速档案。',
+            '⚠️ 纪检科警告：再点，罚抄遍数就要变复数了。望周知，望自重。',
+            '⚠️ 心理科疏导：我们都理解。但月亮不走后门，福利也不走。',
+            '⚠️ 摸鱼办主任亲批：忍住。中秋当夜，一并清算。'
+        ];
+        function peekWarning(n) {
+            if (n <= WARNINGS.length) return WARNINGS[n - 1];
+            return '⚠️ 档案科例行播报：这是您第 ' + n + ' 次尝试。中秋当夜，' + n + ' 遍一遍不落，字迹工整。';
+        }
+
+        function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+        function updateTitle(daysLeft) {
+            var t = daysLeft >= 1 ? '🏮 距中秋福利揭晓还有 ' + daysLeft + ' 天'
+                                  : '🏮 福利中秋之夜揭晓！';
+            if (document.title !== t) document.title = t;
+        }
+
+        function tickCountdown() {
+            var diff = UNLOCK_TS - Date.now();
+            if (diff <= 0) { doUnlock(); return; }
+            var s = Math.floor(diff / 1000);
+            document.getElementById('cdD').textContent = Math.floor(s / 86400);
+            document.getElementById('cdH').textContent = pad(Math.floor(s % 86400 / 3600));
+            document.getElementById('cdM').textContent = pad(Math.floor(s % 3600 / 60));
+            document.getElementById('cdS').textContent = pad(s % 60);
+            updateTitle(Math.floor(s / 86400));
+        }
+
+        function doUnlock() {
+            if (unlocked) return;
+            unlocked = true;
+            if (cdTimer) clearInterval(cdTimer);
+            var cd = document.getElementById('countdown');
+            if (cd) cd.style.display = 'none';
+            var b = document.getElementById('revealBtn');
+            b.classList.remove('locked');
+            b.textContent = '🏮 点击揭晓史诗级重磅福利';
+            document.getElementById('revealHint').textContent = '（已经隆重到需要手动揭晓的程度了）';
+            document.title = '重磅福利 · 蓝星摸鱼办';
+        }
+
+        function tryReveal() {
+            if (!unlocked) {
+                var b = document.getElementById('revealBtn');
+                b.classList.remove('shaking'); void b.offsetWidth; b.classList.add('shaking');
+                var hint = document.getElementById('revealHint');
+                clearTimeout(warnTimer);
+                var n = getPeekCount() + 1;
+                setPeekCount(n);
+                hint.textContent = peekWarning(n) + '（第 ' + n + ' 次）';
+                var di = document.getElementById('dbgInfo');
+                if (di) di.textContent = '手贱档案：' + n + ' 次';
+                warnTimer = setTimeout(function () {
+                    hint.textContent = '（福利封印中 · 中秋当日零时解锁）';
+                }, 4200);
+                return;
+            }
+            revealWelfare();
+        }
+
+        function revealWelfare() {
+            var w = document.getElementById('welfare');
+            var b = document.getElementById('revealBtn');
+            w.classList.add('show');
+            b.style.display = 'none';
+            document.title = '🎑 祝大家假期快乐 · 蓝星摸鱼办';
+            var peeks = getPeekCount();
+            if (peeks > 0) {
+                var verdict = document.getElementById('peekVerdict');
+                verdict.innerHTML = '经档案科连夜统计，您在封印期间共手贱 <strong class="biz">' + peeks +
+                    ' 次</strong>。依据附则，现宣判：<strong class="biz">罚抄《职工带薪摸鱼守则》全文 ' + peeks +
+                    ' 遍</strong>，字迹工整，节后择日上交，逾期加倍。';
+                verdict.style.display = 'block';
+            }
+            setTimeout(function () {
+                w.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 120);
+        }
+
+        (function initReveal() {
+            if (Date.now() >= UNLOCK_TS) { doUnlock(); return; }
+            var b = document.getElementById('revealBtn');
+            b.classList.add('locked');
+            b.textContent = '🔒 福利封印中 · 中秋当日解锁';
+            document.getElementById('revealHint').textContent = '（点击可提前体验按钮晃动功能）';
+            tickCountdown();
+            cdTimer = setInterval(tickCountdown, 1000);
+
+            /* ══ 内部调试通道：仅本地预览环境挂载 ══ */
+            if (location.protocol === 'file:' || location.hostname === 'localhost' ||
+                location.hostname === '127.0.0.1' || /[?&]debug\b/.test(location.search)) {
+                var dock = document.getElementById('dbgDock');
+                if (dock) {
+                    dock.style.display = 'block';
+                    document.getElementById('dbgToggle').addEventListener('click', function () {
+                        document.getElementById('dbgPanel').classList.toggle('open');
+                    });
+                    document.getElementById('dbgInfo').textContent = '手贱档案：' + getPeekCount() + ' 次';
+                }
+            }
+        })();
+
+        function debugUnlock() {
+            if (unlocked) return;
+            UNLOCK_TS = 0;
+            doUnlock();
+            var panel = document.getElementById('dbgPanel');
+            if (panel) panel.classList.remove('open');
+        }
+        function debugReset() {
+            document.cookie = PEEK_COOKIE + '=;max-age=0;path=/';
+            try { localStorage.removeItem(PEEK_COOKIE); } catch (e) {}
+            location.reload();
+        }
+    </script>
+</body>
+</html>

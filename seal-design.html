@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>摸鱼办印章 · 设计稿</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .seal-page { padding: 130px 0 60px; min-height: 100vh; }
+  .seal-intro { text-align: center; max-width: 700px; margin: 0 auto 28px; color: var(--text-muted); }
+  .seal-intro h1 { font-size: 2rem; margin-bottom: 10px; background: var(--gradient-2); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .seal-stage { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 900px; margin: 0 auto; }
+  .seal-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); box-shadow: var(--shadow-card); padding: 26px; text-align: center; }
+  .seal-card h3 { margin-bottom: 4px; font-size: 1.1rem; }
+  .seal-card .note { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px; }
+  .seal-svg { width: 100%; max-width: 320px; height: auto; filter: drop-shadow(0 12px 32px rgba(0,0,0,0.4)); }
+
+  /* ===== 印章笔画（朱砂色，方笔金文风） ===== */
+  .seal-red { stroke: #b3352c; }
+  .seal-text { fill: #b3352c; font-family: "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif; font-weight: 700; }
+  .fish-glyph path { fill: none; stroke: #b3352c; stroke-width: 7; stroke-linecap: square; stroke-linejoin: miter; }
+  .fish-glyph .fine { stroke-width: 4; }
+
+  /* 盖章入场动效 */
+  .stamp-in { animation: stamp-in .55s cubic-bezier(.2,1.6,.4,1) both; transform-origin: 50% 50%; }
+  @keyframes stamp-in { 0% { opacity: 0; transform: scale(1.7); } 65% { opacity: 1; transform: scale(0.96); } 100% { opacity: 1; transform: scale(1); } }
+
+  @media (max-width: 720px) { .seal-stage { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .stamp-in { animation: none; } }
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="logo"><span class="logo-icon">☁️</span><span class="logo-text">游戏秘籍</span></a>
+    <ul class="nav-menu">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="intro.html">脚本介绍</a></li>
+      <li><a href="notice.html">公告</a></li>
+    </ul>
+    <a href="#" class="nav-download">立即下载</a>
+  </div>
+</nav>
+
+<!-- ══ 印章公共定义（隐藏画布）：两个方案共用同一枚章 ══ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- 饼身：暖金渐变 -->
+    <radialGradient id="cakeGrad" cx="42%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#f5c46a"/>
+      <stop offset="55%" stop-color="#d99943"/>
+      <stop offset="100%" stop-color="#b5762d"/>
+    </radialGradient>
+    <!-- 饼面（略深，压出来的下陷感） -->
+    <radialGradient id="faceGrad" cx="45%" cy="42%" r="70%">
+      <stop offset="0%" stop-color="#e0a94f"/>
+      <stop offset="100%" stop-color="#b07830"/>
+    </radialGradient>
+    <!-- 朱砂斑驳：盖印不均 -->
+    <filter id="sealWear" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.11" numOctaves="3" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" result="d"/>
+      <feComponentTransfer in="d" result="d2">
+        <feFuncA type="discrete" tableValues="0 1 1 1 1 1 1 1 1 1 0.7 1 1 1 1 1"/>
+      </feComponentTransfer>
+      <feGaussianBlur in="d2" stdDeviation="0.25"/>
+    </filter>
+    <!-- 刀刻晕染：笔画边缘微糙 -->
+    <filter id="inkBleed" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="2" seed="11" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.8"/>
+    </filter>
+
+    <!-- ══ 印芯：上弧机构名 · 中心金文鱼 · 下横中秋专用 ══ -->
+    <g id="sealCore">
+      <g filter="url(#sealWear)">
+        <!-- 外圈 -->
+        <circle cx="150" cy="150" r="86" fill="none" stroke="#b3352c" stroke-width="4.5"/>
+        <!-- 内圈 -->
+        <circle cx="150" cy="150" r="57" fill="none" stroke="#b3352c" stroke-width="1.8"/>
+        <!-- 上弧：蓝星摸鱼办 -->
+        <path id="arcTop" d="M 89,150 A 61,61 0 0 1 211,150" fill="none"/>
+        <text class="seal-text" font-size="23" letter-spacing="4">
+          <textPath href="#arcTop" startOffset="50%" text-anchor="middle">蓝星摸鱼办</textPath>
+        </text>
+        <!-- 下横：中秋专用 -->
+        <text class="seal-text" x="150" y="225" font-size="13" letter-spacing="2" text-anchor="middle">中秋专用</text>
+        <!-- 中心：古朴鱼字纹（仿金文方笔 · 竖排） -->
+        <g class="fish-glyph" filter="url(#inkBleed)">
+          <path d="M134,126 L150,108 L166,126"/>
+          <path d="M136,126 L164,126"/>
+          <path d="M139,126 L139,174"/>
+          <path d="M161,126 L161,174"/>
+          <path d="M139,144 L161,144"/>
+          <path d="M139,160 L161,160"/>
+          <path d="M150,126 L150,174"/>
+          <path d="M150,174 L150,181"/>
+          <path d="M150,181 L138,195"/>
+          <path d="M150,181 L162,195"/>
+          <path class="fine" d="M131,187 L137,193"/>
+          <path class="fine" d="M169,187 L163,193"/>
+        </g>
+      </g>
+    </g>
+  </defs>
+</svg>
+
+<section class="seal-page">
+  <div class="container">
+    <div class="seal-intro">
+      <h1>🏮 摸鱼办定制印章 · 设计稿</h1>
+      <p>中秋限定：底层月饼，中心古朴鱼字纹，朱砂印泥，斑驳做旧</p>
+    </div>
+
+    <div class="seal-stage">
+
+      <!-- ═══════════ 方案 A：月饼即章 ═══════════ -->
+      <div class="seal-card">
+        <h3>方案 A · 月饼即章</h3>
+        <p class="note">整块月饼就是章体，饼面盖印，直接按在通知上</p>
+        <svg class="seal-svg stamp-in" viewBox="0 0 300 300" role="img" aria-label="蓝星摸鱼办中秋月饼印章">
+          <defs>
+            <path id="petal" d="M150,44 C153,48 153,52 150,57 C147,52 147,48 150,44"/>
+          </defs>
+          <!-- 花边饼身 -->
+          <path fill="url(#cakeGrad)" stroke="rgba(90,45,15,0.4)" stroke-width="1.5" d="M267.0,150.0 L266.2,154.3 L264.2,158.6 L261.3,162.5 L258.3,166.3 L255.8,170.0 L254.3,173.8 L254.0,177.9 L254.6,182.3 L255.7,187.0 L256.6,191.8 L256.6,196.5 L255.4,200.8 L252.8,204.4 L249.2,207.2 L244.8,209.6 L240.5,211.7 L236.6,213.9 L233.7,216.7 L231.6,220.2 L230.3,224.5 L229.2,229.2 L227.9,233.9 L225.9,238.2 L222.9,241.5 L219.1,243.6 L214.5,244.6 L209.6,244.8 L204.8,244.8 L200.3,245.2 L196.4,246.4 L193.1,248.7 L190.0,251.9 L187.0,255.7 L183.7,259.4 L180.1,262.4 L176.0,264.1 L171.6,264.3 L167.1,263.2 L162.5,261.3 L158.2,259.2 L154.0,257.6 L150.0,257.0 L146.0,257.6 L141.8,259.2 L137.5,261.3 L132.9,263.2 L128.4,264.1 L124.0,264.1 L119.9,262.4 L116.3,259.4 L113.0,255.7 L110.0,251.9 L106.9,248.7 L103.6,246.4 L99.7,245.2 L95.3,244.8 L90.4,244.8 L85.5,244.6 L80.9,243.6 L77.1,241.5 L74.1,238.2 L72.1,233.9 L70.8,229.2 L69.7,224.5 L68.4,220.2 L66.3,216.7 L63.4,213.9 L59.5,211.7 L55.2,209.6 L50.8,207.2 L47.2,204.4 L44.6,200.8 L43.4,196.5 L43.4,191.8 L44.3,187.0 L45.4,182.3 L46.0,177.9 L45.7,173.8 L44.2,170.0 L41.7,166.3 L38.7,162.5 L35.8,158.6 L33.8,154.3 L33.0,150.0 L33.8,145.7 L35.8,141.4 L38.7,137.5 L41.7,133.7 L44.2,130.0 L45.7,126.2 L46.0,122.1 L45.4,117.7 L44.3,113.0 L43.4,108.2 L43.4,103.5 L44.6,99.2 L47.2,95.6 L50.8,92.8 L55.2,90.4 L59.5,88.3 L63.4,86.1 L66.3,83.3 L68.4,79.8 L69.7,75.5 L70.8,70.8 L72.1,66.1 L74.1,61.8 L77.1,58.5 L80.9,56.4 L85.5,55.4 L90.4,55.2 L95.2,55.2 L99.7,54.8 L103.6,53.6 L106.9,51.3 L110.0,48.1 L113.0,44.3 L116.3,40.6 L119.9,37.6 L124.0,35.9 L128.4,35.7 L132.9,36.8 L137.5,38.7 L141.8,40.8 L146.0,42.4 L150.0,43.0 L154.0,42.4 L158.2,40.8 L162.5,38.7 L167.1,36.8 L171.6,35.7 L176.0,35.9 L180.1,37.6 L183.7,40.6 L187.0,44.3 L190.0,48.1 L193.1,51.3 L196.4,53.6 L200.3,54.8 L204.8,55.2 L209.6,55.2 L214.5,55.4 L219.1,56.4 L222.9,58.5 L225.9,61.8 L227.9,66.1 L229.2,70.8 L230.3,75.5 L231.6,79.8 L233.7,83.3 L236.6,86.1 L240.5,88.3 L244.8,90.4 L249.2,92.7 L252.8,95.6 L255.4,99.2 L256.6,103.5 L256.6,108.2 L255.7,113.0 L254.6,117.7 L254.0,122.1 L254.3,126.2 L255.8,130.0 L258.3,133.7 L261.3,137.5 L264.2,141.4 L266.2,145.7 Z"/>
+          <!-- 饼边环纹（花边与饼面之间的转折） -->
+          <circle cx="150" cy="150" r="98" fill="none" stroke="rgba(122,66,20,0.18)" stroke-width="16"/>
+          <!-- 边花：八瓣压纹 -->
+          <g stroke="rgba(90,45,15,0.5)" stroke-width="1.5" fill="rgba(255,235,190,0.12)">
+            <use href="#petal"/>
+            <use href="#petal" transform="rotate(45 150 150)"/>
+            <use href="#petal" transform="rotate(90 150 150)"/>
+            <use href="#petal" transform="rotate(135 150 150)"/>
+            <use href="#petal" transform="rotate(180 150 150)"/>
+            <use href="#petal" transform="rotate(225 150 150)"/>
+            <use href="#petal" transform="rotate(270 150 150)"/>
+            <use href="#petal" transform="rotate(315 150 150)"/>
+          </g>
+          <!-- 下陷饼面 -->
+          <circle cx="150" cy="150" r="92" fill="url(#faceGrad)" stroke="rgba(90,45,15,0.35)" stroke-width="1"/>
+          <!-- 盖章 -->
+          <use href="#sealCore"/>
+          <!-- 饼身顶部光泽 -->
+          <ellipse cx="118" cy="92" rx="52" ry="26" fill="#ffffff" opacity="0.08"/>
+        </svg>
+      </div>
+
+      <!-- ═══════════ 方案 B：纯印文 ═══════════ -->
+      <div class="seal-card">
+        <h3>方案 B · 纯印文</h3>
+        <p class="note">月饼按在纸上的印痕，可做透明水印或落款小章</p>
+        <svg class="seal-svg stamp-in" viewBox="0 0 300 300" role="img" aria-label="蓝星摸鱼办印章印文">
+          <use href="#sealCore" transform="translate(150,150) scale(1.12) translate(-150,-150)"/>
+        </svg>
+      </div>
+
+    </div>
+  </div>
+</section>
+</body>
+</html>
