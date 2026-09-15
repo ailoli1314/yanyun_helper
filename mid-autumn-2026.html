@@ -96,6 +96,14 @@
         .welfare-wish { margin-top: 26px; font-size: 1.05rem; line-height: 2.1; }
         .welfare-wish strong { color: #ffeaa7; }
 
+        /* 附言：给一起摸过鱼的人 */
+        .welfare-heartfelt { margin: 30px auto 0; max-width: 560px; padding-top: 24px;
+                             border-top: 1px dashed rgba(255,118,117,0.35);
+                             color: #e8c9a0; font-size: 0.95rem; line-height: 2.15; text-align: left; }
+        .welfare-heartfelt .hf-label { color: var(--text-muted); font-size: 0.85rem;
+                                       letter-spacing: 3px; margin-bottom: 10px; text-align: center; }
+        .welfare-heartfelt .hf-final { color: #ffeaa7; font-weight: 600; }
+
         /* 三千万拨款凭证 */
         .welfare-grant { margin: 28px auto 0; max-width: 480px; padding: 18px 22px 16px;
                          border: 1px solid rgba(255,234,167,0.35); border-radius: 12px;
@@ -117,7 +125,7 @@
                         border-radius: 10px; border: 1px dashed rgba(255,234,167,0.4);
                         background: rgba(255,234,167,0.07); color: var(--text); }
 
-        /* 调试坞：仅本地预览（file:// / localhost / ?debug）出现，线上访客不可见 */
+        /* 调试坞：仅本地预览（file:// / localhost）或线上 ?debug 出现，正式访客不可见 */
         .debug-dock { display: none; position: fixed; right: 14px; bottom: 14px; z-index: 1200; }
         .debug-toggle { width: 38px; height: 38px; border-radius: 50%; cursor: pointer;
                         border: 1px solid rgba(255,255,255,0.2); background: rgba(45,52,64,0.85);
@@ -315,6 +323,13 @@
                     </div>
 
                     <div class="peek-verdict" id="peekVerdict" style="display:none"></div>
+
+                    <div class="welfare-heartfelt">
+                        <div class="hf-label">── 附 言 ──</div>
+                        <p>人来人往，聚散有时——天下的关系，原是这样。</p>
+                        <p>只是一起度过的日子不散：它们搬进回忆，长住不走。</p>
+                        <p><span class="hf-final">愿大家一直快乐，一直幸福。江湖路远，有幸相识，各自反省。</span></p>
+                    </div>
                 </div>
 
                 <div class="doc-sign">
@@ -474,7 +489,7 @@
             tickCountdown();
             cdTimer = setInterval(tickCountdown, 1000);
 
-            /* ══ 内部调试通道：仅本地预览环境挂载 ══ */
+            /* ══ 内部调试通道：仅本地预览环境挂载，线上需 ?debug ══ */
             if (location.protocol === 'file:' || location.hostname === 'localhost' ||
                 location.hostname === '127.0.0.1' || /[?&]debug\b/.test(location.search)) {
                 var dock = document.getElementById('dbgDock');
