@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>租房调研 · 深圳宝安双通勤优选 - 游戏秘籍</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:;base64,=">
+    <style>
+        .rent-section { padding: 40px 0 60px; }
+        .rent-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .rent-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); padding: 25px; }
+        .rent-card h3 { font-size: 1.15rem; color: var(--primary-light); margin-bottom: 10px; }
+        .rent-card p, .rent-card li { color: var(--text-muted); font-size: 0.95rem; }
+        .rent-card ul { list-style: none; }
+        .rent-card li { position: relative; padding-left: 22px; margin-bottom: 8px; }
+        .rent-card li::before { content: '•'; position: absolute; left: 6px; color: var(--secondary); }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 18px; }
+        .toolbar button { border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.08); color: var(--text-muted); border-radius: 10px; padding: 8px 18px; font-size: 0.9rem; cursor: pointer; transition: all 0.25s; }
+        .toolbar button:hover, .toolbar button.active { color: white; background: var(--gradient-2); border-color: var(--primary-light); box-shadow: 0 4px 15px rgba(108,92,231,0.3); }
+        .toolbar .hint { color: var(--text-muted); font-size: 0.85rem; margin-left: auto; }
+        .tablewrap { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); overflow: auto; }
+        table { border-collapse: collapse; width: 100%; font-size: 0.9rem; min-width: 1080px; }
+        th { position: sticky; top: 0; background: rgba(30,30,46,0.98); cursor: pointer; white-space: nowrap; padding: 12px 10px; text-align: left; border-bottom: 2px solid rgba(108,92,231,0.4); color: var(--primary-light); font-weight: 600; user-select: none; z-index: 2; }
+        th:hover { background: rgba(108,92,231,0.25); }
+        td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.07); vertical-align: top; }
+        tr:hover td { background: rgba(108,92,231,0.08); }
+        tr.top td { background: rgba(0,206,201,0.07); }
+        .rank { font-size: 1.05rem; text-align: center; width: 36px; }
+        .comm a { color: var(--primary-light); text-decoration: none; font-weight: 600; font-size: 0.98rem; }
+        .comm a:hover { text-decoration: underline; color: var(--secondary); }
+        .tags { margin-top: 3px; }
+        .tag { font-size: 0.72rem; color: var(--secondary); background: rgba(0,206,201,0.12); border-radius: 4px; padding: 1px 7px; margin-right: 4px; white-space: nowrap; display: inline-block; }
+        .price { font-weight: 700; color: #55efc4; font-size: 1rem; white-space: nowrap; }
+        .price.over { color: #ffeaa7; }
+        .price small, td small { font-weight: 400; color: var(--text-muted); margin-left: 2px; }
+        .score { font-weight: 700; color: var(--secondary); }
+        .btn-link { display: inline-block; background: var(--gradient-2); color: white; text-decoration: none; font-size: 0.8rem; padding: 5px 12px; border-radius: 8px; white-space: nowrap; box-shadow: 0 3px 10px rgba(108,92,231,0.35); }
+        .btn-link:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(108,92,231,0.5); }
+        .miss { color: #ff7675; font-size: 0.78rem; }
+        .notes { margin-top: 35px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); padding: 25px 30px; }
+        .notes h3 { font-size: 1.1rem; color: var(--primary-light); margin-bottom: 10px; }
+        .notes li { position: relative; padding-left: 24px; margin: 7px 0; color: var(--text-muted); font-size: 0.9rem; }
+        .notes li::before { content: '📌'; position: absolute; left: 0; font-size: 0.85rem; }
+        .notes a { color: var(--secondary); }
+        .rent-footer { text-align: center; color: var(--text-muted); font-size: 0.82rem; margin: 25px 0 10px; }
+        @media (max-width: 720px) { .toolbar .hint { display: none; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">☁️</span>
+                <span class="logo-text">游戏秘籍</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="intro.html">脚本介绍</a></li>
+                <li><a href="notice.html">公告</a></li>
+            </ul>
+            <a href="#" class="nav-download">立即下载</a>
+        </div>
+    </nav>
+
+    <section class="page-header">
+        <h1>🏠 租房调研 · 双通勤优选</h1>
+        <p>南山百度国际大厦 ↔ 宝安海纳百川大厦 · 两室整租 · 2026-09-16</p>
+    </section>
+
+    <section class="rent-section">
+        <div class="container">
+            <div class="rent-cards">
+                <div class="rent-card">
+                    <h3>📍 双通勤目标</h3>
+                    <ul>
+                        <li><b>A</b> 百度国际大厦（南山·后海站，2/11/13号线）</li>
+                        <li><b>B</b> 海纳百川总部大厦B座（宝安·宝兴路6号）</li>
+                        <li>两地直线约 6.9km，隔前海湾填海区</li>
+                    </ul>
+                </div>
+                <div class="rent-card">
+                    <h3>🚇 通勤模型（到A）</h3>
+                    <p>11号线走廊（西乡/宝体）：直达后海约 23–31 分钟。<br>
+                    12号线走廊（新安公园/灵芝/上川）：3 站到南山换 11 号线，约 21–29 分钟。<br>
+                    <small>含步行到站+候车+换乘+出站的门到门估算。</small></p>
+                </div>
+                <div class="rent-card">
+                    <h3>💡 结论</h3>
+                    <p>预算 4000 上下，宝安中心 CBD 无两居整租（普遍 5200+），供给集中在新安—翻身（12/5号线）与西乡（11号线坪洲/西乡站）。到 B 骑行 10–15 分钟，到 A 地铁半小时上下，两边均衡。</p>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="filters" id="filters"><button class="active" onclick="filterArea(this,'')">全部 18</button> <button onclick="filterArea(this,'新安')">新安 7</button> <button onclick="filterArea(this,'西乡')">西乡 4</button> <button onclick="filterArea(this,'翻身')">翻身 4</button> <button onclick="filterArea(this,'碧海')">碧海 3</button></div>
+                <span class="hint">💡 点击表头排序 · 点小区名或「详情」打开贝壳房源页</span>
+            </div>
+
+            <div class="tablewrap">
+            <table id="tbl">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>小区（→贝壳详情页）</th>
+                        <th>片区</th>
+                        <th data-k="price">月租 ↕</th>
+                        <th data-k="size">面积 ↕</th>
+                        <th>户型</th>
+                        <th>朝向/楼层</th>
+                        <th>电梯</th>
+                        <th>最近地铁站</th>
+                        <th data-k="ta">→ 百度国际 ↕</th>
+                        <th data-k="tb">→ 海纳百川 ↕</th>
+                        <th data-k="score">评分 ↕</th>
+                        <th>房源链接</th>
+                    </tr>
+                </thead>
+                <tbody>
+<tr class="top" data-area="新安" data-price="3700" data-size="50.3" data-ta="22" data-tb="15" data-score="14.4"><td class="rank">🥇</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2194767949846282240.html" target="_blank">宝民花园(新安)</a><div class="tags"><span class="tag">近地铁</span> <span class="tag">随时看房</span></div></td><td>新安</td><td class="price">3700<small>元/月</small></td><td>50.30㎡</td><td>2室1厅</td><td>东南 中楼层/8层</td><td>❌ 无</td><td>灵芝站 382m</td><td>🚇 22 分钟</td><td>🚲 15 分钟 <small>(2.83km)</small></td><td class="score">14.4</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2194767949846282240.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="top" data-area="西乡" data-price="4000" data-size="74.08" data-ta="24" data-tb="10" data-score="14.4"><td class="rank">🥈</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2191570145158103040.html" target="_blank">福中福花园一期</a><div class="tags"><span class="tag">业主自荐</span> <span class="tag">近地铁</span> <span class="tag">精装</span> <span class="tag">随时看房</span></div></td><td>西乡</td><td class="price">4000<small>元/月</small></td><td>74.08㎡</td><td>2室1厅</td><td>东南 高楼层/8层</td><td>❌ 无</td><td>坪洲站 536m</td><td>🚇 24 分钟</td><td>🚲 10 分钟 <small>(1.9km)</small></td><td class="score">14.4</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2191570145158103040.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="top" data-area="新安" data-price="4000" data-size="64.3" data-ta="21" data-tb="15" data-score="13.6"><td class="rank">🥉</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2186144300914442240.html" target="_blank">灵芝新村</a><div class="tags"><span class="tag">近地铁</span> <span class="tag">随时看房</span></div></td><td>新安</td><td class="price">4000<small>元/月</small></td><td>64.30㎡</td><td>2室1厅</td><td>南 高楼层/6层</td><td>❌ 无</td><td>新安公园站 125m</td><td>🚇 21 分钟</td><td>🚲 15 分钟 <small>(3.2km)</small></td><td class="score">13.6</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2186144300914442240.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="西乡" data-price="3500" data-size="61.0" data-ta="23" data-tb="21" data-score="12.4"><td class="rank">4</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2206095440644931584.html" target="_blank">海乐花园</a><div class="tags"><span class="tag">近地铁</span> <span class="tag">精装</span></div></td><td>西乡</td><td class="price">3500<small>元/月</small></td><td>61.00㎡</td><td>2室1厅</td><td>东南 高楼层/4层</td><td>❌ 无</td><td>西乡站 319m</td><td>🚇 23 分钟</td><td>🚲 21 分钟 <small>(3.92km)</small></td><td class="score">12.4</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2206095440644931584.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="翻身" data-price="4200" data-size="78.0" data-ta="26" data-tb="11" data-score="12.4"><td class="rank">5</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2192126444656656384.html" target="_blank">群贤花园</a><div class="tags"><span class="tag">近地铁</span> <span class="tag">精装</span></div></td><td>翻身</td><td class="price over">4200<small>元/月</small></td><td>78.00㎡</td><td>2室2厅</td><td>东南 中楼层/8层</td><td>✅ 有</td><td>宝体站 904m</td><td>🚇 26 分钟</td><td>🚲 11 分钟 <small>(2.03km)</small></td><td class="score">12.4</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2192126444656656384.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="翻身" data-price="3800" data-size="82.0" data-ta="29" data-tb="12" data-score="12.4"><td class="rank">6</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2207043640012832768.html" target="_blank">富怡花园</a><div class="tags"><span class="tag">近地铁</span></div></td><td>翻身</td><td class="price">3800<small>元/月</small></td><td>82.00㎡</td><td>2室1厅</td><td>东北 中楼层/8层</td><td>❌ 无</td><td>翻身站 748m</td><td>🚇 29 分钟</td><td>🚲 12 分钟 <small>(2.21km)</small></td><td class="score">12.4</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2207043640012832768.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="翻身" data-price="3900" data-size="66.0" data-ta="30" data-tb="11" data-score="12.0"><td class="rank">7</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2196657490651774976.html" target="_blank">金鼎花园</a><div class="tags"><span class="tag">近地铁</span> <span class="tag">精装</span> <span class="tag">随时看房</span></div></td><td>翻身</td><td class="price">3900<small>元/月</small></td><td>66.00㎡</td><td>2室2厅</td><td>东南 中楼层/8层</td><td>❌ 无</td><td>翻身站 785m</td><td>🚇 30 分钟</td><td>🚲 11 分钟 <small>(2.1km)</small></td><td class="score">12.0</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2196657490651774976.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="新安" data-price="4000" data-size="54.0" data-ta="24" data-tb="18" data-score="11.2"><td class="rank">8</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2205195148025921536.html" target="_blank">雅仕阁</a><div class="tags"><span class="tag">近地铁</span> <span class="tag">精装</span> <span class="tag">随时看房</span></div></td><td>新安</td><td class="price">4000<small>元/月</small></td><td>54.00㎡</td><td>2室1厅</td><td>东南 中楼层/8层</td><td>✅ 有</td><td>上川站 272m</td><td>🚇 24 分钟</td><td>🚲 18 分钟 <small>(3.38km)</small></td><td class="score">11.2</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2205195148025921536.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="翻身" data-price="4000" data-size="61.92" data-ta="31" data-tb="11" data-score="11.2"><td class="rank">9</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2201693705373483008.html" target="_blank">宝华花园</a><div class="tags"><span class="tag">近地铁</span> <span class="tag">随时看房</span></div></td><td>翻身</td><td class="price">4000<small>元/月</small></td><td>61.92㎡</td><td>2室2厅</td><td>西南 高楼层/7层</td><td>❌ 无</td><td>翻身站 849m</td><td>🚇 31 分钟</td><td>🚲 11 分钟 <small>(2.03km)</small></td><td class="score">11.2</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2201693705373483008.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="新安" data-price="4300" data-size="42.17" data-ta="29" data-tb="15" data-score="9.2"><td class="rank">10</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2203938801066180608.html" target="_blank">黄金大厦</a><div class="tags"><span class="tag">近地铁</span> <span class="tag">随时看房</span></div></td><td>新安</td><td class="price over">4300<small>元/月</small></td><td>42.17㎡</td><td>2室1厅</td><td>西南 低楼层/31层</td><td>✅ 有</td><td>上川站 660m</td><td>🚇 29 分钟</td><td>🚲 15 分钟 <small>(3.0km)</small></td><td class="score">9.2</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2203938801066180608.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="碧海" data-price="4400" data-size="53.08" data-ta="26" data-tb="18" data-score="8.8"><td class="rank">11</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2056050733278560256.html" target="_blank">碧海富通城三期</a><div class="tags"><span class="tag">自营</span> <span class="tag">精装</span> <span class="tag">押一付一</span> <span class="tag">随时看房</span></div></td><td>碧海</td><td class="price over">4400<small>元/月</small></td><td>53.08㎡</td><td>2室1厅</td><td>南 低楼层/25层</td><td>✅ 有</td><td>碧海湾站 930m</td><td>🚇 26 分钟</td><td>🚲 18 分钟 <small>(3.41km)</small></td><td class="score">8.8</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2056050733278560256.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="新安" data-price="4200" data-size="69.0" data-ta="28" data-tb="18" data-score="8.8"><td class="rank">12</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2194074174106894336.html" target="_blank">风尚时代</a><div class="tags"><span class="tag">近地铁</span> <span class="tag">精装</span> <span class="tag">随时看房</span></div></td><td>新安</td><td class="price over">4200<small>元/月</small></td><td>69.00㎡</td><td>2室2厅</td><td>西南 中楼层/7层</td><td>❌ 无</td><td>上川站 534m</td><td>🚇 28 分钟</td><td>🚲 18 分钟 <small>(3.33km)</small></td><td class="score">8.8</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2194074174106894336.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="新安" data-price="4300" data-size="41.8" data-ta="28" data-tb="18" data-score="8.4"><td class="rank">13</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2177638910069309440.html" target="_blank">西城品阁</a><div class="tags"><span class="tag">近地铁</span> <span class="tag">精装</span> <span class="tag">随时看房</span></div></td><td>新安</td><td class="price over">4300<small>元/月</small></td><td>41.80㎡</td><td>2室2厅</td><td>南 低楼层/8层</td><td>✅ 有</td><td>上川站 543m</td><td>🚇 28 分钟</td><td>🚲 18 分钟 <small>(3.39km)</small></td><td class="score">8.4</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2177638910069309440.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="新安" data-price="4500" data-size="43.2" data-ta="33" data-tb="14" data-score="7.2"><td class="rank">14</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2166104348654829568.html" target="_blank">白金时代</a><div class="tags"><span class="tag">近地铁</span> <span class="tag">精装</span></div></td><td>新安</td><td class="price over">4500<small>元/月</small></td><td>43.20㎡</td><td>2室2厅</td><td>东南 高楼层/15层</td><td>✅ 有</td><td>翻身站 1065m</td><td>🚇 33 分钟</td><td>🚲 14 分钟 <small>(2.54km)</small></td><td class="score">7.2</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2166104348654829568.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="碧海" data-price="4500" data-size="45.0" data-ta="25" data-tb="23" data-score="6.8"><td class="rank">15</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2206806993291706368.html" target="_blank">玉湖湾</a><div class="tags"><span class="tag">自营</span> <span class="tag">精装</span> <span class="tag">押一付一</span> <span class="tag">随时看房</span> <span class="tag">首次出租</span></div></td><td>碧海</td><td class="price over">4500<small>元/月</small></td><td>45.00㎡</td><td>2室1厅</td><td>东南 高楼层/10层</td><td>✅ 有</td><td>碧海湾站 853m</td><td>🚇 25 分钟</td><td>🚲 23 分钟 <small>(4.27km)</small></td><td class="score">6.8</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2206806993291706368.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="西乡" data-price="4100" data-size="56.0" data-ta="37" data-tb="21" data-score="4.4"><td class="rank">16</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2201219504665526272.html" target="_blank">宝田雅苑</a><div class="tags"><span class="tag">精装</span> <span class="tag">随时看房</span></div></td><td>西乡</td><td class="price over">4100<small>元/月</small></td><td>56.00㎡</td><td>2室1厅</td><td>南 高楼层/17层</td><td>✅ 有</td><td>碧海湾站 1850m</td><td>🚇 37 分钟</td><td>🚲 21 分钟 <small>(3.85km)</small></td><td class="score">4.4</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2201219504665526272.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="碧海" data-price="4500" data-size="60.0" data-ta="44" data-tb="11" data-score="4.0"><td class="rank">17</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ2209337433139445760.html" target="_blank">前海铂寓</a><div class="tags"><span class="tag">新上</span> <span class="tag">精装</span></div></td><td>碧海</td><td class="price over">4500<small>元/月</small></td><td>60.00㎡</td><td>2室2厅</td><td>南 中楼层/15层</td><td>✅ 有</td><td>碧海湾站 2438m</td><td>🚇 44 分钟</td><td>🚲 11 分钟 <small>(2.07km)</small></td><td class="score">4.0</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ2209337433139445760.html" target="_blank">详情 ↗</a></td></tr>
+<tr class="" data-area="西乡" data-price="4000" data-size="48.37" data-ta="49" data-tb="20" data-score="0.4"><td class="rank">18</td><td class="comm"><a href="https://sz.zu.ke.com/zufang/SZ1919288228850958336.html" target="_blank">鸿隆广场</a><div class="tags"><span class="tag">自营</span> <span class="tag">精装</span> <span class="tag">押一付一</span> <span class="tag">随时看房</span></div></td><td>西乡</td><td class="price">4000<small>元/月</small></td><td>48.37㎡</td><td>2室1厅</td><td><span class="miss">数据缺失</span></td><td>—</td><td>固戍站 2024m</td><td>🚇 49 分钟</td><td>🚲 20 分钟 <small>(3.71km)</small></td><td class="score">0.4</td><td><a class="btn-link" href="https://sz.zu.ke.com/zufang/SZ1919288228850958336.html" target="_blank">详情 ↗</a></td></tr>
+                </tbody>
+            </table>
+            </div>
+
+            <div class="notes">
+                <h3>📌 数据质量与说明</h3>
+                <ul>
+                    <li>共扫 86 套去重在租房源（宝安两居整租 3500–4500，全量 201 套），精选 18 套并逐一开详情页核对"地址和交通"模块的地铁站精确距离。</li>
+                    <li>黄金大厦 OSM 坐标误匹配（偏到福田 20.5km）已作废，采用贝壳页数据（上川站 660m）；灵芝新村：新安公园站 125m。</li>
+                    <li>鸿隆广场详情页模块缺失，楼层/电梯空缺；其距固戍站约 2km，通勤偏弱，仅作参考。</li>
+                    <li>通勤时间为估算模型（步行+候车+换乘+出站），看房时用高德/百度地图实测核验。</li>
+                    <li>贝壳详情页需登录后查看；房源有时效性，以下架页面实际状态为准。</li>
+                    <li>汇总列表页：宝安两居整租 3500–4500 <a href="https://sz.zu.ke.com/zufang/baoanqu/rt200600000001l1rp4/" target="_blank">sz.zu.ke.com/zufang/baoanqu</a></li>
+                </ul>
+            </div>
+
+            <p class="rent-footer">生成于 2026-09-16 · 彗星整理 · 数据源：sz.zu.ke.com（登录态抓取）</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <span>☁️</span>
+                    <span>游戏秘籍</span>
+                </div>
+                <p class="footer-desc">游戏自动化辅助工具</p>
+                <div class="footer-links">
+                    <a href="index.html">首页</a>
+                    <a href="intro.html">脚本介绍</a>
+                    <a href="notice.html">公告</a>
+                </div>
+                <p class="footer-copyright">© 2026 游戏秘籍</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        var sortState = {};
+        function val(tr, k) { return parseFloat(tr.dataset[k]) || 0; }
+        function sort(th) {
+            var k = th.dataset.k; if (!k) return;
+            var tbody = document.querySelector('#tbl tbody');
+            var trs = Array.prototype.slice.call(tbody.rows);
+            var cur = sortState[k] = -(sortState[k] || -1);
+            trs.sort(function (a, b) { return cur * (val(a, k) - val(b, k)); });
+            trs.forEach(function (tr) { tbody.appendChild(tr); });
+        }
+        Array.prototype.forEach.call(document.querySelectorAll('#tbl th[data-k]'), function (th) {
+            th.addEventListener('click', function () { sort(th); });
+        });
+        function filterArea(btn, area) {
+            Array.prototype.forEach.call(document.querySelectorAll('#filters button'), function (b) {
+                b.classList.remove('active');
+            });
+            btn.classList.add('active');
+            Array.prototype.forEach.call(document.querySelectorAll('#tbl tbody tr'), function (tr) {
+                tr.style.display = (!area || tr.dataset.area === area) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
